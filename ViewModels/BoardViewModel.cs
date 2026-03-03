@@ -73,8 +73,8 @@ public class BoardViewModel : ObservableObject
 
     public const int Size = 10;
     public const double CellSize = 36;
-    public const double BoardAxisRailSize = 20;
-    public const double BoardRailSpacing = 4;
+    public const double BoardAxisRailSize = 24;
+    public const double BoardRailSpacing = 6;
     public const double MissPegSize = 16;
 
     private static readonly ShipTemplate[] FleetTemplates =
@@ -798,7 +798,7 @@ public class BoardViewModel : ObservableObject
     private static int ScalePause(int milliseconds)
     {
         double scaled = milliseconds * AnimationRuntimeSettings.SpeedMultiplier;
-        return (int)Math.Clamp(scaled, 40, 1600);
+        return (int)Math.Clamp(scaled, 2000, 7000);
     }
 
     private static bool CanUseMainThreadPacing()
@@ -841,7 +841,8 @@ public class BoardViewModel : ObservableObject
         if (!ShouldUseCinematicTurnPacing)
             return;
 
-        await Task.Delay(ScalePause(milliseconds));
+        int floor = Math.Max(milliseconds, 2000);
+        await Task.Delay(ScalePause(floor));
     }
 
     private void ClearTurnTransition()

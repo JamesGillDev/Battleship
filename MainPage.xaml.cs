@@ -6,6 +6,12 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using WinUIThickness = Microsoft.UI.Xaml.Thickness;
+using WinUIStyle = Microsoft.UI.Xaml.Style;
+using WinUISetter = Microsoft.UI.Xaml.Setter;
+using WinUIHorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment;
+using WinUIVerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment;
 using WinUIScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility;
 using WinUIScrollMode = Microsoft.UI.Xaml.Controls.ScrollMode;
 using WinUIZoomMode = Microsoft.UI.Xaml.Controls.ZoomMode;
@@ -183,6 +189,19 @@ public partial class MainPage : ContentPage
             listView.CanDragItems = false;
             listView.CanReorderItems = false;
             listView.ManipulationMode = ManipulationModes.None;
+            listView.Margin = new WinUIThickness(0);
+
+            // Remove WinUI container spacing so A-J / 1-10 rails line up exactly with cells.
+            if (listView.ItemContainerStyle is null)
+            {
+                var itemStyle = new WinUIStyle(typeof(SelectorItem));
+                itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MarginProperty, new WinUIThickness(0)));
+                itemStyle.Setters.Add(new WinUISetter(Control.PaddingProperty, new WinUIThickness(0)));
+                itemStyle.Setters.Add(new WinUISetter(Control.HorizontalContentAlignmentProperty, WinUIHorizontalAlignment.Stretch));
+                itemStyle.Setters.Add(new WinUISetter(Control.VerticalContentAlignmentProperty, WinUIVerticalAlignment.Stretch));
+                listView.ItemContainerStyle = itemStyle;
+            }
+
             return;
         }
 

@@ -224,23 +224,23 @@
                             Padding="3"
                             HorizontalOptions="Center"
                             WidthRequest="{Binding BoardFramePixelSize}">
-                        <Grid RowDefinitions="20,*"
-                              ColumnDefinitions="20,*"
-                              RowSpacing="4"
-                              ColumnSpacing="4">
+                        <Grid RowDefinitions="24,*"
+                              ColumnDefinitions="24,*"
+                              RowSpacing="6"
+                              ColumnSpacing="6">
                             <HorizontalStackLayout Grid.Row="0"
                                                    Grid.Column="1"
                                                    BindableLayout.ItemsSource="{Binding ColumnLabels}"
                                                    Spacing="0"
                                                    InputTransparent="True"
                                                    HorizontalOptions="Start"
-                                                   HeightRequest="20"
+                                                   HeightRequest="24"
                                                    WidthRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
                                                WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                               HeightRequest="20"
+                                               HeightRequest="24"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
                                                TextColor="{DynamicResource GameColorTextMuted}"
@@ -255,12 +255,12 @@
                                                  BindableLayout.ItemsSource="{Binding RowLabels}"
                                                  Spacing="0"
                                                  InputTransparent="True"
-                                                 WidthRequest="20"
+                                                 WidthRequest="24"
                                                  HeightRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
-                                               WidthRequest="20"
+                                               WidthRequest="24"
                                                HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
@@ -417,23 +417,23 @@
                             Padding="3"
                             HorizontalOptions="Center"
                             WidthRequest="{Binding BoardFramePixelSize}">
-                        <Grid RowDefinitions="20,*"
-                              ColumnDefinitions="20,*"
-                              RowSpacing="4"
-                              ColumnSpacing="4">
+                        <Grid RowDefinitions="24,*"
+                              ColumnDefinitions="24,*"
+                              RowSpacing="6"
+                              ColumnSpacing="6">
                             <HorizontalStackLayout Grid.Row="0"
                                                    Grid.Column="1"
                                                    BindableLayout.ItemsSource="{Binding ColumnLabels}"
                                                    Spacing="0"
                                                    InputTransparent="True"
                                                    HorizontalOptions="Start"
-                                                   HeightRequest="20"
+                                                   HeightRequest="24"
                                                    WidthRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
                                                WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                               HeightRequest="20"
+                                               HeightRequest="24"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
                                                TextColor="{DynamicResource GameColorTextMuted}"
@@ -448,12 +448,12 @@
                                                  BindableLayout.ItemsSource="{Binding RowLabels}"
                                                  Spacing="0"
                                                  InputTransparent="True"
-                                                 WidthRequest="20"
+                                                 WidthRequest="24"
                                                  HeightRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
-                                               WidthRequest="20"
+                                               WidthRequest="24"
                                                HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
@@ -690,19 +690,25 @@
                             </Grid>
                         </Border>
 
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="18" RowSpacing="8">
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6">
-                                <Switch IsToggled="{Binding HighContrastMode}" />
-                                <Label Text="High contrast" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                            </HorizontalStackLayout>
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="6">
-                                <Switch IsToggled="{Binding LargeTextMode}" />
-                                <Label Text="Large text" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                            </HorizontalStackLayout>
-                            <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="Center" Spacing="6">
-                                <Switch IsToggled="{Binding ReduceMotionMode}" />
-                                <Label Text="Reduce motion" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                            </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="24" RowSpacing="10">
+                            <Switch Grid.Row="0" Grid.Column="0" IsToggled="{Binding HighContrastMode}" />
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="High contrast"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   VerticalTextAlignment="Center" />
+
+                            <Switch Grid.Row="0" Grid.Column="2" IsToggled="{Binding LargeTextMode}" />
+                            <Label Grid.Row="0" Grid.Column="3"
+                                   Text="Large text"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   VerticalTextAlignment="Center" />
+
+                            <Switch Grid.Row="1" Grid.Column="0" IsToggled="{Binding ReduceMotionMode}" />
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Grid.ColumnSpan="3"
+                                   Text="Reduce motion"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   VerticalTextAlignment="Center" />
                         </Grid>
                     </VerticalStackLayout>
                     </ScrollView>
