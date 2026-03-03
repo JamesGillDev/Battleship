@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using WinUIThickness = Microsoft.UI.Xaml.Thickness;
 using WinUIStyle = Microsoft.UI.Xaml.Style;
 using WinUISetter = Microsoft.UI.Xaml.Setter;
@@ -251,13 +252,11 @@ public partial class MainPage : ContentPage
         listView.Padding = new WinUIThickness(0);
 
         // Remove WinUI container spacing so A-J / 1-10 rails line up exactly with cells.
-        var itemStyle = new WinUIStyle(typeof(ListViewItem));
+        var itemStyle = new WinUIStyle(typeof(SelectorItem));
         itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MarginProperty, new WinUIThickness(0)));
         itemStyle.Setters.Add(new WinUISetter(Control.PaddingProperty, new WinUIThickness(0)));
         itemStyle.Setters.Add(new WinUISetter(Control.HorizontalContentAlignmentProperty, WinUIHorizontalAlignment.Stretch));
         itemStyle.Setters.Add(new WinUISetter(Control.VerticalContentAlignmentProperty, WinUIVerticalAlignment.Stretch));
-        itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MinHeightProperty, 0d));
-        itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MinWidthProperty, 0d));
         listView.ItemContainerStyle = itemStyle;
     }
 
