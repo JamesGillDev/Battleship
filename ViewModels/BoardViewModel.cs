@@ -48,7 +48,7 @@ public class BoardViewModel : ObservableObject
     private string _analyticsStreaks = "Streaks: --";
     private string _analyticsBestSequence = "Best turn sequence: --";
 
-    private bool _isSettingsOpen = true;
+    private bool _isSettingsOpen;
     private bool _isOverlayVisible;
     private bool _showOverlayRecap;
     private bool _showOverlayAnalytics;
@@ -68,6 +68,7 @@ public class BoardViewModel : ObservableObject
     private bool _isTurnTransitionActive;
     private string _turnTransitionMessage = string.Empty;
     private bool _isResolvingEnemyTurn;
+    private bool _isResolvingPlayerShot;
     private int _gameSessionId;
 
     public const int Size = 10;
@@ -170,7 +171,7 @@ public class BoardViewModel : ObservableObject
         }
     }
 
-    public bool CanFire => !IsGameOver && !IsPlacementPhase && IsPlayerTurn;
+    public bool CanFire => !IsGameOver && !IsPlacementPhase && IsPlayerTurn && !_isResolvingEnemyTurn && !_isResolvingPlayerShot;
     public bool CanPlaceShips => !IsGameOver && IsPlacementPhase;
     public bool CanRotatePlacement => CanPlaceShips && _selectedPlacementShip is not null;
 
@@ -411,7 +412,7 @@ public class BoardViewModel : ObservableObject
         }
     }
 
-    public string SettingsToggleText => IsSettingsOpen ? "Hide Settings" : "Show Settings";
+    public string SettingsToggleText => IsSettingsOpen ? "Close Settings" : "Show Settings";
 
     public CpuDifficulty SelectedDifficulty
     {
@@ -724,7 +725,7 @@ public class BoardViewModel : ObservableObject
         _highContrastMode = settings.HighContrastMode;
         _largeTextMode = settings.LargeTextMode;
         _reduceMotionMode = settings.ReduceMotionMode;
-        _isSettingsOpen = settings.SettingsPanelOpen;
+        _isSettingsOpen = false;
         _hasSeenCommandBriefing = settings.HasSeenCommandBriefing;
     }
 
@@ -807,6 +808,24 @@ public class BoardViewModel : ObservableObject
     }
 
     private bool ShouldUseCinematicTurnPacing => !ReduceMotionMode && CanUseMainThreadPacing();
+
+    private void SetEnemyTurnResolutionState(bool isActive)
+    {
+        if (_isResolvingEnemyTurn == isActive)
+            return;
+
+        _isResolvingEnemyTurn = isActive;
+        OnPropertyChanged(nameof(CanFire));
+    }
+
+    private void SetPlayerShotResolutionState(bool isActive)
+    {
+        if (_isResolvingPlayerShot == isActive)
+            return;
+
+        _isResolvingPlayerShot = isActive;
+        OnPropertyChanged(nameof(CanFire));
+    }
 
     private async Task PauseForDramaAsync(int milliseconds, string transitionMessage)
     {
@@ -1099,7 +1118,8 @@ public class BoardViewModel : ObservableObject
         IsVerticalPlacement = false;
         IsPlayerTurn = false;
         ShowEnemyFleet = false;
-        _isResolvingEnemyTurn = false;
+        SetEnemyTurnResolutionState(false);
+        SetPlayerShotResolutionState(false);
         _gameSessionId++;
         ClearTurnTransition();
         SetBoardViewMode(BoardViewMode.Player);
@@ -1435,9 +1455,21 @@ public class BoardViewModel : ObservableObject
             return;
         }
 
-        if (!IsPlayerTurn || _isResolvingEnemyTurn)
+        if (!IsPlayerTurn || _isResolvingEnemyTurn || _isResolvingPlayerShot)
         {
-            StatusMessage = "Enemy turn in progress.";
+            StatusMessage = "Turn sequence in progress.";
+            return;
+        }
+
+        if (targetCell.MarkerState != ShotMarkerState.None)
+        {
+            StatusMessage = "You already fired at that cell.";
+            return;
+        }
+
+        if (ShouldUseCinematicTurnPacing)
+        {
+            _ = ResolvePlayerShotWithPacingAsync(targetCell, _gameSessionId);
             return;
         }
 
@@ -1498,30 +1530,211 @@ public class BoardViewModel : ObservableObject
         EnemyTakeTurn();
     }
 
-    private async Task ResolveEnemyTurnWithPacingAsync(int sessionId)
+    private async Task ResolvePlayerShotWithPacingAsync(BoardCellVm targetCell, int sessionId)
     {
-        if (_isResolvingEnemyTurn)
+        if (_enemyBoard is null || _playerBoard is null)
             return;
 
-        _isResolvingEnemyTurn = true;
+        SetPlayerShotResolutionState(true);
         try
         {
-            await PauseForDramaAsync(460, "Enemy plotting trajectory...");
+            string targetCoordinate = ToBoardCoordinate(targetCell.Row, targetCell.Col);
+            targetCell.SetTargetLocked(true);
+
+            await PauseForDramaAsync(320, $"Target lock {targetCoordinate}. Charging weapons...");
+            if (sessionId != _gameSessionId || IsGameOver || IsPlacementPhase || !IsPlayerTurn)
+                return;
+
+            var playerShot = _enemyBoard.Attack(targetCell.Row, targetCell.Col);
+            if (playerShot.Result == AttackResult.AlreadyTried)
+            {
+                StatusMessage = "You already fired at that cell.";
+                return;
+            }
+
+            RecordPlayerShot(playerShot);
+            ApplyShotResult(EnemyCells, playerShot);
+            EmitFeedback(playerShot.Result switch
+            {
+                AttackResult.Sunk => GameFeedbackCue.Sunk,
+                AttackResult.Hit => GameFeedbackCue.Hit,
+                _ => GameFeedbackCue.Miss
+            });
+
+            PlayerLastShotMessage = $"Your last shot: {targetCoordinate} - {playerShot.Message}";
+            OnPropertyChanged(nameof(ScoreLine));
+
+            if (playerShot.Result == AttackResult.Sunk &&
+                playerShot.SunkShipName is not null &&
+                _enemySpritesByName.TryGetValue(playerShot.SunkShipName, out var enemySprite))
+            {
+                enemySprite.MarkSunk();
+            }
+
+            await PauseForDramaAsync(playerShot.IsHit ? 560 : 420, BuildPlayerShotCallout(playerShot));
+            if (sessionId != _gameSessionId)
+                return;
+
+            if (_enemyBoard.AllShipsSunk)
+            {
+                IsGameOver = true;
+                IsPlayerTurn = false;
+                TurnMessage = "Victory";
+                StatusMessage = "All enemy ships sunk. You win.";
+                EnemyLastShotMessage = "Enemy last shot: --";
+                RecordGameOutcome(GameOutcome.Win);
+                EmitFeedback(GameFeedbackCue.Win);
+                RevealEnemyFleet();
+                ClearTurnTransition();
+                ApplyAutoBoardFocus();
+                ShowGameOverOverlay(GameOutcome.Win);
+                return;
+            }
+
+            IsPlayerTurn = false;
+            TurnMessage = "Enemy turn";
+            StatusMessage = "Enemy command is preparing a counterstrike.";
+            ApplyAutoBoardFocus();
+
+            await PauseForDramaAsync(460, "Enemy command plotting return fire...");
+            if (sessionId != _gameSessionId || IsGameOver)
+                return;
+
+            await ResolveEnemyTurnWithPacingAsync(sessionId);
+        }
+        finally
+        {
+            targetCell.SetTargetLocked(false);
+            SetPlayerShotResolutionState(false);
+        }
+    }
+
+    private async Task ResolveEnemyTurnWithPacingAsync(int sessionId)
+    {
+        if (_isResolvingEnemyTurn || _playerBoard is null)
+            return;
+
+        SetEnemyTurnResolutionState(true);
+        try
+        {
+            await PauseForDramaAsync(520, "Enemy plotting trajectory...");
 
             if (sessionId != _gameSessionId || IsGameOver)
                 return;
 
-            EnemyTakeTurn();
+            await EnemyTakeTurnCinematicAsync(sessionId);
 
             if (sessionId == _gameSessionId && !IsGameOver)
-                await PauseForDramaAsync(180, "Telemetry relay complete.");
+                await PauseForDramaAsync(260, "Telemetry relay complete. Your command window is open.");
         }
         finally
         {
-            _isResolvingEnemyTurn = false;
+            SetEnemyTurnResolutionState(false);
             if (sessionId == _gameSessionId)
                 ClearTurnTransition();
         }
+    }
+
+    private async Task EnemyTakeTurnCinematicAsync(int sessionId)
+    {
+        if (_playerBoard is null)
+            return;
+
+        int maxShotsThisTurn = SelectedDifficulty == CpuDifficulty.Hard ? 2 : 1;
+        ShotInfo? lastShot = null;
+
+        for (int shotNumber = 0; shotNumber < maxShotsThisTurn; shotNumber++)
+        {
+            if (!TryGetNextEnemyTarget(out var target))
+            {
+                IsGameOver = true;
+                TurnMessage = "Draw";
+                StatusMessage = "No remaining shots.";
+                EnemyLastShotMessage = "Enemy last shot: --";
+                RecordGameOutcome(GameOutcome.Draw);
+                EmitFeedback(GameFeedbackCue.Draw);
+                RevealEnemyFleet();
+                ApplyAutoBoardFocus();
+                ShowGameOverOverlay(GameOutcome.Draw);
+                return;
+            }
+
+            int targetIndex = target.Row * Size + target.Col;
+            BoardCellVm? targetCell = targetIndex >= 0 && targetIndex < PlayerCells.Count
+                ? PlayerCells[targetIndex]
+                : null;
+            string targetCoordinate = ToBoardCoordinate(target.Row, target.Col);
+
+            targetCell?.SetTargetLocked(true);
+            try
+            {
+                await PauseForDramaAsync(360, $"Enemy lock acquired at {targetCoordinate}...");
+                if (sessionId != _gameSessionId || IsGameOver)
+                    return;
+
+                var enemyShot = _playerBoard.Attack(target.Row, target.Col);
+                lastShot = enemyShot;
+
+                if (_enemyTargetingStrategy is not null)
+                    _enemyTargetingStrategy.RegisterShotOutcome(target, enemyShot.Result);
+
+                ApplyShotResult(PlayerCells, enemyShot);
+
+                if (enemyShot.Result == AttackResult.Sunk &&
+                    enemyShot.SunkShipName is not null &&
+                    _playerSpritesByName.TryGetValue(enemyShot.SunkShipName, out var sprite))
+                {
+                    sprite.MarkSunk();
+                }
+
+                OnPropertyChanged(nameof(ScoreLine));
+                EmitFeedback(enemyShot.Result switch
+                {
+                    AttackResult.Sunk => GameFeedbackCue.Sunk,
+                    AttackResult.Hit => GameFeedbackCue.Hit,
+                    _ => GameFeedbackCue.Miss
+                });
+
+                EnemyLastShotMessage = $"Enemy last shot: {targetCoordinate} - {enemyShot.Message}";
+                await PauseForDramaAsync(enemyShot.IsHit ? 560 : 420, BuildEnemyShotCallout(targetCoordinate, enemyShot));
+                if (sessionId != _gameSessionId || IsGameOver)
+                    return;
+
+                if (_playerBoard.AllShipsSunk)
+                {
+                    IsGameOver = true;
+                    TurnMessage = "Defeat";
+                    StatusMessage = "All your ships have been sunk. You lose.";
+                    RecordGameOutcome(GameOutcome.Loss);
+                    EmitFeedback(GameFeedbackCue.Loss);
+                    RevealEnemyFleet();
+                    ApplyAutoBoardFocus();
+                    ShowGameOverOverlay(GameOutcome.Loss);
+                    return;
+                }
+
+                bool grantBonusShot = SelectedDifficulty == CpuDifficulty.Hard && enemyShot.IsHit;
+                if (!grantBonusShot)
+                    break;
+
+                StatusMessage = "Enemy scored a hit and takes an aggressive follow-up shot.";
+                await PauseForDramaAsync(340, "Enemy loading aggressive follow-up salvo...");
+                if (sessionId != _gameSessionId || IsGameOver)
+                    return;
+            }
+            finally
+            {
+                targetCell?.SetTargetLocked(false);
+            }
+        }
+
+        if (lastShot is null)
+            return;
+
+        IsPlayerTurn = true;
+        TurnMessage = "Your turn";
+        StatusMessage = "Target window open. Tap a cell on Enemy Waters to fire.";
+        ApplyAutoBoardFocus();
     }
 
     private void EnemyTakeTurn()
@@ -1601,6 +1814,28 @@ public class BoardViewModel : ObservableObject
         EnemyLastShotMessage = $"Enemy last shot: {ToBoardCoordinate(lastShot.Row, lastShot.Col)} - {lastShot.Message}";
         StatusMessage = "Tap a cell on Enemy Waters to fire.";
         ApplyAutoBoardFocus();
+    }
+
+    private static string BuildPlayerShotCallout(ShotInfo shot)
+    {
+        return shot.Result switch
+        {
+            AttackResult.Sunk when !string.IsNullOrWhiteSpace(shot.SunkShipName) =>
+                $"Direct hit. Enemy {shot.SunkShipName} sunk.",
+            AttackResult.Hit => "Direct hit on enemy hull.",
+            _ => "Splashdown. Shot missed target."
+        };
+    }
+
+    private static string BuildEnemyShotCallout(string coordinate, ShotInfo shot)
+    {
+        return shot.Result switch
+        {
+            AttackResult.Sunk when !string.IsNullOrWhiteSpace(shot.SunkShipName) =>
+                $"Enemy strike {coordinate}: {shot.SunkShipName} sunk.",
+            AttackResult.Hit => $"Enemy strike {coordinate}: direct hit.",
+            _ => $"Enemy strike {coordinate}: missed."
+        };
     }
 
     private static void ApplyShotResult(ObservableCollection<BoardCellVm> cells, ShotInfo shot)
@@ -1689,6 +1924,7 @@ public class BoardCellVm : ObservableObject
 {
     private ShotMarkerState _markerState;
     private bool _hasShip;
+    private bool _isTargetLocked;
 
     public int Row { get; }
     public int Col { get; }
@@ -1708,6 +1944,7 @@ public class BoardCellVm : ObservableObject
             OnPropertyChanged(nameof(IsHitMarkerVisible));
             OnPropertyChanged(nameof(IsMissMarkerVisible));
             OnPropertyChanged(nameof(MarkerStateText));
+            OnPropertyChanged(nameof(IsTargetLockVisible));
             OnPropertyChanged(nameof(CellFillColor));
             OnPropertyChanged(nameof(CellStrokeColor));
             OnPropertyChanged(nameof(AccessibilityText));
@@ -1728,6 +1965,21 @@ public class BoardCellVm : ObservableObject
         }
     }
 
+    public bool IsTargetLocked
+    {
+        get => _isTargetLocked;
+        private set
+        {
+            if (_isTargetLocked == value) return;
+            _isTargetLocked = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsTargetLockVisible));
+            OnPropertyChanged(nameof(CellFillColor));
+            OnPropertyChanged(nameof(CellStrokeColor));
+            OnPropertyChanged(nameof(AccessibilityText));
+        }
+    }
+
     public string CoordinateText => $"{(char)('A' + Row)}{Col + 1}";
 
     public string MarkerText => MarkerState switch
@@ -1739,6 +1991,7 @@ public class BoardCellVm : ObservableObject
 
     public bool IsHitMarkerVisible => MarkerState == ShotMarkerState.Hit;
     public bool IsMissMarkerVisible => MarkerState == ShotMarkerState.Miss;
+    public bool IsTargetLockVisible => IsTargetLocked && MarkerState == ShotMarkerState.None;
     public double MissPegSize => BoardViewModel.MissPegSize;
     public Color MissPegFillColor => IsPlayerBoard ? Color.FromArgb("#f2f8ff") : Color.FromArgb("#e6f3ff");
     public Color MissPegStrokeColor => IsPlayerBoard ? Color.FromArgb("#7ea5c8") : Color.FromArgb("#6f9bc2");
@@ -1748,6 +2001,7 @@ public class BoardCellVm : ObservableObject
     {
         ShotMarkerState.Hit => Color.FromArgb("#3d2619"),
         ShotMarkerState.Miss => IsPlayerBoard ? Color.FromArgb("#214a6f") : Color.FromArgb("#1f4f79"),
+        _ when IsTargetLocked => IsPlayerBoard ? Color.FromArgb("#275f8a") : Color.FromArgb("#2970a1"),
         _ when IsPlayerBoard && HasShip => Color.FromArgb("#2e648c"),
         _ => IsPlayerBoard ? Color.FromArgb("#173b5e") : Color.FromArgb("#1a4369")
     };
@@ -1756,6 +2010,7 @@ public class BoardCellVm : ObservableObject
     {
         ShotMarkerState.Hit => Color.FromArgb("#ff9366"),
         ShotMarkerState.Miss => Color.FromArgb("#9ac3e5"),
+        _ when IsTargetLocked => Color.FromArgb("#8fd9ff"),
         _ when IsPlayerBoard && HasShip => Color.FromArgb("#b8dcf8"),
         _ => Color.FromArgb("#3d658b")
     };
@@ -1770,8 +2025,8 @@ public class BoardCellVm : ObservableObject
     };
 
     public string AccessibilityText => IsPlayerBoard
-        ? $"{CoordinateText}, {(HasShip ? "occupied" : "clear")}, {MarkerStateText}"
-        : $"{CoordinateText}, {MarkerStateText}";
+        ? $"{CoordinateText}, {(HasShip ? "occupied" : "clear")}, {(IsTargetLockVisible ? "targeted, " : string.Empty)}{MarkerStateText}"
+        : $"{CoordinateText}, {(IsTargetLockVisible ? "targeted, " : string.Empty)}{MarkerStateText}";
 
     public BoardCellVm(int row, int col, bool isPlayerBoard)
     {
@@ -1782,7 +2037,16 @@ public class BoardCellVm : ObservableObject
 
     public void ApplyShot(ShotInfo shot)
     {
+        IsTargetLocked = false;
         MarkerState = shot.IsHit ? ShotMarkerState.Hit : ShotMarkerState.Miss;
+    }
+
+    public void SetTargetLocked(bool isLocked)
+    {
+        if (MarkerState != ShotMarkerState.None && isLocked)
+            return;
+
+        IsTargetLocked = isLocked;
     }
 
     public void SetShipPresence(bool hasShip)
@@ -1795,6 +2059,7 @@ public class BoardCellVm : ObservableObject
         if (clearShips)
             HasShip = false;
 
+        IsTargetLocked = false;
         MarkerState = ShotMarkerState.None;
     }
 }
