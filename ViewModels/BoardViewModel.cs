@@ -89,9 +89,10 @@ public class BoardViewModel : ObservableObject
     private int _gameSessionId;
 
     public const int Size = 10;
-    public const double CellSize = 36;
+    public const double CellSize = 40;
     public const double BoardAxisRailSize = 24;
     public const double BoardRailSpacing = 6;
+    public const double ShipVisualInset = 1.5;
     public const double MissPegSize = 16;
 
     private static readonly ShipTemplate[] FleetTemplates =
@@ -107,6 +108,7 @@ public class BoardViewModel : ObservableObject
     public double BoardFramePixelSize => BoardPixelSize + BoardAxisRailSize + BoardRailSpacing;
     public double CellPixelSize => CellSize;
     public double AxisRailPixelSize => BoardAxisRailSize;
+    public double BoardRailSpacingPixelSize => BoardRailSpacing;
     public double MissPegPixelSize => MissPegSize;
     public IReadOnlyList<string> RowLabels { get; } = Enumerable.Range(0, Size)
         .Select(i => ((char)('A' + i)).ToString())
@@ -915,6 +917,11 @@ public class BoardViewModel : ObservableObject
         StartNewGame();
     }
 
+    public void EnsureMusicPlayback()
+    {
+        ApplyMusicSettings();
+    }
+
     private void LoadStats()
     {
         var snapshot = _statsStore.Load();
@@ -1033,10 +1040,18 @@ public class BoardViewModel : ObservableObject
         return Color.FromArgb(fallbackHex);
     }
 
-    private static int ScalePause(int milliseconds)
+    private int ScalePause(int milliseconds, int jitterRange = 0)
     {
-        double scaled = milliseconds * AnimationRuntimeSettings.SpeedMultiplier;
-        return (int)Math.Clamp(scaled, 2000, 7000);
+        int baseDelay = Math.Max(80, milliseconds);
+        if (jitterRange > 0)
+        {
+            int min = Math.Max(80, baseDelay - jitterRange);
+            int max = baseDelay + jitterRange;
+            baseDelay = _random.Next(min, max + 1);
+        }
+
+        double scaled = baseDelay * AnimationRuntimeSettings.SpeedMultiplier;
+        return (int)Math.Clamp(scaled, 120, 10000);
     }
 
     private static bool CanUseMainThreadPacing()
@@ -1071,27 +1086,43 @@ public class BoardViewModel : ObservableObject
         OnPropertyChanged(nameof(CanFire));
     }
 
-    private async Task PauseForDramaAsync(int milliseconds, string transitionMessage, bool showThinkingPrelude = true)
+    private async Task PauseForDramaAsync(
+        int milliseconds,
+        string transitionMessage,
+        bool showThinkingPrelude = false,
+        bool showTransitionCard = true)
     {
         if (showThinkingPrelude && ShouldUseCinematicTurnPacing)
             await ShowThinkingPreludeAsync();
 
-        TurnTransitionTitle = "Command Update";
-        TurnTransitionMessage = transitionMessage;
-        IsThinkingPromptActive = false;
-        ThinkingDots = string.Empty;
-        TurnTransitionSpinnerColor = ResolveThemeColor("GameColorAccent", "#35F4FF");
-        IsTurnTransitionActive = true;
+        if (showTransitionCard)
+        {
+            TurnTransitionTitle = "Command Update";
+            TurnTransitionMessage = transitionMessage;
+            IsThinkingPromptActive = false;
+            ThinkingDots = string.Empty;
+            TurnTransitionSpinnerColor = ResolveThemeColor("GameColorAccent", "#35F4FF");
+            IsTurnTransitionActive = true;
+        }
+        else
+        {
+            IsThinkingPromptActive = false;
+            ThinkingDots = string.Empty;
+            IsTurnTransitionActive = false;
+        }
 
         if (!ShouldUseCinematicTurnPacing)
             return;
 
-        int floor = Math.Max(milliseconds, 2000);
-        await Task.Delay(ScalePause(floor));
+        int jitter = Math.Max(90, milliseconds / 4);
+        await Task.Delay(ScalePause(milliseconds, jitter));
     }
 
     private async Task ShowThinkingPreludeAsync()
     {
+        if (!ShouldUseCinematicTurnPacing)
+            return;
+
         IsTurnTransitionActive = true;
         IsThinkingPromptActive = true;
         TurnTransitionTitle = "Thinking";
@@ -1104,18 +1135,44 @@ public class BoardViewModel : ObservableObject
             ResolveThemeColor("GameColorThinkingPulseC", "#FFD86B")
         };
 
-        int pause = ScalePause(2000);
-        int elapsed = 0;
-        int frame = 0;
-        while (elapsed < pause)
+        var steps = new[]
         {
-            TurnTransitionSpinnerColor = pulseColors[frame % pulseColors.Length];
-            ThinkingDots = new string('.', (frame % 3) + 1);
-            int delay = 260;
-            await Task.Delay(delay);
-            elapsed += delay;
-            frame++;
+            "Enemy command is evaluating tactical options",
+            "Threat matrix updated. Selecting firing lane",
+            "Solution locked. Executing strike sequence"
+        };
+
+        int totalDuration = _random.Next(5000, 10001);
+        int remaining = totalDuration;
+        int dotTick = 0;
+
+        for (int step = 0; step < steps.Length; step++)
+        {
+            TurnTransitionMessage = steps[step];
+            TurnTransitionSpinnerColor = pulseColors[step % pulseColors.Length];
+
+            int stepsLeft = steps.Length - step;
+            int stepDuration = step == steps.Length - 1
+                ? remaining
+                : Math.Max(1200, remaining / stepsLeft);
+
+            int elapsed = 0;
+            while (elapsed < stepDuration)
+            {
+                ThinkingDots = new string('.', (dotTick % 3) + 1);
+                dotTick++;
+
+                int slice = Math.Min(260, stepDuration - elapsed);
+                await Task.Delay(slice);
+                elapsed += slice;
+            }
+
+            remaining = Math.Max(0, remaining - stepDuration);
         }
+
+        IsThinkingPromptActive = false;
+        ThinkingDots = string.Empty;
+        TurnTransitionTitle = "Command Update";
     }
 
     private void ClearTurnTransition()
@@ -1728,9 +1785,11 @@ public class BoardViewModel : ObservableObject
     private static Rect BuildShipBounds(int startRow, int startCol, int shipSize, ShipAxis axis)
     {
         double cell = CellSize;
+        double inset = ShipVisualInset;
+        double minDimension = Math.Max(2, cell - (2 * inset));
         return axis == ShipAxis.Vertical
-            ? new Rect(startCol * cell, startRow * cell, cell, shipSize * cell)
-            : new Rect(startCol * cell, startRow * cell, shipSize * cell, cell);
+            ? new Rect((startCol * cell) + inset, (startRow * cell) + inset, minDimension, (shipSize * cell) - (2 * inset))
+            : new Rect((startCol * cell) + inset, (startRow * cell) + inset, (shipSize * cell) - (2 * inset), minDimension);
     }
 
     private void PlaceFleetRandomly(GameBoard board, IEnumerable<Ship> fleet, bool allowVertical)
@@ -1924,12 +1983,6 @@ public class BoardViewModel : ObservableObject
         try
         {
             string targetCoordinate = ToBoardCoordinate(targetCell.Row, targetCell.Col);
-            targetCell.SetTargetLocked(true);
-
-            await PauseForDramaAsync(320, $"Target lock {targetCoordinate}. Charging weapons...");
-            if (sessionId != _gameSessionId || IsGameOver || IsPlacementPhase || !IsPlayerTurn)
-                return;
-
             var playerShot = _enemyBoard.Attack(targetCell.Row, targetCell.Col);
             if (playerShot.Result == AttackResult.AlreadyTried)
             {
@@ -1956,10 +2009,6 @@ public class BoardViewModel : ObservableObject
                 enemySprite.MarkSunk();
             }
 
-            await PauseForDramaAsync(playerShot.IsHit ? 560 : 420, BuildPlayerShotCallout(playerShot), showThinkingPrelude: false);
-            if (sessionId != _gameSessionId)
-                return;
-
             if (_enemyBoard.AllShipsSunk)
             {
                 IsGameOver = true;
@@ -1978,18 +2027,13 @@ public class BoardViewModel : ObservableObject
 
             IsPlayerTurn = false;
             TurnMessage = "Enemy turn";
-            StatusMessage = "Enemy command is preparing a counterstrike.";
+            StatusMessage = "Enemy command is evaluating tactical options.";
             ApplyAutoBoardFocus();
-
-            await PauseForDramaAsync(460, "Enemy command plotting return fire...");
-            if (sessionId != _gameSessionId || IsGameOver)
-                return;
 
             await ResolveEnemyTurnWithPacingAsync(sessionId);
         }
         finally
         {
-            targetCell.SetTargetLocked(false);
             SetPlayerShotResolutionState(false);
         }
     }
@@ -2002,15 +2046,12 @@ public class BoardViewModel : ObservableObject
         SetEnemyTurnResolutionState(true);
         try
         {
-            await PauseForDramaAsync(520, "Enemy plotting trajectory...");
+            await ShowThinkingPreludeAsync();
 
             if (sessionId != _gameSessionId || IsGameOver)
                 return;
 
             await EnemyTakeTurnCinematicAsync(sessionId);
-
-            if (sessionId == _gameSessionId && !IsGameOver)
-                await PauseForDramaAsync(260, "Telemetry relay complete. Your command window is open.", showThinkingPrelude: false);
         }
         finally
         {
@@ -2053,7 +2094,7 @@ public class BoardViewModel : ObservableObject
             targetCell?.SetTargetLocked(true);
             try
             {
-                await PauseForDramaAsync(360, $"Enemy lock acquired at {targetCoordinate}...");
+                await PauseForDramaAsync(_random.Next(260, 541), $"Enemy lock acquired at {targetCoordinate}...", showTransitionCard: false);
                 if (sessionId != _gameSessionId || IsGameOver)
                     return;
 
@@ -2081,7 +2122,8 @@ public class BoardViewModel : ObservableObject
                 });
 
                 EnemyLastShotMessage = $"Enemy last shot: {targetCoordinate} - {enemyShot.Message}";
-                await PauseForDramaAsync(enemyShot.IsHit ? 560 : 420, BuildEnemyShotCallout(targetCoordinate, enemyShot), showThinkingPrelude: false);
+                StatusMessage = BuildEnemyShotCallout(targetCoordinate, enemyShot);
+                await PauseForDramaAsync(enemyShot.IsHit ? 280 : 220, StatusMessage, showTransitionCard: false);
                 if (sessionId != _gameSessionId || IsGameOver)
                     return;
 
@@ -2103,7 +2145,7 @@ public class BoardViewModel : ObservableObject
                     break;
 
                 StatusMessage = "Enemy scored a hit and takes an aggressive follow-up shot.";
-                await PauseForDramaAsync(340, "Enemy loading aggressive follow-up salvo...");
+                await PauseForDramaAsync(_random.Next(240, 581), "Enemy loading aggressive follow-up salvo...", showTransitionCard: false);
                 if (sessionId != _gameSessionId || IsGameOver)
                     return;
             }
@@ -2486,9 +2528,11 @@ public class ShipSpriteVm : ObservableObject
         get
         {
             double cell = BoardViewModel.CellSize;
+            double inset = BoardViewModel.ShipVisualInset;
+            double minDimension = Math.Max(2, cell - (2 * inset));
             return Axis == ShipAxis.Vertical
-                ? new Rect(StartCol * cell, StartRow * cell, cell, Length * cell)
-                : new Rect(StartCol * cell, StartRow * cell, Length * cell, cell);
+                ? new Rect((StartCol * cell) + inset, (StartRow * cell) + inset, minDimension, (Length * cell) - (2 * inset))
+                : new Rect((StartCol * cell) + inset, (StartRow * cell) + inset, (Length * cell) - (2 * inset), minDimension);
         }
     }
 

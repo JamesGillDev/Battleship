@@ -5,6 +5,22 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-03-03
+
+### Changed
+- Stabilized `Theme Shift` behavior so theme changes no longer alter board/cell geometry.
+- Tuned enemy cinematic pacing to a single "Thinking" cycle lasting 5-10 seconds total.
+- Removed player-shot cinematic command prompt delays for immediate fire resolution.
+
+### Fixed
+- Realigned both boards so ships, grid cells, and `A-J` / `1-10` markers stay synchronized.
+- Corrected ship overlay sizing/centering so sprites match locked grid squares.
+- Improved Windows board container normalization to prevent spacing drift in cell rendering.
+- Hardened background music source resolution so autoplay reliably starts on app open.
+
+### Release
+- `v1.6.1` is marked ready for public release.
+
 ## [1.6.0] - 2026-03-03
 
 ### Added

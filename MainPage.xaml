@@ -249,23 +249,29 @@
                             Padding="3"
                             HorizontalOptions="Center"
                             WidthRequest="{Binding BoardFramePixelSize}">
-                        <Grid RowDefinitions="24,*"
-                              ColumnDefinitions="24,*"
-                              RowSpacing="6"
-                              ColumnSpacing="6">
+                        <Grid RowSpacing="{Binding BoardRailSpacingPixelSize}"
+                              ColumnSpacing="{Binding BoardRailSpacingPixelSize}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="{Binding AxisRailPixelSize}" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding AxisRailPixelSize}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <HorizontalStackLayout Grid.Row="0"
                                                    Grid.Column="1"
                                                    BindableLayout.ItemsSource="{Binding ColumnLabels}"
                                                    Spacing="0"
                                                    InputTransparent="True"
                                                    HorizontalOptions="Start"
-                                                   HeightRequest="24"
-                                                   WidthRequest="{Binding BoardPixelSize}">
+                                                    HeightRequest="{Binding AxisRailPixelSize}"
+                                                    WidthRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
                                                WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                               HeightRequest="24"
+                                               HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=AxisRailPixelSize}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
                                                TextColor="{DynamicResource GameColorTextMuted}"
@@ -280,12 +286,12 @@
                                                  BindableLayout.ItemsSource="{Binding RowLabels}"
                                                  Spacing="0"
                                                  InputTransparent="True"
-                                                 WidthRequest="24"
+                                                 WidthRequest="{Binding AxisRailPixelSize}"
                                                  HeightRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
-                                               WidthRequest="24"
+                                               WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=AxisRailPixelSize}"
                                                HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
@@ -325,6 +331,10 @@
                                             BackgroundColor="#0E3D6688" />
                                 </Grid>
                                 <AbsoluteLayout InputTransparent="True"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Start"
                                                 BindableLayout.ItemsSource="{Binding EnemyShipSprites}"
                                                 IsVisible="{Binding ShowEnemyFleet}"
                                                 ZIndex="3">
@@ -336,7 +346,7 @@
                                                     Stroke="{Binding StrokeColor}"
                                                     StrokeThickness="1.25"
                                                     StrokeShape="{DynamicResource GameShipSpriteShape}"
-                                                    Padding="1"
+                                                    Padding="0"
                                                     BackgroundColor="{Binding BackgroundColor}"
                                                     Opacity="{Binding Opacity}">
                                                 <Border.Behaviors>
@@ -344,7 +354,7 @@
                                                 </Border.Behaviors>
                                                 <Image Source="{Binding ImageSource}"
                                                        Rotation="{Binding ImageRotation}"
-                                                       Aspect="AspectFit" />
+                                                       Aspect="AspectFill" />
                                             </Border>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
@@ -356,6 +366,7 @@
                                                 IsEnabled="{Binding CanFire}"
                                                 WidthRequest="{Binding BoardPixelSize}"
                                                 HeightRequest="{Binding BoardPixelSize}"
+                                                Margin="0"
                                                 VerticalScrollBarVisibility="Never"
                                                 HorizontalScrollBarVisibility="Never"
                                                 ZIndex="2"
@@ -459,23 +470,29 @@
                             Padding="3"
                             HorizontalOptions="Center"
                             WidthRequest="{Binding BoardFramePixelSize}">
-                        <Grid RowDefinitions="24,*"
-                              ColumnDefinitions="24,*"
-                              RowSpacing="6"
-                              ColumnSpacing="6">
+                        <Grid RowSpacing="{Binding BoardRailSpacingPixelSize}"
+                              ColumnSpacing="{Binding BoardRailSpacingPixelSize}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="{Binding AxisRailPixelSize}" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{Binding AxisRailPixelSize}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
                             <HorizontalStackLayout Grid.Row="0"
                                                    Grid.Column="1"
                                                    BindableLayout.ItemsSource="{Binding ColumnLabels}"
                                                    Spacing="0"
                                                    InputTransparent="True"
                                                    HorizontalOptions="Start"
-                                                   HeightRequest="24"
-                                                   WidthRequest="{Binding BoardPixelSize}">
+                                                    HeightRequest="{Binding AxisRailPixelSize}"
+                                                    WidthRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
                                                WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                               HeightRequest="24"
+                                               HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=AxisRailPixelSize}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
                                                TextColor="{DynamicResource GameColorTextMuted}"
@@ -490,12 +507,12 @@
                                                  BindableLayout.ItemsSource="{Binding RowLabels}"
                                                  Spacing="0"
                                                  InputTransparent="True"
-                                                 WidthRequest="24"
+                                                 WidthRequest="{Binding AxisRailPixelSize}"
                                                  HeightRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Label Text="{Binding .}"
-                                               WidthRequest="24"
+                                               WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=AxisRailPixelSize}"
                                                HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
                                                HorizontalTextAlignment="Center"
                                                VerticalTextAlignment="Center"
@@ -535,6 +552,10 @@
                                             BackgroundColor="#0E3D6688" />
                                 </Grid>
                                 <AbsoluteLayout InputTransparent="True"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Start"
                                                 BindableLayout.ItemsSource="{Binding PlayerShipSprites}"
                                                 ZIndex="3">
                                     <BindableLayout.ItemTemplate>
@@ -545,7 +566,7 @@
                                                     Stroke="{Binding StrokeColor}"
                                                     StrokeThickness="1.25"
                                                     StrokeShape="{DynamicResource GameShipSpriteShape}"
-                                                    Padding="1"
+                                                    Padding="0"
                                                     BackgroundColor="{Binding BackgroundColor}"
                                                     Opacity="{Binding Opacity}">
                                                 <Border.Behaviors>
@@ -553,13 +574,17 @@
                                                 </Border.Behaviors>
                                                 <Image Source="{Binding ImageSource}"
                                                        Rotation="{Binding ImageRotation}"
-                                                       Aspect="AspectFit" />
+                                                       Aspect="AspectFill" />
                                             </Border>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
                                 </AbsoluteLayout>
 
                                 <AbsoluteLayout InputTransparent="True"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Start"
                                                 IsVisible="{Binding IsPlacementPreviewVisible}"
                                                 ZIndex="4">
                                     <Border AbsoluteLayout.LayoutBounds="{Binding PlacementPreviewBounds}"
@@ -568,10 +593,10 @@
                                             StrokeThickness="1.6"
                                             StrokeShape="{DynamicResource GameShipSpriteShape}"
                                             BackgroundColor="{Binding PlacementPreviewFillColor}"
-                                            Padding="1">
+                                            Padding="0">
                                         <Image Source="{Binding PlacementPreviewImageSource}"
                                                Rotation="{Binding PlacementPreviewImageRotation}"
-                                               Aspect="AspectFit"
+                                               Aspect="AspectFill"
                                                Opacity="0.7" />
                                     </Border>
                                 </AbsoluteLayout>
@@ -582,6 +607,7 @@
                                                 IsEnabled="{Binding CanPlaceShips}"
                                                 WidthRequest="{Binding BoardPixelSize}"
                                                 HeightRequest="{Binding BoardPixelSize}"
+                                                Margin="0"
                                                 VerticalScrollBarVisibility="Never"
                                                 HorizontalScrollBarVisibility="Never"
                                                 ZIndex="2"

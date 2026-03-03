@@ -75,31 +75,42 @@ public sealed class BackgroundMusicService : IBackgroundMusicService, IDisposabl
         if (_player is null || _sourceLoaded)
             return;
 
-        string? path = ResolveTrackPath();
-        if (string.IsNullOrWhiteSpace(path))
-            return;
-
-        _player.Source = Windows.Media.Core.MediaSource.CreateFromUri(new Uri(path));
-        _sourceLoaded = true;
+        foreach (var uri in ResolveTrackUris())
+        {
+            try
+            {
+                _player.Source = Windows.Media.Core.MediaSource.CreateFromUri(uri);
+                _sourceLoaded = true;
+                return;
+            }
+            catch
+            {
+                // Keep probing fallback URIs until one resolves.
+            }
+        }
     }
 
-    private static string? ResolveTrackPath()
+    private static IEnumerable<Uri> ResolveTrackUris()
     {
         string appBase = AppContext.BaseDirectory;
         string[] candidates =
         {
             Path.Combine(appBase, TrackFileName),
             Path.Combine(appBase, "Resources", "Audio", TrackFileName),
+            Path.Combine(appBase, "Assets", TrackFileName),
+            Path.Combine(appBase, "AppX", TrackFileName),
             Path.Combine(FileSystem.Current.AppDataDirectory, TrackFileName)
         };
+
+        yield return new Uri($"ms-appx:///{TrackFileName}");
+        yield return new Uri($"ms-appx:///Resources/Audio/{TrackFileName}");
+        yield return new Uri($"ms-appx:///Assets/{TrackFileName}");
 
         foreach (var candidate in candidates)
         {
             if (File.Exists(candidate))
-                return candidate;
+                yield return new Uri(candidate);
         }
-
-        return null;
     }
 
     private async Task FadeToVolumeAsync(double targetVolume, TimeSpan duration)

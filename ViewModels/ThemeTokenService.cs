@@ -300,19 +300,8 @@ public static class ThemeTokenService
 
     private static ThemeShapeProfile GetShapeProfile(GameThemePreset theme)
     {
-        return theme switch
-        {
-            GameThemePreset.NeonHarbor => new ThemeShapeProfile(14, 8, 10, 4, 5, 10, 4),
-            GameThemePreset.CrimsonStrike => new ThemeShapeProfile(10, 6, 6, 2, 3, 6, 2),
-            GameThemePreset.ToxicGrid => new ThemeShapeProfile(4, 2, 2, 0.8, 1.2, 3, 1.2),
-            GameThemePreset.SolarFlare => new ThemeShapeProfile(12, 7, 9, 3.5, 4.5, 9, 3.5),
-            GameThemePreset.ArcticPulse => new ThemeShapeProfile(16, 10, 12, 5, 6, 11, 4),
-            GameThemePreset.DesertStorm => new ThemeShapeProfile(9, 5, 7, 2.5, 3, 7, 2.5),
-            GameThemePreset.VioletNoir => new ThemeShapeProfile(18, 12, 14, 6, 7, 12, 5),
-            GameThemePreset.MonochromeAmber => new ThemeShapeProfile(3, 2, 2, 0.6, 1, 3, 1),
-            GameThemePreset.CandyShock => new ThemeShapeProfile(20, 13, 15, 7, 8, 13, 5),
-            _ => new ThemeShapeProfile(12, 8, 8, 3, 5, 8, 3)
-        };
+        _ = theme;
+        return new ThemeShapeProfile(12, 8, 8, 3, 5, 8, 3);
     }
 
     private static void SetColor(ResourceDictionary resources, string key, string value)

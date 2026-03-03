@@ -7,7 +7,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using WinUIThickness = Microsoft.UI.Xaml.Thickness;
 using WinUIStyle = Microsoft.UI.Xaml.Style;
 using WinUISetter = Microsoft.UI.Xaml.Setter;
@@ -55,7 +54,10 @@ public partial class MainPage : ContentPage
         ApplyOverlayBlurBackdrop();
 
         if (_viewModel is not null)
+        {
+            _viewModel.EnsureMusicPlayback();
             _ = AnimateBoardModeTransitionAsync(_viewModel.BoardViewMode, instant: true);
+        }
 
         if (_viewModel?.IsOverlayVisible == true)
             _ = AnimateOverlayAsync(_viewModel);
@@ -202,37 +204,21 @@ public partial class MainPage : ContentPage
 
     private static void DisableBoardScrolling(CollectionView board)
     {
+        board.Margin = 0;
+
 #if WINDOWS
         if (board.Handler?.PlatformView is ListViewBase listView)
         {
-            // Hard-lock the board layer so it cannot pan independently of ship overlays.
-            ScrollViewer.SetVerticalScrollMode(listView, WinUIScrollMode.Disabled);
-            ScrollViewer.SetHorizontalScrollMode(listView, WinUIScrollMode.Disabled);
-            ScrollViewer.SetVerticalScrollBarVisibility(listView, WinUIScrollBarVisibility.Hidden);
-            ScrollViewer.SetHorizontalScrollBarVisibility(listView, WinUIScrollBarVisibility.Hidden);
-            ScrollViewer.SetZoomMode(listView, WinUIZoomMode.Disabled);
-            listView.IsSwipeEnabled = false;
-            listView.CanDragItems = false;
-            listView.CanReorderItems = false;
-            listView.ManipulationMode = ManipulationModes.None;
-            listView.Margin = new WinUIThickness(0);
-
-            // Remove WinUI container spacing so A-J / 1-10 rails line up exactly with cells.
-            if (listView.ItemContainerStyle is null)
-            {
-                var itemStyle = new WinUIStyle(typeof(SelectorItem));
-                itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MarginProperty, new WinUIThickness(0)));
-                itemStyle.Setters.Add(new WinUISetter(Control.PaddingProperty, new WinUIThickness(0)));
-                itemStyle.Setters.Add(new WinUISetter(Control.HorizontalContentAlignmentProperty, WinUIHorizontalAlignment.Stretch));
-                itemStyle.Setters.Add(new WinUISetter(Control.VerticalContentAlignmentProperty, WinUIVerticalAlignment.Stretch));
-                listView.ItemContainerStyle = itemStyle;
-            }
-
+            NormalizeListViewLayout(listView);
             return;
         }
 
         if (board.Handler?.PlatformView is FrameworkElement root)
         {
+            var nestedListView = FindDescendant<ListViewBase>(root);
+            if (nestedListView is not null)
+                NormalizeListViewLayout(nestedListView);
+
             var scrollViewer = FindDescendant<ScrollViewer>(root);
             if (scrollViewer is null)
                 return;
@@ -248,6 +234,33 @@ public partial class MainPage : ContentPage
     }
 
 #if WINDOWS
+    private static void NormalizeListViewLayout(ListViewBase listView)
+    {
+        // Hard-lock the board layer so it cannot pan independently of ship overlays.
+        ScrollViewer.SetVerticalScrollMode(listView, WinUIScrollMode.Disabled);
+        ScrollViewer.SetHorizontalScrollMode(listView, WinUIScrollMode.Disabled);
+        ScrollViewer.SetVerticalScrollBarVisibility(listView, WinUIScrollBarVisibility.Hidden);
+        ScrollViewer.SetHorizontalScrollBarVisibility(listView, WinUIScrollBarVisibility.Hidden);
+        ScrollViewer.SetZoomMode(listView, WinUIZoomMode.Disabled);
+
+        listView.IsSwipeEnabled = false;
+        listView.CanDragItems = false;
+        listView.CanReorderItems = false;
+        listView.ManipulationMode = ManipulationModes.None;
+        listView.Margin = new WinUIThickness(0);
+        listView.Padding = new WinUIThickness(0);
+
+        // Remove WinUI container spacing so A-J / 1-10 rails line up exactly with cells.
+        var itemStyle = new WinUIStyle(typeof(ListViewItem));
+        itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MarginProperty, new WinUIThickness(0)));
+        itemStyle.Setters.Add(new WinUISetter(Control.PaddingProperty, new WinUIThickness(0)));
+        itemStyle.Setters.Add(new WinUISetter(Control.HorizontalContentAlignmentProperty, WinUIHorizontalAlignment.Stretch));
+        itemStyle.Setters.Add(new WinUISetter(Control.VerticalContentAlignmentProperty, WinUIVerticalAlignment.Stretch));
+        itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MinHeightProperty, 0d));
+        itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MinWidthProperty, 0d));
+        listView.ItemContainerStyle = itemStyle;
+    }
+
     private static T? FindDescendant<T>(DependencyObject? node) where T : DependencyObject
     {
         if (node is null)
