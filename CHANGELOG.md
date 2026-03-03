@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-03-03
+
+### Added
+- Ten-theme visual system with `RetroWave 80s` as the default preset.
+- Main-page theme picker for rapid command-center skin switching.
+- Cinematic "Thinking" transition stage with animated trailing dots and color-cycling command spinner.
+- Looping in-game background music playback (`War_Music_Background_25_Volume.mp3`) with persisted settings.
+- Music controls in Settings (on/off toggle + live volume slider).
+
+### Changed
+- Rethemed command header, transition card, and settings card to use dynamic palette tokens.
+- Expanded settings layout to keep all toggle labels visible and aligned at all supported window sizes.
+- Persisted game settings schema now includes selected theme, music enabled state, and music volume.
+- Updated release metadata and README references for `v1.5.0`.
+
+### Fixed
+- Ensured published output includes the background music asset for local release builds.
+
 ## [1.4.1] - 2026-03-03
 
 ### Changed

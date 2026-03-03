@@ -19,12 +19,12 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Public release versioning -->
-		<Version>1.4.1</Version>
-		<AssemblyVersion>1.4.1.0</AssemblyVersion>
-		<FileVersion>1.4.1.0</FileVersion>
-		<InformationalVersion>1.4.1</InformationalVersion>
-		<ApplicationDisplayVersion>1.4.1</ApplicationDisplayVersion>
-		<ApplicationVersion>1401</ApplicationVersion>
+		<Version>1.5.0</Version>
+		<AssemblyVersion>1.5.0.0</AssemblyVersion>
+		<FileVersion>1.5.0.0</FileVersion>
+		<InformationalVersion>1.5.0</InformationalVersion>
+		<ApplicationDisplayVersion>1.5.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1500</ApplicationVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -34,6 +34,14 @@
 		<MauiImage Include="Resources\Images\*" />
 		<MauiFont Include="Resources\Fonts\*" />
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Resources\Audio\War_Music_Background_25_Volume.mp3">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<Link>War_Music_Background_25_Volume.mp3</Link>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>

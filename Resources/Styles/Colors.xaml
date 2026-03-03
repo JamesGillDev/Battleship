@@ -56,6 +56,13 @@
     <Color x:Key="GameColorSuccess">#8AE7B7</Color>
     <Color x:Key="GameColorWarning">#FFD07B</Color>
     <Color x:Key="GameColorDanger">#FF8A69</Color>
+    <Color x:Key="GameColorHeaderStart">#2D347A</Color>
+    <Color x:Key="GameColorHeaderEnd">#12162E</Color>
+    <Color x:Key="GameColorTransitionCard">#2B2F66</Color>
+    <Color x:Key="GameColorSettingsCard">#262B59</Color>
+    <Color x:Key="GameColorThinkingPulseA">#35F4FF</Color>
+    <Color x:Key="GameColorThinkingPulseB">#FF4FD8</Color>
+    <Color x:Key="GameColorThinkingPulseC">#FFD86B</Color>
 
     <SolidColorBrush x:Key="GameBrushBackground" Color="{DynamicResource GameColorBackground}"/>
     <SolidColorBrush x:Key="GameBrushSurface" Color="{DynamicResource GameColorSurface}"/>

@@ -17,7 +17,10 @@ public readonly record struct GameSettingsSnapshot(
     bool LargeTextMode,
     bool ReduceMotionMode,
     bool SettingsPanelOpen,
-    bool HasSeenCommandBriefing)
+    bool HasSeenCommandBriefing,
+    GameThemePreset Theme = GameThemePreset.RetroWave80s,
+    bool MusicEnabled = true,
+    double MusicVolume = 0.25)
 {
     public static GameSettingsSnapshot Default => new(
         Difficulty: CpuDifficulty.Standard,
@@ -28,7 +31,10 @@ public readonly record struct GameSettingsSnapshot(
         LargeTextMode: false,
         ReduceMotionMode: false,
         SettingsPanelOpen: false,
-        HasSeenCommandBriefing: false);
+        HasSeenCommandBriefing: false,
+        Theme: GameThemePreset.RetroWave80s,
+        MusicEnabled: true,
+        MusicVolume: 0.25);
 }
 
 public sealed class JsonFileGameSettingsStore : IGameSettingsStore
@@ -60,7 +66,9 @@ public sealed class JsonFileGameSettingsStore : IGameSettingsStore
             return snapshot with
             {
                 Difficulty = Enum.IsDefined(snapshot.Difficulty) ? snapshot.Difficulty : CpuDifficulty.Standard,
-                AnimationSpeed = Enum.IsDefined(snapshot.AnimationSpeed) ? snapshot.AnimationSpeed : AnimationSpeed.Normal
+                AnimationSpeed = Enum.IsDefined(snapshot.AnimationSpeed) ? snapshot.AnimationSpeed : AnimationSpeed.Normal,
+                Theme = Enum.IsDefined(snapshot.Theme) ? snapshot.Theme : GameThemePreset.RetroWave80s,
+                MusicVolume = snapshot.MusicVolume is > 1 or < 0 ? 0.25 : snapshot.MusicVolume
             };
         }
         catch

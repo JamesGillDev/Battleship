@@ -2,29 +2,33 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.4.1-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.5.0-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.4.1`
+- Current public app release version: `v1.5.0`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.4.1`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.5.0`)
 
 ## Release Readiness
-- `v1.4.1` is **ready for public release**.
+- `v1.5.0` is **ready for public release**.
 
 ## Highlights
 - Full command-center visual overhaul with a game-first style.
+- New default `RetroWave 80s` theme plus 9 additional high-contrast visual presets.
 - Side-by-side board layout with even two-column split and no board scrolling.
+- Main-page theme picker for instant style switching across 10 distinct themes.
 - Focus cues for `Fire Control` and `Fleet Ops` while both boards stay visible.
+- Cinematic "Thinking" prompt sequence with animated dots and rotating multi-color spinner.
 - Manual fleet placement (left-click place + right-click rotate).
 - Turn-based player vs CPU combat.
 - Smart CPU hunt/target strategy after hits.
 - Ship image overlays with sunk/reveal animations.
 - Medium-large peg markers for misses and animated impact markers for hits.
 - Updated naval ship app icon and refreshed ocean-themed palette.
+- Looping background battle music with settings for on/off and live volume adjustment.
 - First-launch "Command Briefing" overlay with gameplay instructions.
 - End-game enemy fleet reveal.
 - Coordinate labels (`A-J` and `1-10`) and accessibility hints.
@@ -83,6 +87,7 @@ Then launch:
 ## Controls
 - `New Game`: reset boards and begin placement.
 - `Reset Stats`: clear saved cumulative stats.
+- `Theme` picker: switch among 10 visual themes from the command header.
 - `Rotate` / right-click: switch ship placement orientation.
 - `Fire Control` / `Fleet Ops`: set board focus while both boards remain visible.
 

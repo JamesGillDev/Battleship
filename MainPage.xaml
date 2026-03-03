@@ -18,8 +18,8 @@
                 Padding="14,12">
             <Border.Background>
                 <LinearGradientBrush EndPoint="1,1">
-                    <GradientStop Color="#142A45" Offset="0" />
-                    <GradientStop Color="#0B1522" Offset="1" />
+                    <GradientStop Color="{DynamicResource GameColorHeaderStart}" Offset="0" />
+                    <GradientStop Color="{DynamicResource GameColorHeaderEnd}" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="14">
@@ -54,7 +54,7 @@
 
                 <Grid Grid.Row="1"
                       Grid.ColumnSpan="2"
-                      ColumnDefinitions="Auto,Auto,*,Auto"
+                      ColumnDefinitions="Auto,Auto,Auto,*,Auto"
                       ColumnSpacing="8">
                     <Button Text="Fire Control"
                             Command="{Binding SetBoardViewModeCommand}"
@@ -73,7 +73,27 @@
                             WidthRequest="118"
                             HeightRequest="38"
                             Padding="14,8" />
-                    <Label Grid.Column="3"
+
+                    <HorizontalStackLayout Grid.Column="2"
+                                           Spacing="6"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="Start">
+                        <Label Text="Theme"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="12"
+                               VerticalTextAlignment="Center" />
+                        <Picker WidthRequest="190"
+                                HeightRequest="36"
+                                Title="Theme"
+                                ItemsSource="{Binding ThemeOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                TextColor="{DynamicResource GameColorTextPrimary}"
+                                TitleColor="{DynamicResource GameColorTextMuted}"
+                                BackgroundColor="{DynamicResource GameColorSurfaceAlt}"
+                                SelectedItem="{Binding SelectedThemeOption}" />
+                    </HorizontalStackLayout>
+
+                    <Label Grid.Column="4"
                            Text="{Binding BoardFocusSummary}"
                            Style="{StaticResource GameCaptionLabelStyle}"
                            FontSize="13"
@@ -611,20 +631,37 @@
                         MaximumWidthRequest="520"
                         HorizontalOptions="Center"
                         VerticalOptions="Center"
-                        BackgroundColor="#132a42"
+                        BackgroundColor="{DynamicResource GameColorTransitionCard}"
                         Padding="16,14">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <ActivityIndicator IsRunning="{Binding IsTurnTransitionActive}"
                                            IsVisible="{Binding IsTurnTransitionActive}"
-                                           WidthRequest="24"
-                                           HeightRequest="24"
-                                           Color="{DynamicResource GameColorAccent}" />
-                        <Label Grid.Column="1"
-                               Text="{Binding TurnTransitionMessage}"
-                               Style="{StaticResource GameSectionLabelStyle}"
-                               FontSize="19"
-                               VerticalTextAlignment="Center"
-                               TextColor="{DynamicResource GameColorAccent}" />
+                                           WidthRequest="30"
+                                           HeightRequest="30"
+                                           VerticalOptions="Center"
+                                           Color="{Binding TurnTransitionSpinnerColor}" />
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="2"
+                                             VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="4">
+                                <Label Text="{Binding TurnTransitionTitle}"
+                                       Style="{StaticResource GameSectionLabelStyle}"
+                                       FontSize="21"
+                                       VerticalTextAlignment="Center"
+                                       TextColor="{DynamicResource GameColorAccent}" />
+                                <Label Text="{Binding ThinkingDots}"
+                                       IsVisible="{Binding IsThinkingPromptActive}"
+                                       Style="{StaticResource GameSectionLabelStyle}"
+                                       FontSize="21"
+                                       VerticalTextAlignment="Center"
+                                       TextColor="{Binding TurnTransitionSpinnerColor}" />
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TurnTransitionMessage}"
+                                   Style="{StaticResource GameBodyLabelStyle}"
+                                   FontSize="16"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{DynamicResource GameColorTextSecondary}" />
+                        </VerticalStackLayout>
                     </Grid>
                 </Border>
             </Grid>
@@ -638,14 +675,11 @@
                 <Border x:Name="SettingsCard"
                         Style="{StaticResource GameCardBorderStyle}"
                         Margin="18"
-                        WidthRequest="860"
                         MaximumWidthRequest="920"
                         HorizontalOptions="Center"
                         VerticalOptions="Center"
                         Padding="18,16"
-                        BackgroundColor="#13283f">
-                    <ScrollView VerticalScrollBarVisibility="Never"
-                                HorizontalScrollBarVisibility="Never">
+                        BackgroundColor="{DynamicResource GameColorSettingsCard}">
                     <VerticalStackLayout Spacing="10">
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Spacing="2">
@@ -667,51 +701,107 @@
                         </Grid>
 
                         <Border Style="{StaticResource GameCardBorderStyle}"
-                                BackgroundColor="#17324f"
+                                BackgroundColor="{DynamicResource GameColorPanel}"
                                 Padding="12,10">
-                            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="8">
-                                <Label Text="CPU Difficulty" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                                <Picker Grid.Column="1"
-                                        Title="Difficulty"
-                                        ItemsSource="{Binding DifficultyOptions}"
-                                        SelectedItem="{Binding SelectedDifficulty}" />
+                            <Grid ColumnDefinitions="*,*"
+                                  RowDefinitions="Auto,Auto,Auto"
+                                  ColumnSpacing="12"
+                                  RowSpacing="10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="CPU Difficulty"
+                                           Style="{StaticResource GameCaptionLabelStyle}" />
+                                    <Picker Title="Difficulty"
+                                            ItemsSource="{Binding DifficultyOptions}"
+                                            TextColor="{DynamicResource GameColorTextPrimary}"
+                                            TitleColor="{DynamicResource GameColorTextMuted}"
+                                            BackgroundColor="{DynamicResource GameColorSurfaceAlt}"
+                                            SelectedItem="{Binding SelectedDifficulty}" />
+                                </VerticalStackLayout>
 
-                                <Label Grid.Column="2" Text="Animation" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                                <Picker Grid.Column="3"
-                                        Title="Animation Speed"
-                                        ItemsSource="{Binding AnimationSpeedOptions}"
-                                        SelectedItem="{Binding SelectedAnimationSpeed}" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="Animation Speed"
+                                           Style="{StaticResource GameCaptionLabelStyle}" />
+                                    <Picker Title="Animation Speed"
+                                            ItemsSource="{Binding AnimationSpeedOptions}"
+                                            TextColor="{DynamicResource GameColorTextPrimary}"
+                                            TitleColor="{DynamicResource GameColorTextMuted}"
+                                            BackgroundColor="{DynamicResource GameColorSurfaceAlt}"
+                                            SelectedItem="{Binding SelectedAnimationSpeed}" />
+                                </VerticalStackLayout>
 
-                                <Label Grid.Row="1" Text="Sound" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                                <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding SoundEnabled}" HorizontalOptions="Start" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Label Text="Sound FX"
+                                           Style="{StaticResource GameCaptionLabelStyle}"
+                                           VerticalTextAlignment="Center" />
+                                    <Switch Grid.Column="1"
+                                            IsToggled="{Binding SoundEnabled}"
+                                            HorizontalOptions="End" />
+                                </Grid>
 
-                                <Label Grid.Row="1" Grid.Column="2" Text="Haptics" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
-                                <Switch Grid.Row="1" Grid.Column="3" IsToggled="{Binding HapticsEnabled}" HorizontalOptions="Start" />
+                                <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Label Text="Haptics"
+                                           Style="{StaticResource GameCaptionLabelStyle}"
+                                           VerticalTextAlignment="Center" />
+                                    <Switch Grid.Column="1"
+                                            IsToggled="{Binding HapticsEnabled}"
+                                            HorizontalOptions="End" />
+                                </Grid>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <Label Text="Background Music"
+                                           Style="{StaticResource GameCaptionLabelStyle}"
+                                           VerticalTextAlignment="Center" />
+                                    <Switch Grid.Column="1"
+                                            IsToggled="{Binding MusicEnabled}"
+                                            HorizontalOptions="End" />
+                                </Grid>
+
+                                <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="Music Volume"
+                                               Style="{StaticResource GameCaptionLabelStyle}" />
+                                        <Slider Minimum="0"
+                                                Maximum="1"
+                                                Value="{Binding MusicVolume}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding MusicVolumePercent}"
+                                           Style="{StaticResource GameCaptionLabelStyle}"
+                                           VerticalTextAlignment="Center" />
+                                </Grid>
                             </Grid>
                         </Border>
 
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="24" RowSpacing="10">
-                            <Switch Grid.Row="0" Grid.Column="0" IsToggled="{Binding HighContrastMode}" />
-                            <Label Grid.Row="0" Grid.Column="1"
-                                   Text="High contrast"
-                                   Style="{StaticResource GameCaptionLabelStyle}"
-                                   VerticalTextAlignment="Center" />
+                        <Border Style="{StaticResource GameCardBorderStyle}"
+                                BackgroundColor="{DynamicResource GameColorPanel}">
+                            <Grid RowDefinitions="Auto,Auto,Auto"
+                                  RowSpacing="8"
+                                  ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="10">
+                                <Label Text="High contrast visuals"
+                                       Style="{StaticResource GameCaptionLabelStyle}"
+                                       VerticalTextAlignment="Center" />
+                                <Switch Grid.Column="1"
+                                        IsToggled="{Binding HighContrastMode}" />
 
-                            <Switch Grid.Row="0" Grid.Column="2" IsToggled="{Binding LargeTextMode}" />
-                            <Label Grid.Row="0" Grid.Column="3"
-                                   Text="Large text"
-                                   Style="{StaticResource GameCaptionLabelStyle}"
-                                   VerticalTextAlignment="Center" />
+                                <Label Grid.Row="1"
+                                       Text="Large text mode"
+                                       Style="{StaticResource GameCaptionLabelStyle}"
+                                       VerticalTextAlignment="Center" />
+                                <Switch Grid.Row="1"
+                                        Grid.Column="1"
+                                        IsToggled="{Binding LargeTextMode}" />
 
-                            <Switch Grid.Row="1" Grid.Column="0" IsToggled="{Binding ReduceMotionMode}" />
-                            <Label Grid.Row="1" Grid.Column="1"
-                                   Grid.ColumnSpan="3"
-                                   Text="Reduce motion"
-                                   Style="{StaticResource GameCaptionLabelStyle}"
-                                   VerticalTextAlignment="Center" />
-                        </Grid>
+                                <Label Grid.Row="2"
+                                       Text="Reduce motion effects"
+                                       Style="{StaticResource GameCaptionLabelStyle}"
+                                       VerticalTextAlignment="Center" />
+                                <Switch Grid.Row="2"
+                                        Grid.Column="1"
+                                        IsToggled="{Binding ReduceMotionMode}" />
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
-                    </ScrollView>
                 </Border>
             </Grid>
 

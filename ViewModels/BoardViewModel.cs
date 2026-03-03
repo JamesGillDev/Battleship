@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Battleship.GameCore;
 using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 
 namespace BattleshipMaui.ViewModels;
@@ -14,6 +15,7 @@ public class BoardViewModel : ObservableObject
     private readonly IGameStatsStore _statsStore;
     private readonly IGameSettingsStore _settingsStore;
     private readonly IGameFeedbackService _feedbackService;
+    private readonly IBackgroundMusicService _backgroundMusicService;
     private readonly Dictionary<string, Ship> _playerShipsByName = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ShipSpriteVm> _playerSpritesByName = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, ShipSpriteVm> _enemySpritesByName = new(StringComparer.OrdinalIgnoreCase);
@@ -58,7 +60,10 @@ public class BoardViewModel : ObservableObject
 
     private CpuDifficulty _selectedDifficulty = CpuDifficulty.Standard;
     private AnimationSpeed _selectedAnimationSpeed = AnimationSpeed.Normal;
+    private ThemeOption _selectedThemeOption = ThemeTokenService.ThemeOptions[0];
     private bool _soundEnabled = true;
+    private bool _musicEnabled = true;
+    private double _musicVolume = 0.25;
     private bool _hapticsEnabled = true;
     private bool _highContrastMode;
     private bool _largeTextMode;
@@ -66,7 +71,11 @@ public class BoardViewModel : ObservableObject
     private bool _hasSeenCommandBriefing;
     private BoardViewMode _boardViewMode = BoardViewMode.Enemy;
     private bool _isTurnTransitionActive;
+    private bool _isThinkingPromptActive;
+    private string _turnTransitionTitle = "Command Update";
     private string _turnTransitionMessage = string.Empty;
+    private string _thinkingDots = string.Empty;
+    private Color _turnTransitionSpinnerColor = Color.FromArgb("#35F4FF");
     private bool _isResolvingEnemyTurn;
     private bool _isResolvingPlayerShot;
     private int _gameSessionId;
@@ -107,6 +116,7 @@ public class BoardViewModel : ObservableObject
 
     public IReadOnlyList<CpuDifficulty> DifficultyOptions { get; } = Enum.GetValues<CpuDifficulty>();
     public IReadOnlyList<AnimationSpeed> AnimationSpeedOptions { get; } = Enum.GetValues<AnimationSpeed>();
+    public IReadOnlyList<ThemeOption> ThemeOptions { get; } = ThemeTokenService.ThemeOptions;
 
     public ICommand EnemyCellTappedCommand { get; }
     public ICommand PlayerCellTappedCommand { get; }
@@ -445,6 +455,22 @@ public class BoardViewModel : ObservableObject
         }
     }
 
+    public ThemeOption SelectedThemeOption
+    {
+        get => _selectedThemeOption;
+        set
+        {
+            var normalized = value ?? ThemeTokenService.ThemeOptions[0];
+            if (_selectedThemeOption.Theme == normalized.Theme)
+                return;
+
+            _selectedThemeOption = normalized;
+            OnPropertyChanged();
+            ApplyVisualSettings();
+            SaveSettings();
+        }
+    }
+
     public bool SoundEnabled
     {
         get => _soundEnabled;
@@ -456,6 +482,38 @@ public class BoardViewModel : ObservableObject
             SaveSettings();
         }
     }
+
+    public bool MusicEnabled
+    {
+        get => _musicEnabled;
+        set
+        {
+            if (_musicEnabled == value) return;
+            _musicEnabled = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(MusicStateLabel));
+            ApplyMusicSettings();
+            SaveSettings();
+        }
+    }
+
+    public double MusicVolume
+    {
+        get => _musicVolume;
+        set
+        {
+            double clamped = Math.Clamp(value, 0, 1);
+            if (Math.Abs(_musicVolume - clamped) < 0.0001) return;
+            _musicVolume = clamped;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(MusicVolumePercent));
+            ApplyMusicSettings();
+            SaveSettings();
+        }
+    }
+
+    public string MusicStateLabel => MusicEnabled ? "Enabled" : "Muted";
+    public string MusicVolumePercent => $"{Math.Round(MusicVolume * 100):0}%";
 
     public bool HapticsEnabled
     {
@@ -523,12 +581,12 @@ public class BoardViewModel : ObservableObject
     }
 
     public Color EnemyBoardTabBackground => BoardViewMode == BoardViewMode.Enemy
-        ? Color.FromArgb("#3f8ecd")
-        : Color.FromArgb("#1d3146");
+        ? ResolveThemeColor("GameColorAccentSoft", "#3f8ecd")
+        : ResolveThemeColor("GameColorSurfaceAlt", "#1d3146");
 
     public Color PlayerBoardTabBackground => BoardViewMode == BoardViewMode.Player
-        ? Color.FromArgb("#3f8ecd")
-        : Color.FromArgb("#1d3146");
+        ? ResolveThemeColor("GameColorAccentSoft", "#3f8ecd")
+        : ResolveThemeColor("GameColorSurfaceAlt", "#1d3146");
 
     public string BoardFocusSummary => BoardViewMode switch
     {
@@ -547,6 +605,28 @@ public class BoardViewModel : ObservableObject
         }
     }
 
+    public bool IsThinkingPromptActive
+    {
+        get => _isThinkingPromptActive;
+        private set
+        {
+            if (_isThinkingPromptActive == value) return;
+            _isThinkingPromptActive = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string TurnTransitionTitle
+    {
+        get => _turnTransitionTitle;
+        private set
+        {
+            if (_turnTransitionTitle == value) return;
+            _turnTransitionTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
     public string TurnTransitionMessage
     {
         get => _turnTransitionMessage;
@@ -554,6 +634,28 @@ public class BoardViewModel : ObservableObject
         {
             if (_turnTransitionMessage == value) return;
             _turnTransitionMessage = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string ThinkingDots
+    {
+        get => _thinkingDots;
+        private set
+        {
+            if (_thinkingDots == value) return;
+            _thinkingDots = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Color TurnTransitionSpinnerColor
+    {
+        get => _turnTransitionSpinnerColor;
+        private set
+        {
+            if (_turnTransitionSpinnerColor == value) return;
+            _turnTransitionSpinnerColor = value;
             OnPropertyChanged();
         }
     }
@@ -658,7 +760,8 @@ public class BoardViewModel : ObservableObject
             new Random(),
             new JsonFileGameStatsStore(),
             new JsonFileGameSettingsStore(),
-            new DefaultGameFeedbackService())
+            new DefaultGameFeedbackService(),
+            new BackgroundMusicService())
     {
     }
 
@@ -667,7 +770,8 @@ public class BoardViewModel : ObservableObject
             random,
             new JsonFileGameStatsStore(),
             new JsonFileGameSettingsStore(),
-            new DefaultGameFeedbackService())
+            new DefaultGameFeedbackService(),
+            new NoOpBackgroundMusicService())
     {
     }
 
@@ -676,7 +780,8 @@ public class BoardViewModel : ObservableObject
             random,
             statsStore,
             new JsonFileGameSettingsStore(),
-            new DefaultGameFeedbackService())
+            new DefaultGameFeedbackService(),
+            new NoOpBackgroundMusicService())
     {
     }
 
@@ -685,11 +790,27 @@ public class BoardViewModel : ObservableObject
         IGameStatsStore statsStore,
         IGameSettingsStore settingsStore,
         IGameFeedbackService feedbackService)
+        : this(
+            random,
+            statsStore,
+            settingsStore,
+            feedbackService,
+            new NoOpBackgroundMusicService())
+    {
+    }
+
+    public BoardViewModel(
+        Random random,
+        IGameStatsStore statsStore,
+        IGameSettingsStore settingsStore,
+        IGameFeedbackService feedbackService,
+        IBackgroundMusicService backgroundMusicService)
     {
         _random = random ?? throw new ArgumentNullException(nameof(random));
         _statsStore = statsStore ?? throw new ArgumentNullException(nameof(statsStore));
         _settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
         _feedbackService = feedbackService ?? throw new ArgumentNullException(nameof(feedbackService));
+        _backgroundMusicService = backgroundMusicService ?? throw new ArgumentNullException(nameof(backgroundMusicService));
 
         EnemyCellTappedCommand = new Command<BoardCellVm>(OnEnemyCellTapped);
         PlayerCellTappedCommand = new Command<BoardCellVm>(OnPlayerCellTapped);
@@ -705,6 +826,7 @@ public class BoardViewModel : ObservableObject
         LoadSettings();
         ApplyVisualSettings();
         ApplyAnimationSettings();
+        ApplyMusicSettings();
         InitializeCells(EnemyCells, isPlayerBoard: false);
         InitializeCells(PlayerCells, isPlayerBoard: true);
         StartNewGame();
@@ -726,7 +848,10 @@ public class BoardViewModel : ObservableObject
         var settings = _settingsStore.Load();
         _selectedDifficulty = settings.Difficulty;
         _selectedAnimationSpeed = settings.AnimationSpeed;
+        _selectedThemeOption = ThemeTokenService.GetOption(settings.Theme);
         _soundEnabled = settings.SoundEnabled;
+        _musicEnabled = settings.MusicEnabled;
+        _musicVolume = settings.MusicVolume;
         _hapticsEnabled = settings.HapticsEnabled;
         _highContrastMode = settings.HighContrastMode;
         _largeTextMode = settings.LargeTextMode;
@@ -771,7 +896,10 @@ public class BoardViewModel : ObservableObject
             LargeTextMode,
             ReduceMotionMode,
             IsSettingsOpen,
-            _hasSeenCommandBriefing));
+            _hasSeenCommandBriefing,
+            SelectedThemeOption.Theme,
+            MusicEnabled,
+            MusicVolume));
     }
 
     private static double GetAnimationSpeedMultiplier(AnimationSpeed speed)
@@ -786,13 +914,28 @@ public class BoardViewModel : ObservableObject
 
     private void ApplyVisualSettings()
     {
-        ThemeTokenService.Apply(highContrast: HighContrastMode, largeText: LargeTextMode);
+        ThemeTokenService.Apply(SelectedThemeOption.Theme, HighContrastMode, LargeTextMode);
+        OnPropertyChanged(nameof(EnemyBoardTabBackground));
+        OnPropertyChanged(nameof(PlayerBoardTabBackground));
     }
 
     private void ApplyAnimationSettings()
     {
         AnimationRuntimeSettings.SpeedMultiplier = GetAnimationSpeedMultiplier(SelectedAnimationSpeed);
         AnimationRuntimeSettings.ReduceMotion = ReduceMotionMode;
+    }
+
+    private void ApplyMusicSettings()
+    {
+        _backgroundMusicService.ApplySettings(MusicEnabled, MusicVolume);
+    }
+
+    private static Color ResolveThemeColor(string key, string fallbackHex)
+    {
+        if (Application.Current?.Resources.TryGetValue(key, out var resource) == true && resource is Color color)
+            return color;
+
+        return Color.FromArgb(fallbackHex);
     }
 
     private static int ScalePause(int milliseconds)
@@ -833,9 +976,16 @@ public class BoardViewModel : ObservableObject
         OnPropertyChanged(nameof(CanFire));
     }
 
-    private async Task PauseForDramaAsync(int milliseconds, string transitionMessage)
+    private async Task PauseForDramaAsync(int milliseconds, string transitionMessage, bool showThinkingPrelude = true)
     {
+        if (showThinkingPrelude && ShouldUseCinematicTurnPacing)
+            await ShowThinkingPreludeAsync();
+
+        TurnTransitionTitle = "Command Update";
         TurnTransitionMessage = transitionMessage;
+        IsThinkingPromptActive = false;
+        ThinkingDots = string.Empty;
+        TurnTransitionSpinnerColor = ResolveThemeColor("GameColorAccent", "#35F4FF");
         IsTurnTransitionActive = true;
 
         if (!ShouldUseCinematicTurnPacing)
@@ -845,10 +995,42 @@ public class BoardViewModel : ObservableObject
         await Task.Delay(ScalePause(floor));
     }
 
+    private async Task ShowThinkingPreludeAsync()
+    {
+        IsTurnTransitionActive = true;
+        IsThinkingPromptActive = true;
+        TurnTransitionTitle = "Thinking";
+        TurnTransitionMessage = "Enemy command is evaluating tactical options";
+
+        var pulseColors = new[]
+        {
+            ResolveThemeColor("GameColorThinkingPulseA", "#35F4FF"),
+            ResolveThemeColor("GameColorThinkingPulseB", "#FF4FD8"),
+            ResolveThemeColor("GameColorThinkingPulseC", "#FFD86B")
+        };
+
+        int pause = ScalePause(2000);
+        int elapsed = 0;
+        int frame = 0;
+        while (elapsed < pause)
+        {
+            TurnTransitionSpinnerColor = pulseColors[frame % pulseColors.Length];
+            ThinkingDots = new string('.', (frame % 3) + 1);
+            int delay = 260;
+            await Task.Delay(delay);
+            elapsed += delay;
+            frame++;
+        }
+    }
+
     private void ClearTurnTransition()
     {
         IsTurnTransitionActive = false;
+        IsThinkingPromptActive = false;
+        TurnTransitionTitle = "Command Update";
         TurnTransitionMessage = string.Empty;
+        ThinkingDots = string.Empty;
+        TurnTransitionSpinnerColor = ResolveThemeColor("GameColorAccent", "#35F4FF");
     }
 
     private void SetBoardViewMode(BoardViewMode mode)
@@ -1578,7 +1760,7 @@ public class BoardViewModel : ObservableObject
                 enemySprite.MarkSunk();
             }
 
-            await PauseForDramaAsync(playerShot.IsHit ? 560 : 420, BuildPlayerShotCallout(playerShot));
+            await PauseForDramaAsync(playerShot.IsHit ? 560 : 420, BuildPlayerShotCallout(playerShot), showThinkingPrelude: false);
             if (sessionId != _gameSessionId)
                 return;
 
@@ -1632,7 +1814,7 @@ public class BoardViewModel : ObservableObject
             await EnemyTakeTurnCinematicAsync(sessionId);
 
             if (sessionId == _gameSessionId && !IsGameOver)
-                await PauseForDramaAsync(260, "Telemetry relay complete. Your command window is open.");
+                await PauseForDramaAsync(260, "Telemetry relay complete. Your command window is open.", showThinkingPrelude: false);
         }
         finally
         {
@@ -1703,7 +1885,7 @@ public class BoardViewModel : ObservableObject
                 });
 
                 EnemyLastShotMessage = $"Enemy last shot: {targetCoordinate} - {enemyShot.Message}";
-                await PauseForDramaAsync(enemyShot.IsHit ? 560 : 420, BuildEnemyShotCallout(targetCoordinate, enemyShot));
+                await PauseForDramaAsync(enemyShot.IsHit ? 560 : 420, BuildEnemyShotCallout(targetCoordinate, enemyShot), showThinkingPrelude: false);
                 if (sessionId != _gameSessionId || IsGameOver)
                     return;
 
