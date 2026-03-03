@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-03-03
+
+### Added
+- Live fleet placement preview on hover so ship position/orientation is visible before deployment.
+- `Theme Shift` command button to cycle through all 10 themes from the main command header.
+- Theme shape profiles (cards, cells, board frame, pegs, ship plates) for stronger per-theme visual identity.
+- Welcome mission popup at app open with updated instructions and `Let's Fight!` action.
+
+### Changed
+- Reworked ship sprite layout math for strict cell alignment (horizontal and vertical).
+- Updated player ship deployment animation to slide/fade in from outside board bounds on placement.
+- Improved board rendering with layered frame depth and stronger 3D-style surface treatment.
+- Music playback now fades in automatically on start and retains low default baseline (25%).
+- Updated release metadata and README references for `v1.6.0`.
+
+### Fixed
+- Corrected off-center ship rendering during placement/gameplay board states.
+- Reduced visual drift between ship overlay geometry and board grid coordinates.
+
+### Release
+- `v1.6.0` is marked ready for public release.
+
 ## [1.5.0] - 2026-03-03
 
 ### Added

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using BattleshipMaui.ViewModels;
 using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Graphics;
 #if WINDOWS
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -51,6 +52,7 @@ public partial class MainPage : ContentPage
         base.OnAppearing();
         DisableBoardScrolling(EnemyBoardCellsView);
         DisableBoardScrolling(PlayerBoardCellsView);
+        ApplyOverlayBlurBackdrop();
 
         if (_viewModel is not null)
             _ = AnimateBoardModeTransitionAsync(_viewModel.BoardViewMode, instant: true);
@@ -69,6 +71,9 @@ public partial class MainPage : ContentPage
 
         if (e.PropertyName == nameof(BoardViewModel.IsOverlayVisible) && _viewModel.IsOverlayVisible)
             _ = AnimateOverlayAsync(_viewModel);
+
+        if (e.PropertyName == nameof(BoardViewModel.IsOverlayVisible))
+            ApplyOverlayBlurBackdrop();
 
         if (e.PropertyName == nameof(BoardViewModel.BoardViewMode))
             _ = AnimateBoardModeTransitionAsync(_viewModel.BoardViewMode, instant: false);
@@ -160,6 +165,27 @@ public partial class MainPage : ContentPage
         return (uint)Math.Clamp((int)scaled, 30, 2000);
     }
 
+    private void OnPlayerCellPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (_viewModel?.CanPlaceShips != true)
+            return;
+
+        if (sender is not BindableObject bindable || bindable.BindingContext is not BoardCellVm cell)
+            return;
+
+        if (_viewModel.UpdatePlacementPreviewCommand.CanExecute(cell))
+            _viewModel.UpdatePlacementPreviewCommand.Execute(cell);
+    }
+
+    private void OnPlayerBoardPointerExited(object? sender, PointerEventArgs e)
+    {
+        if (_viewModel is null)
+            return;
+
+        if (_viewModel.ClearPlacementPreviewCommand.CanExecute(null))
+            _viewModel.ClearPlacementPreviewCommand.Execute(null);
+    }
+
     private void HookBoardCollectionViewHandlers()
     {
         EnemyBoardCellsView.HandlerChanged += OnBoardCollectionViewHandlerChanged;
@@ -242,6 +268,19 @@ public partial class MainPage : ContentPage
         return null;
     }
 #endif
+
+    private void ApplyOverlayBlurBackdrop()
+    {
+        bool overlayVisible = _viewModel?.IsOverlayVisible == true;
+        OverlayScrim.BackgroundColor = overlayVisible
+            ? Color.FromArgb("#D20A1524")
+            : Color.FromArgb("#A0000000");
+
+        double boardOpacity = overlayVisible ? 0.42 : 1;
+        CommandCenterBoardHost.Opacity = boardOpacity;
+        EnemyBoardPage.Opacity = boardOpacity;
+        PlayerBoardPage.Opacity = boardOpacity;
+    }
 
     private void ApplyBoardModeInstant(BoardViewMode mode)
     {

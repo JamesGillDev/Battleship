@@ -78,6 +78,11 @@
                                            Spacing="6"
                                            VerticalOptions="Center"
                                            HorizontalOptions="Start">
+                        <Button Text="Theme Shift"
+                                Command="{Binding CycleThemeCommand}"
+                                Style="{StaticResource GameSecondaryButtonStyle}"
+                                HeightRequest="36"
+                                Padding="12,7" />
                         <Label Text="Theme"
                                Style="{StaticResource GameCaptionLabelStyle}"
                                FontSize="12"
@@ -193,7 +198,7 @@
                                 <Border BackgroundColor="{Binding CardBackground}"
                                         Stroke="{Binding CardStroke}"
                                         StrokeThickness="1.2"
-                                        StrokeShape="RoundRectangle 8"
+                                        StrokeShape="{DynamicResource GameShipCardShape}"
                                         Padding="8,6"
                                         WidthRequest="142"
                                         HeightRequest="74">
@@ -298,11 +303,27 @@
                                   HorizontalOptions="Start"
                                   VerticalOptions="Start"
                                   IsClippedToBounds="True">
-                                <Border Stroke="{DynamicResource GameColorBorder}"
-                                        StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 6"
-                                        BackgroundColor="#18466F"
-                                        ZIndex="0" />
+                                <Grid ZIndex="0">
+                                    <Border Stroke="{DynamicResource GameColorBorder}"
+                                            StrokeThickness="1.1"
+                                            StrokeShape="{DynamicResource GameBoardFrameShape}">
+                                        <Border.Background>
+                                            <LinearGradientBrush EndPoint="1,1">
+                                                <GradientStop Color="{DynamicResource GameColorPanel}" Offset="0" />
+                                                <GradientStop Color="{DynamicResource GameColorSurfaceAlt}" Offset="0.52" />
+                                                <GradientStop Color="{DynamicResource GameColorSurface}" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Shadow>
+                                            <Shadow Brush="#70000000" Radius="14" Opacity="0.55" Offset="0,4" />
+                                        </Border.Shadow>
+                                    </Border>
+                                    <Border Margin="3"
+                                            Stroke="{DynamicResource GameColorAccentSoft}"
+                                            StrokeThickness="0.7"
+                                            StrokeShape="{DynamicResource GameBoardFrameShape}"
+                                            BackgroundColor="#0E3D6688" />
+                                </Grid>
                                 <AbsoluteLayout InputTransparent="True"
                                                 BindableLayout.ItemsSource="{Binding EnemyShipSprites}"
                                                 IsVisible="{Binding ShowEnemyFleet}"
@@ -314,7 +335,7 @@
                                                     Rotation="{Binding Rotation}"
                                                     Stroke="{Binding StrokeColor}"
                                                     StrokeThickness="1.25"
-                                                    StrokeShape="RoundRectangle 4"
+                                                    StrokeShape="{DynamicResource GameShipSpriteShape}"
                                                     Padding="1"
                                                     BackgroundColor="{Binding BackgroundColor}"
                                                     Opacity="{Binding Opacity}">
@@ -322,7 +343,8 @@
                                                     <behaviors:ShipSpriteAnimationBehavior />
                                                 </Border.Behaviors>
                                                 <Image Source="{Binding ImageSource}"
-                                                       Aspect="AspectFill" />
+                                                       Rotation="{Binding ImageRotation}"
+                                                       Aspect="AspectFit" />
                                             </Border>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
@@ -350,7 +372,7 @@
                                         <DataTemplate>
                                             <Border Stroke="{Binding CellStrokeColor}"
                                                     StrokeThickness="0.9"
-                                                    StrokeShape="RoundRectangle 2"
+                                                    StrokeShape="{DynamicResource GameBoardCellShape}"
                                                     BackgroundColor="{Binding CellFillColor}"
                                                     WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
                                                     HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
@@ -374,7 +396,7 @@
                                                             BackgroundColor="{Binding MissPegFillColor}"
                                                             Stroke="{Binding MissPegStrokeColor}"
                                                             StrokeThickness="1.4"
-                                                            StrokeShape="RoundRectangle 8">
+                                                            StrokeShape="{DynamicResource GameMissPegShape}">
                                                         <Border.Shadow>
                                                             <Shadow Brush="#60000000" Radius="5" Opacity="0.35" Offset="0,1" />
                                                         </Border.Shadow>
@@ -387,7 +409,7 @@
                                                             VerticalOptions="Center"
                                                             BackgroundColor="{Binding MissPegCapColor}"
                                                             StrokeThickness="0"
-                                                            StrokeShape="RoundRectangle 3" />
+                                                            StrokeShape="{DynamicResource GameMissPegCapShape}" />
 
                                                     <Border IsVisible="{Binding IsTargetLockVisible}"
                                                             Stroke="#8FD9FF"
@@ -491,11 +513,27 @@
                                   HorizontalOptions="Start"
                                   VerticalOptions="Start"
                                   IsClippedToBounds="True">
-                                <Border Stroke="{DynamicResource GameColorBorder}"
-                                        StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 6"
-                                        BackgroundColor="#16426A"
-                                        ZIndex="0" />
+                                <Grid ZIndex="0">
+                                    <Border Stroke="{DynamicResource GameColorBorder}"
+                                            StrokeThickness="1.1"
+                                            StrokeShape="{DynamicResource GameBoardFrameShape}">
+                                        <Border.Background>
+                                            <LinearGradientBrush EndPoint="1,1">
+                                                <GradientStop Color="{DynamicResource GameColorPanel}" Offset="0" />
+                                                <GradientStop Color="{DynamicResource GameColorSurfaceAlt}" Offset="0.52" />
+                                                <GradientStop Color="{DynamicResource GameColorSurface}" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Shadow>
+                                            <Shadow Brush="#70000000" Radius="14" Opacity="0.55" Offset="0,4" />
+                                        </Border.Shadow>
+                                    </Border>
+                                    <Border Margin="3"
+                                            Stroke="{DynamicResource GameColorAccentSoft}"
+                                            StrokeThickness="0.7"
+                                            StrokeShape="{DynamicResource GameBoardFrameShape}"
+                                            BackgroundColor="#0E3D6688" />
+                                </Grid>
                                 <AbsoluteLayout InputTransparent="True"
                                                 BindableLayout.ItemsSource="{Binding PlayerShipSprites}"
                                                 ZIndex="3">
@@ -506,7 +544,7 @@
                                                     Rotation="{Binding Rotation}"
                                                     Stroke="{Binding StrokeColor}"
                                                     StrokeThickness="1.25"
-                                                    StrokeShape="RoundRectangle 4"
+                                                    StrokeShape="{DynamicResource GameShipSpriteShape}"
                                                     Padding="1"
                                                     BackgroundColor="{Binding BackgroundColor}"
                                                     Opacity="{Binding Opacity}">
@@ -514,10 +552,28 @@
                                                     <behaviors:ShipSpriteAnimationBehavior />
                                                 </Border.Behaviors>
                                                 <Image Source="{Binding ImageSource}"
-                                                       Aspect="AspectFill" />
+                                                       Rotation="{Binding ImageRotation}"
+                                                       Aspect="AspectFit" />
                                             </Border>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
+                                </AbsoluteLayout>
+
+                                <AbsoluteLayout InputTransparent="True"
+                                                IsVisible="{Binding IsPlacementPreviewVisible}"
+                                                ZIndex="4">
+                                    <Border AbsoluteLayout.LayoutBounds="{Binding PlacementPreviewBounds}"
+                                            AbsoluteLayout.LayoutFlags="None"
+                                            Stroke="{Binding PlacementPreviewStrokeColor}"
+                                            StrokeThickness="1.6"
+                                            StrokeShape="{DynamicResource GameShipSpriteShape}"
+                                            BackgroundColor="{Binding PlacementPreviewFillColor}"
+                                            Padding="1">
+                                        <Image Source="{Binding PlacementPreviewImageSource}"
+                                               Rotation="{Binding PlacementPreviewImageRotation}"
+                                               Aspect="AspectFit"
+                                               Opacity="0.7" />
+                                    </Border>
                                 </AbsoluteLayout>
 
                                 <CollectionView x:Name="PlayerBoardCellsView"
@@ -542,7 +598,7 @@
                                         <DataTemplate>
                                             <Border Stroke="{Binding CellStrokeColor}"
                                                     StrokeThickness="0.9"
-                                                    StrokeShape="RoundRectangle 2"
+                                                    StrokeShape="{DynamicResource GameBoardCellShape}"
                                                     BackgroundColor="{Binding CellFillColor}"
                                                     WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
                                                     HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
@@ -566,7 +622,7 @@
                                                             BackgroundColor="{Binding MissPegFillColor}"
                                                             Stroke="{Binding MissPegStrokeColor}"
                                                             StrokeThickness="1.4"
-                                                            StrokeShape="RoundRectangle 8">
+                                                            StrokeShape="{DynamicResource GameMissPegShape}">
                                                         <Border.Shadow>
                                                             <Shadow Brush="#60000000" Radius="5" Opacity="0.35" Offset="0,1" />
                                                         </Border.Shadow>
@@ -579,7 +635,7 @@
                                                             VerticalOptions="Center"
                                                             BackgroundColor="{Binding MissPegCapColor}"
                                                             StrokeThickness="0"
-                                                            StrokeShape="RoundRectangle 3" />
+                                                            StrokeShape="{DynamicResource GameMissPegCapShape}" />
 
                                                     <Border IsVisible="{Binding IsTargetLockVisible}"
                                                             Stroke="#8FD9FF"
@@ -607,6 +663,8 @@
                                                         <TapGestureRecognizer
                                                             Buttons="Secondary"
                                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
+                                                        <PointerGestureRecognizer PointerEntered="OnPlayerCellPointerEntered"
+                                                                                  PointerExited="OnPlayerBoardPointerExited" />
                                                     </Grid.GestureRecognizers>
                                                 </Grid>
                                             </Border>

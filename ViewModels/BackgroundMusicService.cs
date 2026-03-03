@@ -14,6 +14,7 @@ public sealed class BackgroundMusicService : IBackgroundMusicService, IDisposabl
 #if WINDOWS
     private readonly Windows.Media.Playback.MediaPlayer? _player;
     private bool _sourceLoaded;
+    private CancellationTokenSource? _fadeCts;
 #endif
 
     public BackgroundMusicService()
@@ -41,16 +42,27 @@ public sealed class BackgroundMusicService : IBackgroundMusicService, IDisposabl
         if (_player is null)
             return;
 
-        _player.Volume = Math.Clamp(volume, 0, 1);
+        double targetVolume = Math.Clamp(volume, 0, 1);
 
         if (!enabled)
         {
+            _fadeCts?.Cancel();
             _player.Pause();
             return;
         }
 
         EnsureSourceLoaded();
-        _player.Play();
+
+        bool isStartingPlayback = _player.PlaybackSession.PlaybackState != Windows.Media.Playback.MediaPlaybackState.Playing;
+        if (isStartingPlayback)
+        {
+            _player.Volume = 0;
+            _player.Play();
+            _ = FadeToVolumeAsync(targetVolume, TimeSpan.FromSeconds(2));
+            return;
+        }
+
+        _player.Volume = targetVolume;
 #else
         _ = enabled;
         _ = volume;
@@ -89,11 +101,39 @@ public sealed class BackgroundMusicService : IBackgroundMusicService, IDisposabl
 
         return null;
     }
+
+    private async Task FadeToVolumeAsync(double targetVolume, TimeSpan duration)
+    {
+        if (_player is null)
+            return;
+
+        _fadeCts?.Cancel();
+        _fadeCts = new CancellationTokenSource();
+        CancellationToken ct = _fadeCts.Token;
+
+        double start = _player.Volume;
+        const int steps = 24;
+        int delayMs = Math.Max(20, (int)(duration.TotalMilliseconds / steps));
+
+        for (int step = 1; step <= steps; step++)
+        {
+            if (ct.IsCancellationRequested)
+                return;
+
+            double t = (double)step / steps;
+            _player.Volume = start + ((targetVolume - start) * t);
+            await Task.Delay(delayMs, ct).ConfigureAwait(false);
+        }
+
+        _player.Volume = targetVolume;
+    }
 #endif
 
     public void Dispose()
     {
 #if WINDOWS
+        _fadeCts?.Cancel();
+        _fadeCts?.Dispose();
         _player?.Dispose();
 #endif
     }

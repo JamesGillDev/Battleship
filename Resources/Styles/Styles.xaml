@@ -16,6 +16,13 @@
 
     <Thickness x:Key="GamePagePadding">14,12,14,14</Thickness>
     <Thickness x:Key="GameCardPadding">12,10</Thickness>
+    <RoundRectangle x:Key="GameCardStrokeShape" CornerRadius="12" />
+    <RoundRectangle x:Key="GameShipCardShape" CornerRadius="8" />
+    <RoundRectangle x:Key="GameBoardFrameShape" CornerRadius="8" />
+    <RoundRectangle x:Key="GameBoardCellShape" CornerRadius="3" />
+    <RoundRectangle x:Key="GameShipSpriteShape" CornerRadius="5" />
+    <RoundRectangle x:Key="GameMissPegShape" CornerRadius="8" />
+    <RoundRectangle x:Key="GameMissPegCapShape" CornerRadius="3" />
 
     <Style x:Key="GameTitleLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="{DynamicResource GameTypeDisplay}" />
@@ -66,7 +73,7 @@
         <Setter Property="Stroke" Value="{DynamicResource GameColorBorder}" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="BackgroundColor" Value="{DynamicResource GameColorSurface}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="{DynamicResource GameCardStrokeShape}" />
         <Setter Property="Padding" Value="{StaticResource GameCardPadding}" />
         <Setter Property="Shadow">
             <Setter.Value>

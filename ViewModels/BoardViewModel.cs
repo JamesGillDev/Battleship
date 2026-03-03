@@ -21,6 +21,8 @@ public class BoardViewModel : ObservableObject
     private readonly Dictionary<string, ShipSpriteVm> _enemySpritesByName = new(StringComparer.OrdinalIgnoreCase);
     private readonly Queue<BoardCoordinate> _easyEnemyShotQueue = new();
     private readonly List<PlayerShotRecord> _currentGameShotHistory = new();
+    private BoardCellVm? _placementPreviewAnchorCell;
+    private bool _hasShownWelcomeOverlayThisSession;
 
     private GameBoard? _playerBoard;
     private GameBoard? _enemyBoard;
@@ -76,6 +78,12 @@ public class BoardViewModel : ObservableObject
     private string _turnTransitionMessage = string.Empty;
     private string _thinkingDots = string.Empty;
     private Color _turnTransitionSpinnerColor = Color.FromArgb("#35F4FF");
+    private bool _isPlacementPreviewVisible;
+    private Rect _placementPreviewBounds = Rect.Zero;
+    private double _placementPreviewImageRotation;
+    private string _placementPreviewImageSource = string.Empty;
+    private Color _placementPreviewStrokeColor = Color.FromArgb("#8ad6ff");
+    private Color _placementPreviewFillColor = Color.FromArgb("#4026d6ff");
     private bool _isResolvingEnemyTurn;
     private bool _isResolvingPlayerShot;
     private int _gameSessionId;
@@ -127,6 +135,9 @@ public class BoardViewModel : ObservableObject
     public ICommand ToggleSettingsPanelCommand { get; }
     public ICommand DismissOverlayCommand { get; }
     public ICommand SetBoardViewModeCommand { get; }
+    public ICommand CycleThemeCommand { get; }
+    public ICommand UpdatePlacementPreviewCommand { get; }
+    public ICommand ClearPlacementPreviewCommand { get; }
 
     public bool IsPlayerTurn
     {
@@ -466,10 +477,13 @@ public class BoardViewModel : ObservableObject
 
             _selectedThemeOption = normalized;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CurrentThemeName));
             ApplyVisualSettings();
             SaveSettings();
         }
     }
+
+    public string CurrentThemeName => SelectedThemeOption.DisplayName;
 
     public bool SoundEnabled
     {
@@ -660,6 +674,72 @@ public class BoardViewModel : ObservableObject
         }
     }
 
+    public bool IsPlacementPreviewVisible
+    {
+        get => _isPlacementPreviewVisible;
+        private set
+        {
+            if (_isPlacementPreviewVisible == value) return;
+            _isPlacementPreviewVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Rect PlacementPreviewBounds
+    {
+        get => _placementPreviewBounds;
+        private set
+        {
+            if (_placementPreviewBounds == value) return;
+            _placementPreviewBounds = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double PlacementPreviewImageRotation
+    {
+        get => _placementPreviewImageRotation;
+        private set
+        {
+            if (Math.Abs(_placementPreviewImageRotation - value) < 0.001) return;
+            _placementPreviewImageRotation = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string PlacementPreviewImageSource
+    {
+        get => _placementPreviewImageSource;
+        private set
+        {
+            if (_placementPreviewImageSource == value) return;
+            _placementPreviewImageSource = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Color PlacementPreviewStrokeColor
+    {
+        get => _placementPreviewStrokeColor;
+        private set
+        {
+            if (_placementPreviewStrokeColor == value) return;
+            _placementPreviewStrokeColor = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public Color PlacementPreviewFillColor
+    {
+        get => _placementPreviewFillColor;
+        private set
+        {
+            if (_placementPreviewFillColor == value) return;
+            _placementPreviewFillColor = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool IsOverlayVisible
     {
         get => _isOverlayVisible;
@@ -821,6 +901,9 @@ public class BoardViewModel : ObservableObject
         ToggleSettingsPanelCommand = new Command(() => IsSettingsOpen = !IsSettingsOpen);
         DismissOverlayCommand = new Command(DismissOverlay);
         SetBoardViewModeCommand = new Command<string?>(SetBoardViewModeFromToken);
+        CycleThemeCommand = new Command(CycleTheme);
+        UpdatePlacementPreviewCommand = new Command<BoardCellVm>(UpdatePlacementPreview);
+        ClearPlacementPreviewCommand = new Command(ClearPlacementPreview);
 
         LoadStats();
         LoadSettings();
@@ -917,6 +1000,18 @@ public class BoardViewModel : ObservableObject
         ThemeTokenService.Apply(SelectedThemeOption.Theme, HighContrastMode, LargeTextMode);
         OnPropertyChanged(nameof(EnemyBoardTabBackground));
         OnPropertyChanged(nameof(PlayerBoardTabBackground));
+        foreach (var cell in EnemyCells)
+            cell.RefreshThemeVisuals();
+        foreach (var cell in PlayerCells)
+            cell.RefreshThemeVisuals();
+        foreach (var ship in PlacementShips)
+            ship.RefreshVisuals();
+        foreach (var sprite in PlayerShipSprites)
+            sprite.RefreshVisuals();
+        foreach (var sprite in EnemyShipSprites)
+            sprite.RefreshVisuals();
+        if (IsPlacementPreviewVisible)
+            RefreshPlacementPreview();
     }
 
     private void ApplyAnimationSettings()
@@ -1047,6 +1142,21 @@ public class BoardViewModel : ObservableObject
             return;
 
         SetBoardViewMode(mode);
+    }
+
+    private void CycleTheme()
+    {
+        if (ThemeOptions.Count == 0)
+            return;
+
+        int currentIndex = ThemeOptions
+            .Select((option, index) => (option, index))
+            .FirstOrDefault(item => item.option.Theme == SelectedThemeOption.Theme)
+            .index;
+
+        int nextIndex = (currentIndex + 1) % ThemeOptions.Count;
+        SelectedThemeOption = ThemeOptions[nextIndex];
+        StatusMessage = $"Theme shift engaged: {SelectedThemeOption.DisplayName}.";
     }
 
     private void ApplyAutoBoardFocus()
@@ -1240,9 +1350,9 @@ public class BoardViewModel : ObservableObject
     private void ShowGameStartOverlay()
     {
         FleetRecapItems.Clear();
-        OverlayTitle = "Command Briefing";
-        OverlaySubtitle = "1) Choose ships from the tray, right-click on your fleet grid to rotate.\n2) Place all ships, then switch to Fire Control and fire at enemy coordinates.\n3) Hits trigger follow-up intel. Sink all enemy ships to win.";
-        OverlayPrimaryActionText = "Begin Mission";
+        OverlayTitle = "Welcome To Task Force Command";
+        OverlaySubtitle = "1) Pick a ship, then hover over Your Fleet to preview live placement.\n2) Right-click to rotate. Left-click to deploy.\n3) Fire on Enemy Waters and sink the full fleet before they sink yours.\n4) Use Theme Shift for dramatic style changes and Settings for music/FX.";
+        OverlayPrimaryActionText = "Let's Fight!";
         ShowOverlayRecap = false;
         ShowOverlayAnalytics = false;
         IsOverlayVisible = true;
@@ -1310,6 +1420,7 @@ public class BoardViewModel : ObservableObject
         SetEnemyTurnResolutionState(false);
         SetPlayerShotResolutionState(false);
         _gameSessionId++;
+        ClearPlacementPreview();
         ClearTurnTransition();
         SetBoardViewMode(BoardViewMode.Player);
 
@@ -1319,11 +1430,11 @@ public class BoardViewModel : ObservableObject
         EnemyLastShotMessage = "Enemy last shot: --";
         OverlayPrimaryActionText = "Begin Mission";
 
-        if (!_hasSeenCommandBriefing)
+        if (!_hasShownWelcomeOverlayThisSession)
         {
             ShowGameStartOverlay();
+            _hasShownWelcomeOverlayThisSession = true;
             _hasSeenCommandBriefing = true;
-            SaveSettings();
         }
         else
         {
@@ -1390,6 +1501,7 @@ public class BoardViewModel : ObservableObject
 
         OnPropertyChanged(nameof(CanRotatePlacement));
         OnPropertyChanged(nameof(PlacementSelectionMessage));
+        RefreshPlacementPreview();
     }
 
     private void OnSelectPlacementShip(PlacementShipVm? ship)
@@ -1404,7 +1516,7 @@ public class BoardViewModel : ObservableObject
         }
 
         SetSelectedPlacementShip(ship);
-        StatusMessage = $"Placing {ship.Name} ({ship.Size}). Tap a starting cell on Your Fleet board.";
+        StatusMessage = $"Placing {ship.Name} ({ship.Size}). Hover Your Fleet for live preview, then tap to deploy.";
     }
 
     private void TogglePlacementOrientation()
@@ -1414,6 +1526,79 @@ public class BoardViewModel : ObservableObject
 
         IsVerticalPlacement = !IsVerticalPlacement;
         StatusMessage = $"{PlacementOrientationText}.";
+        RefreshPlacementPreview();
+    }
+
+    private void UpdatePlacementPreview(BoardCellVm? targetCell)
+    {
+        if (!CanPlaceShips || targetCell is null)
+        {
+            ClearPlacementPreview();
+            return;
+        }
+
+        _placementPreviewAnchorCell = targetCell;
+        RefreshPlacementPreview();
+    }
+
+    private void RefreshPlacementPreview()
+    {
+        if (!CanPlaceShips || _placementPreviewAnchorCell is null || _selectedPlacementShip is null || _playerBoard is null)
+        {
+            ClearPlacementPreview();
+            return;
+        }
+
+        if (!_playerShipsByName.TryGetValue(_selectedPlacementShip.Name, out var ship))
+        {
+            ClearPlacementPreview();
+            return;
+        }
+
+        bool isVertical = IsVerticalPlacement;
+        int row = _placementPreviewAnchorCell.Row;
+        int col = _placementPreviewAnchorCell.Col;
+
+        PlacementPreviewBounds = BuildShipBounds(row, col, ship.Size, isVertical ? ShipAxis.Vertical : ShipAxis.Horizontal);
+        PlacementPreviewImageRotation = isVertical ? 90 : 0;
+        PlacementPreviewImageSource = _selectedPlacementShip.ImageSource;
+
+        bool isValidPlacement = CanPlaceShipAt(ship, row, col, isVertical);
+        PlacementPreviewStrokeColor = isValidPlacement
+            ? ResolveThemeColor("GameColorSuccess", "#8AE7B7")
+            : ResolveThemeColor("GameColorDanger", "#FF8A69");
+        PlacementPreviewFillColor = isValidPlacement
+            ? Color.FromArgb("#3A3BD78A")
+            : Color.FromArgb("#66D74242");
+
+        IsPlacementPreviewVisible = true;
+    }
+
+    private void ClearPlacementPreview()
+    {
+        _placementPreviewAnchorCell = null;
+        IsPlacementPreviewVisible = false;
+        PlacementPreviewBounds = Rect.Zero;
+    }
+
+    private bool CanPlaceShipAt(Ship ship, int startRow, int startCol, bool vertical)
+    {
+        if (_playerBoard is null)
+            return false;
+
+        for (int index = 0; index < ship.Size; index++)
+        {
+            int row = vertical ? startRow + index : startRow;
+            int col = vertical ? startCol : startCol + index;
+
+            if (!_playerBoard.InBounds(row, col))
+                return false;
+
+            if (_playerBoard.Cells[row, col].Ship is not null)
+                return false;
+        }
+
+        return true;
     }
 
     private void OnPlayerCellTapped(BoardCellVm? targetCell)
@@ -1445,6 +1630,7 @@ public class BoardViewModel : ObservableObject
         _selectedPlacementShip.IsPlaced = true;
         AddPlayerShipSprite(ship, _selectedPlacementShip.ImageSource);
         ApplyPlayerShipPresence(ship);
+        ClearPlacementPreview();
         EmitFeedback(GameFeedbackCue.PlaceShip);
 
         var coordinate = ToBoardCoordinate(targetCell.Row, targetCell.Col);
@@ -1463,6 +1649,7 @@ public class BoardViewModel : ObservableObject
     private void CompletePlacementPhase()
     {
         SetSelectedPlacementShip(null);
+        ClearPlacementPreview();
         IsPlacementPhase = false;
         IsPlayerTurn = true;
         TurnMessage = "Your turn";
@@ -1488,7 +1675,8 @@ public class BoardViewModel : ObservableObject
             ship.Size,
             isVertical ? ShipAxis.Vertical : ShipAxis.Horizontal,
             isEnemy: false,
-            isRevealed: true);
+            isRevealed: true,
+            animateFromBoardEdgeOnReveal: true);
 
         PlayerShipSprites.Add(sprite);
         _playerSpritesByName[ship.Name] = sprite;
@@ -1535,6 +1723,14 @@ public class BoardViewModel : ObservableObject
             EnemyShipSprites.Add(sprite);
             _enemySpritesByName[ship.Name] = sprite;
         }
+    }
+
+    private static Rect BuildShipBounds(int startRow, int startCol, int shipSize, ShipAxis axis)
+    {
+        double cell = CellSize;
+        return axis == ShipAxis.Vertical
+            ? new Rect(startCol * cell, startRow * cell, cell, shipSize * cell)
+            : new Rect(startCol * cell, startRow * cell, shipSize * cell, cell);
     }
 
     private void PlaceFleetRandomly(GameBoard board, IEnumerable<Ship> fleet, bool allowVertical)
@@ -2182,26 +2378,26 @@ public class BoardCellVm : ObservableObject
     public bool IsMissMarkerVisible => MarkerState == ShotMarkerState.Miss;
     public bool IsTargetLockVisible => IsTargetLocked && MarkerState == ShotMarkerState.None;
     public double MissPegSize => BoardViewModel.MissPegSize;
-    public Color MissPegFillColor => IsPlayerBoard ? Color.FromArgb("#f2f8ff") : Color.FromArgb("#e6f3ff");
-    public Color MissPegStrokeColor => IsPlayerBoard ? Color.FromArgb("#7ea5c8") : Color.FromArgb("#6f9bc2");
-    public Color MissPegCapColor => IsPlayerBoard ? Color.FromArgb("#c7e1f4") : Color.FromArgb("#bdd9ef");
+    public Color MissPegFillColor => ResolveThemeColor("GameColorTextPrimary", IsPlayerBoard ? "#f2f8ff" : "#e6f3ff");
+    public Color MissPegStrokeColor => ResolveThemeColor("GameColorBorder", IsPlayerBoard ? "#7ea5c8" : "#6f9bc2");
+    public Color MissPegCapColor => ResolveThemeColor("GameColorTextMuted", IsPlayerBoard ? "#c7e1f4" : "#bdd9ef");
 
     public Color CellFillColor => MarkerState switch
     {
-        ShotMarkerState.Hit => Color.FromArgb("#3d2619"),
-        ShotMarkerState.Miss => IsPlayerBoard ? Color.FromArgb("#214a6f") : Color.FromArgb("#1f4f79"),
-        _ when IsTargetLocked => IsPlayerBoard ? Color.FromArgb("#275f8a") : Color.FromArgb("#2970a1"),
-        _ when IsPlayerBoard && HasShip => Color.FromArgb("#2e648c"),
-        _ => IsPlayerBoard ? Color.FromArgb("#173b5e") : Color.FromArgb("#1a4369")
+        ShotMarkerState.Hit => ResolveThemeColor("GameColorDanger", "#3d2619"),
+        ShotMarkerState.Miss => ResolveThemeColor("GameColorSurfaceAlt", IsPlayerBoard ? "#214a6f" : "#1f4f79"),
+        _ when IsTargetLocked => ResolveThemeColor("GameColorAccentSoft", IsPlayerBoard ? "#275f8a" : "#2970a1"),
+        _ when IsPlayerBoard && HasShip => ResolveThemeColor("GameColorPanel", "#2e648c"),
+        _ => ResolveThemeColor("GameColorSurface", IsPlayerBoard ? "#173b5e" : "#1a4369")
     };
 
     public Color CellStrokeColor => MarkerState switch
     {
-        ShotMarkerState.Hit => Color.FromArgb("#ff9366"),
-        ShotMarkerState.Miss => Color.FromArgb("#9ac3e5"),
-        _ when IsTargetLocked => Color.FromArgb("#8fd9ff"),
-        _ when IsPlayerBoard && HasShip => Color.FromArgb("#b8dcf8"),
-        _ => Color.FromArgb("#3d658b")
+        ShotMarkerState.Hit => ResolveThemeColor("GameColorWarning", "#ff9366"),
+        ShotMarkerState.Miss => ResolveThemeColor("GameColorTextMuted", "#9ac3e5"),
+        _ when IsTargetLocked => ResolveThemeColor("GameColorAccent", "#8fd9ff"),
+        _ when IsPlayerBoard && HasShip => ResolveThemeColor("GameColorTextPrimary", "#b8dcf8"),
+        _ => ResolveThemeColor("GameColorBorder", "#3d658b")
     };
 
     public string? MarkerImage => MarkerState == ShotMarkerState.Hit ? "explosion.png" : null;
@@ -2251,12 +2447,30 @@ public class BoardCellVm : ObservableObject
         IsTargetLocked = false;
         MarkerState = ShotMarkerState.None;
     }
+
+    public void RefreshThemeVisuals()
+    {
+        OnPropertyChanged(nameof(CellFillColor));
+        OnPropertyChanged(nameof(CellStrokeColor));
+        OnPropertyChanged(nameof(MissPegFillColor));
+        OnPropertyChanged(nameof(MissPegStrokeColor));
+        OnPropertyChanged(nameof(MissPegCapColor));
+    }
+
+    private static Color ResolveThemeColor(string key, string fallbackHex)
+    {
+        if (Application.Current?.Resources.TryGetValue(key, out var resource) == true && resource is Color color)
+            return color;
+
+        return Color.FromArgb(fallbackHex);
+    }
 }
 
 public class ShipSpriteVm : ObservableObject
 {
     private bool _isSunk;
     private bool _isRevealed;
+    private bool _hasConsumedPlacementEntry;
 
     public string Name { get; }
     public string ImageSource { get; }
@@ -2265,26 +2479,21 @@ public class ShipSpriteVm : ObservableObject
     public int Length { get; }
     public ShipAxis Axis { get; }
     public bool IsEnemy { get; }
+    public bool AnimateFromBoardEdgeOnReveal { get; }
 
     public Rect Bounds
     {
         get
         {
             double cell = BoardViewModel.CellSize;
-            double lengthPixels = Length * cell;
-            if (Axis == ShipAxis.Horizontal)
-                return new Rect(StartCol * cell, StartRow * cell, lengthPixels, cell);
-
-            double offset = (lengthPixels - cell) / 2d;
-            return new Rect(
-                (StartCol * cell) - offset,
-                (StartRow * cell) + offset,
-                lengthPixels,
-                cell);
+            return Axis == ShipAxis.Vertical
+                ? new Rect(StartCol * cell, StartRow * cell, cell, Length * cell)
+                : new Rect(StartCol * cell, StartRow * cell, Length * cell, cell);
         }
     }
 
-    public double Rotation => Axis == ShipAxis.Vertical ? 90 : 0;
+    public double Rotation => 0;
+    public double ImageRotation => Axis == ShipAxis.Vertical ? 90 : 0;
 
     public bool IsSunk
     {
@@ -2324,16 +2533,16 @@ public class ShipSpriteVm : ObservableObject
     }
 
     public Color StrokeColor => IsSunk
-        ? Color.FromArgb("#ff8a6b")
+        ? ResolveThemeColor("GameColorDanger", "#ff8a6b")
         : IsEnemy
-            ? Color.FromArgb("#7c8ea6")
-            : Color.FromArgb("#70839a");
+            ? ResolveThemeColor("GameColorTextMuted", "#7c8ea6")
+            : ResolveThemeColor("GameColorTextSecondary", "#70839a");
 
     public Color BackgroundColor => IsSunk
-        ? Color.FromArgb("#442018")
+        ? ResolveThemeColor("GameColorDanger", "#442018")
         : IsEnemy
-            ? Color.FromArgb("#1a2836")
-            : Color.FromArgb("#1d2734");
+            ? ResolveThemeColor("GameColorSurfaceAlt", "#1a2836")
+            : ResolveThemeColor("GameColorSurface", "#1d2734");
 
     public ShipSpriteVm(
         string name,
@@ -2343,7 +2552,8 @@ public class ShipSpriteVm : ObservableObject
         int length,
         ShipAxis axis,
         bool isEnemy = false,
-        bool isRevealed = true)
+        bool isRevealed = true,
+        bool animateFromBoardEdgeOnReveal = false)
     {
         Name = name;
         ImageSource = imageSource;
@@ -2353,6 +2563,35 @@ public class ShipSpriteVm : ObservableObject
         Axis = axis;
         IsEnemy = isEnemy;
         _isRevealed = isRevealed;
+        AnimateFromBoardEdgeOnReveal = animateFromBoardEdgeOnReveal;
+    }
+
+    public bool TryConsumePlacementEntry(out Point entryOffset)
+    {
+        entryOffset = Point.Zero;
+        if (!AnimateFromBoardEdgeOnReveal || _hasConsumedPlacementEntry)
+            return false;
+
+        _hasConsumedPlacementEntry = true;
+
+        double cell = BoardViewModel.CellSize;
+        double boardPixels = BoardViewModel.Size * cell;
+        if (Axis == ShipAxis.Vertical)
+        {
+            bool fromBottom = StartRow > (BoardViewModel.Size / 2);
+            double y = fromBottom
+                ? (boardPixels - (StartRow * cell)) + (Length * cell)
+                : -((StartRow * cell) + (Length * cell) + 8);
+            entryOffset = new Point(0, y);
+            return true;
+        }
+
+        bool fromRight = StartCol > (BoardViewModel.Size / 2);
+        double x = fromRight
+            ? (boardPixels - (StartCol * cell)) + (Length * cell)
+            : -((StartCol * cell) + (Length * cell) + 8);
+        entryOffset = new Point(x, 0);
+        return true;
     }
 
     public void MarkSunk()
@@ -2363,6 +2602,20 @@ public class ShipSpriteVm : ObservableObject
     public void Reveal()
     {
         IsRevealed = true;
+    }
+
+    public void RefreshVisuals()
+    {
+        OnPropertyChanged(nameof(StrokeColor));
+        OnPropertyChanged(nameof(BackgroundColor));
+    }
+
+    private static Color ResolveThemeColor(string key, string fallbackHex)
+    {
+        if (Application.Current?.Resources.TryGetValue(key, out var resource) == true && resource is Color color)
+            return color;
+
+        return Color.FromArgb(fallbackHex);
     }
 }
 
@@ -2405,22 +2658,36 @@ public class PlacementShipVm : ObservableObject
     public string DisplayName => IsPlaced ? $"{Name} ({Size}) - Placed" : $"{Name} ({Size})";
 
     public Color CardBackground => IsPlaced
-        ? Color.FromArgb("#23553e")
+        ? ResolveThemeColor("GameColorSuccess", "#23553e")
         : IsSelected
-            ? Color.FromArgb("#2a4f87")
-            : Color.FromArgb("#1c2735");
+            ? ResolveThemeColor("GameColorAccentSoft", "#2a4f87")
+            : ResolveThemeColor("GameColorSurfaceAlt", "#1c2735");
 
     public Color CardStroke => IsPlaced
-        ? Color.FromArgb("#7fe3ab")
+        ? ResolveThemeColor("GameColorSuccess", "#7fe3ab")
         : IsSelected
-            ? Color.FromArgb("#9fc3ff")
-            : Color.FromArgb("#4f6178");
+            ? ResolveThemeColor("GameColorAccent", "#9fc3ff")
+            : ResolveThemeColor("GameColorBorder", "#4f6178");
 
     public PlacementShipVm(string name, int size, string imageSource)
     {
         Name = name;
         Size = size;
         ImageSource = imageSource;
+    }
+
+    public void RefreshVisuals()
+    {
+        OnPropertyChanged(nameof(CardBackground));
+        OnPropertyChanged(nameof(CardStroke));
+    }
+
+    private static Color ResolveThemeColor(string key, string fallbackHex)
+    {
+        if (Application.Current?.Resources.TryGetValue(key, out var resource) == true && resource is Color color)
+            return color;
+
+        return Color.FromArgb(fallbackHex);
     }
 }
 

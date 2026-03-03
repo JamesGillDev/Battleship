@@ -29,7 +29,7 @@ public class BoardViewModelTests
         Assert.Equal(0, vm.CurrentGameHits);
         Assert.Contains("No completed games yet.", vm.LastGameSummary);
         Assert.True(vm.IsOverlayVisible);
-        Assert.Equal("Begin Mission", vm.OverlayPrimaryActionText);
+        Assert.Equal("Let's Fight!", vm.OverlayPrimaryActionText);
         Assert.Equal("Placement phase", vm.TurnMessage);
         Assert.Contains("Selected ship:", vm.PlacementSelectionMessage);
     }

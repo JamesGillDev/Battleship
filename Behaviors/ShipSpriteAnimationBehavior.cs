@@ -46,6 +46,7 @@ public sealed class ShipSpriteAnimationBehavior : Behavior<VisualElement>
         _associatedObject.Opacity = _sprite.Opacity;
         _associatedObject.Scale = 1;
         _associatedObject.TranslationX = 0;
+        _associatedObject.TranslationY = 0;
 
         _sprite.PropertyChanged += OnSpritePropertyChanged;
     }
@@ -77,11 +78,29 @@ public sealed class ShipSpriteAnimationBehavior : Behavior<VisualElement>
             {
                 view.Opacity = sprite.Opacity;
                 view.Scale = 1;
+                view.TranslationX = 0;
+                view.TranslationY = 0;
+                return;
+            }
+
+            if (sprite.TryConsumePlacementEntry(out var offset))
+            {
+                view.Opacity = 1;
+                view.Scale = 1;
+                view.TranslationX = offset.X;
+                view.TranslationY = offset.Y;
+
+                uint entryDuration = ScaleDuration(420);
+                await Task.WhenAll(
+                    view.TranslateToAsync(0, 0, entryDuration, Easing.CubicOut),
+                    view.FadeToAsync(sprite.Opacity, ScaleDuration(260), Easing.CubicOut));
                 return;
             }
 
             view.Opacity = 0;
             view.Scale = 0.88;
+            view.TranslationX = 0;
+            view.TranslationY = 0;
 
             uint duration = ScaleDuration(260);
             await Task.WhenAll(
@@ -99,6 +118,7 @@ public sealed class ShipSpriteAnimationBehavior : Behavior<VisualElement>
                 view.Opacity = sprite.Opacity;
                 view.Scale = 1;
                 view.TranslationX = 0;
+                view.TranslationY = 0;
                 return;
             }
 
