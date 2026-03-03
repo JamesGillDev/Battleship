@@ -13,640 +13,693 @@
 
     <Grid RowDefinitions="Auto,*" RowSpacing="0">
         <Border Grid.Row="0"
-                BackgroundColor="#131f2d"
                 Stroke="{DynamicResource GameColorBorder}"
                 StrokeThickness="0,0,0,1"
-                Padding="12,10">
-            <Grid ColumnDefinitions="Auto,Auto,10,Auto,Auto,*,Auto" ColumnSpacing="8">
-                <Button Text="Fire Control"
-                        Command="{Binding SetBoardViewModeCommand}"
-                        CommandParameter="Enemy"
-                        Style="{StaticResource GameSecondaryButtonStyle}"
-                        BackgroundColor="{Binding EnemyBoardTabBackground}"
-                        WidthRequest="120"
-                        HeightRequest="36"
-                        Padding="12,6" />
-                <Button Grid.Column="1"
-                        Text="Fleet Ops"
-                        Command="{Binding SetBoardViewModeCommand}"
-                        CommandParameter="Player"
-                        Style="{StaticResource GameSecondaryButtonStyle}"
-                        BackgroundColor="{Binding PlayerBoardTabBackground}"
-                        WidthRequest="106"
-                        HeightRequest="36"
-                        Padding="12,6" />
-                <Button Grid.Column="3"
-                        Text="New Game"
-                        Command="{Binding NewGameCommand}"
-                        Style="{StaticResource GamePrimaryButtonStyle}"
-                        HeightRequest="36"
-                        Padding="12,6" />
-                <Button Grid.Column="4"
-                        Text="Reset Stats"
-                        Command="{Binding ResetStatsCommand}"
-                        Style="{StaticResource GameSecondaryButtonStyle}"
-                        HeightRequest="36"
-                        Padding="12,6" />
-                <Label Grid.Column="5"
-                       Text="{Binding BoardFocusSummary}"
-                       Style="{StaticResource GameCaptionLabelStyle}"
-                       VerticalTextAlignment="Center"
-                       HorizontalTextAlignment="Center"
-                       TextColor="{DynamicResource GameColorTextMuted}" />
-                <Button Grid.Column="6"
-                        Text="{Binding SettingsToggleText}"
-                        Command="{Binding ToggleSettingsPanelCommand}"
-                        Style="{StaticResource GameSecondaryButtonStyle}"
-                        HeightRequest="36"
-                        Padding="12,6" />
-            </Grid>
-        </Border>
+                Padding="14,12">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="1,1">
+                    <GradientStop Color="#142A45" Offset="0" />
+                    <GradientStop Color="#0B1522" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="14">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Task Force Command"
+                           Style="{StaticResource GameTitleLabelStyle}"
+                           FontSize="28"
+                           TextColor="#E9F7FF" />
+                    <Label Text="Arcade naval battle control deck"
+                           Style="{StaticResource GameCaptionLabelStyle}"
+                           FontSize="13"
+                           TextColor="#9BC4E7" />
+                </VerticalStackLayout>
 
-        <VerticalStackLayout Grid.Row="1"
-                             Padding="{StaticResource GamePagePadding}"
-                             Spacing="{StaticResource GameSpaceSm}">
-                <Label Text="Command Center"
-                       Style="{StaticResource GameTitleLabelStyle}"
-                       FontSize="32"
-                       TextColor="#a98bff" />
-
-                <Label Text="{Binding TurnMessage}"
-                       Style="{StaticResource GameSectionLabelStyle}"
-                       TextColor="{DynamicResource GameColorAccent}" />
-
-                <Label Text="{Binding ScoreLine}" Style="{StaticResource GameBodyLabelStyle}" />
-
-                <Label Text="{Binding CurrentGameStatsLine}"
-                       Style="{StaticResource GameCaptionLabelStyle}"
-                       TextColor="{DynamicResource GameColorAccent}" />
-
-                <Label Text="{Binding StatusMessage}"
-                       Style="{StaticResource GameBodyLabelStyle}"
-                       LineBreakMode="WordWrap" />
-
-                <Label Text="{Binding PlayerLastShotMessage}"
-                       Style="{StaticResource GameCaptionLabelStyle}"
-                       TextColor="{DynamicResource GameColorAccent}" />
-
-                <Label Text="{Binding EnemyLastShotMessage}"
-                       Style="{StaticResource GameCaptionLabelStyle}"
-                       TextColor="{DynamicResource GameColorWarning}" />
-
-                <Border IsVisible="{Binding IsTurnTransitionActive}"
-                        Style="{StaticResource GameCardBorderStyle}"
-                        BackgroundColor="#122539"
-                        Padding="10,6">
-                    <HorizontalStackLayout Spacing="8">
-                        <ActivityIndicator IsRunning="{Binding IsTurnTransitionActive}"
-                                           IsVisible="{Binding IsTurnTransitionActive}"
-                                           WidthRequest="18"
-                                           HeightRequest="18"
-                                           Color="{DynamicResource GameColorAccent}" />
-                        <Label Text="{Binding TurnTransitionMessage}"
-                               Style="{StaticResource GameCaptionLabelStyle}"
-                               VerticalTextAlignment="Center"
-                               TextColor="{DynamicResource GameColorAccent}" />
-                    </HorizontalStackLayout>
-                </Border>
-
-                <Border IsVisible="False"
-                        Style="{StaticResource GameCardBorderStyle}"
-                        BackgroundColor="#11253a"
-                        Padding="8,6">
-                    <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
-                        <Button Text="Fire Control"
-                                Command="{Binding SetBoardViewModeCommand}"
-                                CommandParameter="Enemy"
-                                Style="{StaticResource GameSecondaryButtonStyle}"
-                                BackgroundColor="{Binding EnemyBoardTabBackground}"
-                                WidthRequest="112"
-                                HeightRequest="34"
-                                MinimumHeightRequest="34"
-                                MinimumWidthRequest="44"
-                                Padding="10,5" />
-                        <Button Grid.Column="1"
-                                Text="Fleet Ops"
-                                Command="{Binding SetBoardViewModeCommand}"
-                                CommandParameter="Player"
-                                Style="{StaticResource GameSecondaryButtonStyle}"
-                                BackgroundColor="{Binding PlayerBoardTabBackground}"
-                                WidthRequest="104"
-                                HeightRequest="34"
-                                MinimumHeightRequest="34"
-                                MinimumWidthRequest="44"
-                                Padding="10,5" />
-                        <Label Grid.Column="2"
-                               Text="{Binding BoardFocusSummary}"
-                               Style="{StaticResource GameCaptionLabelStyle}"
-                               VerticalTextAlignment="Center"
-                               HorizontalTextAlignment="End"
-                               TextColor="{DynamicResource GameColorTextMuted}" />
-                    </Grid>
-                </Border>
-
-                <HorizontalStackLayout IsVisible="False" Spacing="{StaticResource GameSpaceSm}">
-                    <Button Text="New Game"
+                <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Start">
+                    <Button Text="New Mission"
                             Command="{Binding NewGameCommand}"
                             Style="{StaticResource GamePrimaryButtonStyle}"
-                            SemanticProperties.Description="Start a new game"
-                            SemanticProperties.Hint="Resets the boards and begins ship placement." />
+                            HeightRequest="40"
+                            Padding="16,9" />
                     <Button Text="Reset Stats"
                             Command="{Binding ResetStatsCommand}"
                             Style="{StaticResource GameSecondaryButtonStyle}"
-                            SemanticProperties.Description="Reset saved stats"
-                            SemanticProperties.Hint="Clears wins, losses, turns, shots, and hit rate history." />
+                            HeightRequest="40"
+                            Padding="16,9" />
+                    <Button Text="{Binding SettingsToggleText}"
+                            Command="{Binding ToggleSettingsPanelCommand}"
+                            Style="{StaticResource GameSecondaryButtonStyle}"
+                            HeightRequest="40"
+                            Padding="16,9" />
                 </HorizontalStackLayout>
 
-                <Border IsVisible="{Binding IsSettingsOpen}" Style="{StaticResource GameCardBorderStyle}">
-                    <VerticalStackLayout Spacing="{StaticResource GameSpaceSm}">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Settings" Style="{StaticResource GameSectionLabelStyle}" />
-                            <Button Grid.Column="1"
-                                    Text="{Binding SettingsToggleText}"
-                                    Command="{Binding ToggleSettingsPanelCommand}"
-                                    Style="{StaticResource GameSecondaryButtonStyle}" />
+                <Grid Grid.Row="1"
+                      Grid.ColumnSpan="2"
+                      ColumnDefinitions="Auto,Auto,*,Auto"
+                      ColumnSpacing="8">
+                    <Button Text="Fire Control"
+                            Command="{Binding SetBoardViewModeCommand}"
+                            CommandParameter="Enemy"
+                            Style="{StaticResource GameSecondaryButtonStyle}"
+                            BackgroundColor="{Binding EnemyBoardTabBackground}"
+                            WidthRequest="134"
+                            HeightRequest="38"
+                            Padding="14,8" />
+                    <Button Grid.Column="1"
+                            Text="Fleet Ops"
+                            Command="{Binding SetBoardViewModeCommand}"
+                            CommandParameter="Player"
+                            Style="{StaticResource GameSecondaryButtonStyle}"
+                            BackgroundColor="{Binding PlayerBoardTabBackground}"
+                            WidthRequest="118"
+                            HeightRequest="38"
+                            Padding="14,8" />
+                    <Label Grid.Column="3"
+                           Text="{Binding BoardFocusSummary}"
+                           Style="{StaticResource GameCaptionLabelStyle}"
+                           FontSize="13"
+                           VerticalTextAlignment="Center"
+                           HorizontalTextAlignment="End"
+                           TextColor="{DynamicResource GameColorTextMuted}" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1"
+              Padding="{StaticResource GamePagePadding}"
+              RowDefinitions="Auto,Auto,Auto,*"
+              RowSpacing="10">
+            <Border Grid.Row="0"
+                    Style="{StaticResource GameCardBorderStyle}"
+                    Padding="12,10">
+                <Grid ColumnDefinitions="1.3*,1.3*,1.4*" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding TurnMessage}"
+                               Style="{StaticResource GameSectionLabelStyle}"
+                               FontSize="30"
+                               TextColor="{DynamicResource GameColorAccent}" />
+                        <Label Text="{Binding StatusMessage}"
+                               Style="{StaticResource GameBodyLabelStyle}"
+                               FontSize="16"
+                               LineBreakMode="TailTruncation" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                        <Label Text="Battle Status"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="12"
+                               TextColor="{DynamicResource GameColorTextMuted}" />
+                        <Label Text="{Binding ScoreLine}"
+                               Style="{StaticResource GameBodyLabelStyle}"
+                               FontSize="15" />
+                        <Label Text="{Binding CurrentGameStatsLine}"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="13"
+                               TextColor="{DynamicResource GameColorAccent}" />
+                    </VerticalStackLayout>
+
+                    <Grid Grid.Column="2" RowDefinitions="Auto,Auto" ColumnDefinitions="*" RowSpacing="4">
+                        <Label Text="{Binding PlayerLastShotMessage}"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="13"
+                               TextColor="{DynamicResource GameColorAccent}" />
+                        <Label Grid.Row="1"
+                               Text="{Binding EnemyLastShotMessage}"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="13"
+                               TextColor="{DynamicResource GameColorWarning}" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    IsVisible="{Binding IsTurnTransitionActive}"
+                    Style="{StaticResource GameCardBorderStyle}"
+                    BackgroundColor="#113150"
+                    Padding="12,8">
+                <HorizontalStackLayout Spacing="8">
+                    <ActivityIndicator IsRunning="{Binding IsTurnTransitionActive}"
+                                       IsVisible="{Binding IsTurnTransitionActive}"
+                                       WidthRequest="18"
+                                       HeightRequest="18"
+                                       Color="{DynamicResource GameColorAccent}" />
+                    <Label Text="{Binding TurnTransitionMessage}"
+                           Style="{StaticResource GameCaptionLabelStyle}"
+                           FontSize="14"
+                           VerticalTextAlignment="Center"
+                           TextColor="{DynamicResource GameColorAccent}" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <VerticalStackLayout Grid.Row="2" Spacing="10">
+                <Border IsVisible="{Binding IsSettingsOpen}"
+                        Style="{StaticResource GameCardBorderStyle}"
+                        BackgroundColor="#112844"
+                        Padding="12,10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Command Deck Settings"
+                               Style="{StaticResource GameSectionLabelStyle}"
+                               FontSize="18"
+                               TextColor="{DynamicResource GameColorAccent}" />
+
+                        <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                            <Label Text="CPU Difficulty" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            <Picker Grid.Column="1"
+                                    Title="Difficulty"
+                                    ItemsSource="{Binding DifficultyOptions}"
+                                    SelectedItem="{Binding SelectedDifficulty}" />
+
+                            <Label Grid.Column="2" Text="Animation" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            <Picker Grid.Column="3"
+                                    Title="Animation Speed"
+                                    ItemsSource="{Binding AnimationSpeedOptions}"
+                                    SelectedItem="{Binding SelectedAnimationSpeed}" />
+
+                            <Label Grid.Row="1" Text="Sound" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding SoundEnabled}" HorizontalOptions="Start" />
+
+                            <Label Grid.Row="1" Grid.Column="2" Text="Haptics" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            <Switch Grid.Row="1" Grid.Column="3" IsToggled="{Binding HapticsEnabled}" HorizontalOptions="Start" />
                         </Grid>
 
-                        <VerticalStackLayout IsVisible="{Binding IsSettingsOpen}" Spacing="{StaticResource GameSpaceSm}">
-                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="10">
-                                <Label Text="CPU Difficulty" Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Picker Grid.Column="1"
-                                        Title="Difficulty"
-                                        ItemsSource="{Binding DifficultyOptions}"
-                                        SelectedItem="{Binding SelectedDifficulty}" />
-
-                                <Label Grid.Row="1"
-                                       Text="Animation Speed"
-                                       Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Picker Grid.Row="1"
-                                        Grid.Column="1"
-                                        Title="Animation Speed"
-                                        ItemsSource="{Binding AnimationSpeedOptions}"
-                                        SelectedItem="{Binding SelectedAnimationSpeed}" />
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="10">
-                                <Label Text="Sound effects" Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Switch Grid.Column="1" IsToggled="{Binding SoundEnabled}" />
-
-                                <Label Grid.Row="1" Text="Haptics" Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Switch Grid.Row="1" Grid.Column="1" IsToggled="{Binding HapticsEnabled}" />
-
-                                <Label Grid.Row="2" Text="High contrast" Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Switch Grid.Row="2" Grid.Column="1" IsToggled="{Binding HighContrastMode}" />
-
-                                <Label Grid.Row="3" Text="Large text" Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Switch Grid.Row="3" Grid.Column="1" IsToggled="{Binding LargeTextMode}" />
-
-                                <Label Grid.Row="4" Text="Reduce motion" Style="{StaticResource GameCaptionLabelStyle}" />
-                                <Switch Grid.Row="4" Grid.Column="1" IsToggled="{Binding ReduceMotionMode}" />
-                            </Grid>
-                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="14">
+                            <HorizontalStackLayout Spacing="6">
+                                <Switch IsToggled="{Binding HighContrastMode}" />
+                                <Label Text="High contrast" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="1" Spacing="6">
+                                <Switch IsToggled="{Binding LargeTextMode}" />
+                                <Label Text="Large text" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="2" Spacing="6">
+                                <Switch IsToggled="{Binding ReduceMotionMode}" />
+                                <Label Text="Reduce motion" Style="{StaticResource GameCaptionLabelStyle}" VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                        </Grid>
                     </VerticalStackLayout>
                 </Border>
 
-                <Border IsVisible="False" Style="{StaticResource GameCardBorderStyle}" BackgroundColor="{DynamicResource GameColorPanel}">
-                    <VerticalStackLayout Spacing="{StaticResource GameSpaceXs}">
-                        <Label Text="Stats" Style="{StaticResource GameSectionLabelStyle}" TextColor="{DynamicResource GameColorSuccess}" />
-                        <Label Text="{Binding StatsLine}" Style="{StaticResource GameBodyLabelStyle}" />
-                        <Label Text="{Binding CurrentGameStatsLine}" Style="{StaticResource GameBodyLabelStyle}" TextColor="{DynamicResource GameColorAccent}" />
-                        <Label Text="{Binding LastGameSummary}" Style="{StaticResource GameBodyLabelStyle}" TextColor="{DynamicResource GameColorWarning}" />
+                <Border IsVisible="{Binding IsPlacementPhase}"
+                        Style="{StaticResource GameCardBorderStyle}"
+                        BackgroundColor="#0F2A45"
+                        Padding="12,10">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Fleet Deployment"
+                                       Style="{StaticResource GameSectionLabelStyle}"
+                                       FontSize="20"
+                                       TextColor="{DynamicResource GameColorWarning}" />
+                                <Label Text="{Binding PlacementSelectionMessage}"
+                                       Style="{StaticResource GameBodyLabelStyle}"
+                                       FontSize="15"
+                                       TextColor="{DynamicResource GameColorWarning}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="{Binding PlacementOrientationText}"
+                                    Command="{Binding RotatePlacementCommand}"
+                                    IsEnabled="{Binding CanRotatePlacement}"
+                                    Style="{StaticResource GameSecondaryButtonStyle}"
+                                    HeightRequest="38"
+                                    Padding="14,8"
+                                    SemanticProperties.Description="Rotate selected ship"
+                                    SemanticProperties.Hint="Switches between horizontal and vertical placement." />
+                        </Grid>
+
+                        <CollectionView ItemsSource="{Binding PlacementShips}"
+                                        SelectionMode="None"
+                                        HeightRequest="88"
+                                        VerticalScrollBarVisibility="Never"
+                                        HorizontalScrollBarVisibility="Never">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                            </CollectionView.ItemsLayout>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BackgroundColor="{Binding CardBackground}"
+                                            Stroke="{Binding CardStroke}"
+                                            StrokeThickness="1.2"
+                                            StrokeShape="RoundRectangle 8"
+                                            Padding="8,6"
+                                            WidthRequest="152"
+                                            HeightRequest="80">
+                                        <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
+                                            <Label Text="{Binding DisplayName}"
+                                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                                   FontSize="13"
+                                                   TextColor="White"
+                                                   LineBreakMode="TailTruncation" />
+                                            <Image Grid.Row="1"
+                                                   Source="{Binding ImageSource}"
+                                                   HeightRequest="34"
+                                                   Aspect="AspectFit" />
+
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=SelectPlacementShipCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                                <TapGestureRecognizer
+                                                    Buttons="Secondary"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                     </VerticalStackLayout>
                 </Border>
+            </VerticalStackLayout>
 
-                <VerticalStackLayout IsVisible="{Binding IsPlacementPhase}" Spacing="{StaticResource GameSpaceSm}">
-                    <Label Text="Place Your Fleet"
+            <Grid x:Name="CommandCenterBoardHost"
+                  Grid.Row="3"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="14"
+                  HorizontalOptions="Fill"
+                  VerticalOptions="FillAndExpand">
+                <VerticalStackLayout x:Name="EnemyBoardPage"
+                                     Grid.Column="0"
+                                     Spacing="6"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Start">
+                    <Label Text="Enemy Waters"
                            Style="{StaticResource GameSectionLabelStyle}"
-                           TextColor="{DynamicResource GameColorWarning}" />
-
-                    <Label Text="{Binding PlacementSelectionMessage}"
-                           Style="{StaticResource GameBodyLabelStyle}"
-                           TextColor="{DynamicResource GameColorWarning}" />
-
-                    <Button Text="{Binding PlacementOrientationText}"
-                            Command="{Binding RotatePlacementCommand}"
-                            IsEnabled="{Binding CanRotatePlacement}"
-                            Style="{StaticResource GameSecondaryButtonStyle}"
-                            SemanticProperties.Description="Rotate selected ship"
-                            SemanticProperties.Hint="Switches between horizontal and vertical placement." />
-
-                    <CollectionView ItemsSource="{Binding PlacementShips}"
-                                    SelectionMode="None"
-                                    HeightRequest="84">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
-                        </CollectionView.ItemsLayout>
-
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="{Binding CardBackground}"
-                                        Stroke="{Binding CardStroke}"
-                                        StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 6"
-                                        Padding="8,6"
-                                        WidthRequest="155">
-                                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*">
-                                        <Label Text="{Binding DisplayName}"
-                                               FontSize="12"
-                                               TextColor="White"
-                                               LineBreakMode="TailTruncation" />
-                                        <Image Grid.Row="1"
-                                               Source="{Binding ImageSource}"
-                                               HeightRequest="28"
-                                               Aspect="AspectFit" />
-
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=SelectPlacementShipCommand}"
-                                                CommandParameter="{Binding .}" />
-                                            <TapGestureRecognizer
-                                                Buttons="Secondary"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
-                                        </Grid.GestureRecognizers>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-
-                <Grid x:Name="CommandCenterBoardHost"
-                      ColumnDefinitions="*"
-                      RowDefinitions="Auto"
-                      HorizontalOptions="Center"
-                      VerticalOptions="FillAndExpand">
-                <VerticalStackLayout x:Name="EnemyBoardPage" Spacing="6">
-                    <Label Text="Enemy Waters" Style="{StaticResource GameSectionLabelStyle}" Margin="0,8,0,0" />
+                           FontSize="36"
+                           Margin="0,2,0,0" />
 
                     <Border Style="{StaticResource GameCardBorderStyle}"
-                            Padding="2"
+                            Padding="3"
                             HorizontalOptions="Center"
                             WidthRequest="{Binding BoardFramePixelSize}">
-                    <Grid RowDefinitions="20,*"
-                          ColumnDefinitions="20,*"
-                          RowSpacing="4"
-                          ColumnSpacing="4">
-                        <HorizontalStackLayout Grid.Row="0"
-                                               Grid.Column="1"
-                                               BindableLayout.ItemsSource="{Binding ColumnLabels}"
-                                               Spacing="0"
-                                               InputTransparent="True"
-                                               HorizontalOptions="Start"
-                                               HeightRequest="20"
-                                               WidthRequest="{Binding BoardPixelSize}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Label Text="{Binding .}"
-                                           WidthRequest="44"
-                                           HeightRequest="20"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="{DynamicResource GameColorTextMuted}"
-                                           FontSize="11"
-                                           FontAttributes="Bold" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </HorizontalStackLayout>
-
-                        <VerticalStackLayout Grid.Row="1"
-                                             Grid.Column="0"
-                                             BindableLayout.ItemsSource="{Binding RowLabels}"
-                                             Spacing="0"
-                                             InputTransparent="True"
-                                             WidthRequest="20"
-                                             HeightRequest="{Binding BoardPixelSize}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Label Text="{Binding .}"
-                                           WidthRequest="20"
-                                           HeightRequest="44"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="{DynamicResource GameColorTextMuted}"
-                                           FontSize="11"
-                                           FontAttributes="Bold" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-
-                        <Grid Grid.Row="1"
-                              Grid.Column="1"
-                              WidthRequest="{Binding BoardPixelSize}"
-                              HeightRequest="{Binding BoardPixelSize}"
-                              HorizontalOptions="Start"
-                              VerticalOptions="Start"
-                              IsClippedToBounds="True">
-                            <Border Stroke="{DynamicResource GameColorBorder}"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 6"
-                                    BackgroundColor="#132a3f"
-                                    ZIndex="0" />
-                            <AbsoluteLayout InputTransparent="True"
-                                            BindableLayout.ItemsSource="{Binding EnemyShipSprites}"
-                                            IsVisible="{Binding ShowEnemyFleet}"
-                                            ZIndex="3">
+                        <Grid RowDefinitions="20,*"
+                              ColumnDefinitions="20,*"
+                              RowSpacing="4"
+                              ColumnSpacing="4">
+                            <HorizontalStackLayout Grid.Row="0"
+                                                   Grid.Column="1"
+                                                   BindableLayout.ItemsSource="{Binding ColumnLabels}"
+                                                   Spacing="0"
+                                                   InputTransparent="True"
+                                                   HorizontalOptions="Start"
+                                                   HeightRequest="20"
+                                                   WidthRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <Border AbsoluteLayout.LayoutBounds="{Binding Bounds}"
-                                                AbsoluteLayout.LayoutFlags="None"
-                                                Rotation="{Binding Rotation}"
-                                                Stroke="{Binding StrokeColor}"
-                                                StrokeThickness="1.25"
-                                                StrokeShape="RoundRectangle 4"
-                                                Padding="1"
-                                                BackgroundColor="{Binding BackgroundColor}"
-                                                Opacity="{Binding Opacity}">
-                                            <Border.Behaviors>
-                                                <behaviors:ShipSpriteAnimationBehavior />
-                                            </Border.Behaviors>
-                                            <Image Source="{Binding ImageSource}"
-                                                   Aspect="AspectFill" />
-                                        </Border>
+                                        <Label Text="{Binding .}"
+                                               WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                               HeightRequest="20"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{DynamicResource GameColorTextMuted}"
+                                               FontSize="12"
+                                               FontAttributes="Bold" />
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
-                            </AbsoluteLayout>
+                            </HorizontalStackLayout>
 
-                            <CollectionView ItemsSource="{Binding EnemyCells}"
-                                            SelectionMode="None"
-                                            IsEnabled="{Binding CanFire}"
-                                            WidthRequest="{Binding BoardPixelSize}"
-                                            HeightRequest="{Binding BoardPixelSize}"
-                                            VerticalScrollBarVisibility="Never"
-                                            HorizontalScrollBarVisibility="Never"
-                                            ZIndex="2"
-                                            SemanticProperties.Description="Enemy waters grid."
-                                            SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. Tap a cell to fire.">
-                                <CollectionView.ItemsLayout>
-                                    <GridItemsLayout Orientation="Vertical"
-                                                     Span="10"
-                                                     HorizontalItemSpacing="0"
-                                                     VerticalItemSpacing="0" />
-                                </CollectionView.ItemsLayout>
-
-                                <CollectionView.ItemTemplate>
+                            <VerticalStackLayout Grid.Row="1"
+                                                 Grid.Column="0"
+                                                 BindableLayout.ItemsSource="{Binding RowLabels}"
+                                                 Spacing="0"
+                                                 InputTransparent="True"
+                                                 WidthRequest="20"
+                                                 HeightRequest="{Binding BoardPixelSize}">
+                                <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Stroke="{Binding CellStrokeColor}"
-                                                StrokeThickness="0.8"
-                                                StrokeShape="RoundRectangle 2"
-                                                BackgroundColor="{Binding CellFillColor}"
-                                                WidthRequest="44"
-                                                HeightRequest="44"
-                                                SemanticProperties.Description="{Binding AccessibilityText}"
-                                                SemanticProperties.Hint="Enemy cell. Tap to fire.">
-                                            <Grid>
-                                                <Image Source="{Binding MarkerImage}" Aspect="AspectFill" Opacity="0.86">
-                                                    <Image.Behaviors>
-                                                        <behaviors:CellImpactAnimationBehavior />
-                                                    </Image.Behaviors>
-                                                </Image>
-                                                <Label Text="{Binding MarkerText}"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"
-                                                       TextColor="{Binding MarkerColor}"
-                                                       FontSize="16"
-                                                       FontAttributes="Bold" />
-                                                <Grid.GestureRecognizers>
-                                                    <TapGestureRecognizer
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=EnemyCellTappedCommand}"
-                                                        CommandParameter="{Binding .}" />
-                                                </Grid.GestureRecognizers>
-                                            </Grid>
-                                        </Border>
+                                        <Label Text="{Binding .}"
+                                               WidthRequest="20"
+                                               HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{DynamicResource GameColorTextMuted}"
+                                               FontSize="12"
+                                               FontAttributes="Bold" />
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Row="1"
+                                  Grid.Column="1"
+                                  WidthRequest="{Binding BoardPixelSize}"
+                                  HeightRequest="{Binding BoardPixelSize}"
+                                  HorizontalOptions="Start"
+                                  VerticalOptions="Start"
+                                  IsClippedToBounds="True">
+                                <Border Stroke="{DynamicResource GameColorBorder}"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 6"
+                                        BackgroundColor="#18466F"
+                                        ZIndex="0" />
+                                <AbsoluteLayout InputTransparent="True"
+                                                BindableLayout.ItemsSource="{Binding EnemyShipSprites}"
+                                                IsVisible="{Binding ShowEnemyFleet}"
+                                                ZIndex="3">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border AbsoluteLayout.LayoutBounds="{Binding Bounds}"
+                                                    AbsoluteLayout.LayoutFlags="None"
+                                                    Rotation="{Binding Rotation}"
+                                                    Stroke="{Binding StrokeColor}"
+                                                    StrokeThickness="1.25"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    Padding="1"
+                                                    BackgroundColor="{Binding BackgroundColor}"
+                                                    Opacity="{Binding Opacity}">
+                                                <Border.Behaviors>
+                                                    <behaviors:ShipSpriteAnimationBehavior />
+                                                </Border.Behaviors>
+                                                <Image Source="{Binding ImageSource}"
+                                                       Aspect="AspectFill" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </AbsoluteLayout>
+
+                                <CollectionView ItemsSource="{Binding EnemyCells}"
+                                                SelectionMode="None"
+                                                IsEnabled="{Binding CanFire}"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                VerticalScrollBarVisibility="Never"
+                                                HorizontalScrollBarVisibility="Never"
+                                                ZIndex="2"
+                                                SemanticProperties.Description="Enemy waters grid."
+                                                SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. Tap a cell to fire.">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical"
+                                                         Span="10"
+                                                         HorizontalItemSpacing="0"
+                                                         VerticalItemSpacing="0" />
+                                    </CollectionView.ItemsLayout>
+
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Stroke="{Binding CellStrokeColor}"
+                                                    StrokeThickness="0.9"
+                                                    StrokeShape="RoundRectangle 2"
+                                                    BackgroundColor="{Binding CellFillColor}"
+                                                    WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                                    HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                                    SemanticProperties.Description="{Binding AccessibilityText}"
+                                                    SemanticProperties.Hint="Enemy cell. Tap to fire.">
+                                                <Grid>
+                                                    <Image Source="{Binding MarkerImage}"
+                                                           IsVisible="{Binding IsHitMarkerVisible}"
+                                                           Aspect="AspectFill"
+                                                           Opacity="0.9">
+                                                        <Image.Behaviors>
+                                                            <behaviors:CellImpactAnimationBehavior />
+                                                        </Image.Behaviors>
+                                                    </Image>
+
+                                                    <Border IsVisible="{Binding IsMissMarkerVisible}"
+                                                            WidthRequest="{Binding MissPegSize}"
+                                                            HeightRequest="{Binding MissPegSize}"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center"
+                                                            BackgroundColor="{Binding MissPegFillColor}"
+                                                            Stroke="{Binding MissPegStrokeColor}"
+                                                            StrokeThickness="1.4"
+                                                            StrokeShape="RoundRectangle 8">
+                                                        <Border.Shadow>
+                                                            <Shadow Brush="#60000000" Radius="5" Opacity="0.35" Offset="0,1" />
+                                                        </Border.Shadow>
+                                                    </Border>
+
+                                                    <Border IsVisible="{Binding IsMissMarkerVisible}"
+                                                            WidthRequest="6"
+                                                            HeightRequest="6"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center"
+                                                            BackgroundColor="{Binding MissPegCapColor}"
+                                                            StrokeThickness="0"
+                                                            StrokeShape="RoundRectangle 3" />
+
+                                                    <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=EnemyCellTappedCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Grid.GestureRecognizers>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </Grid>
                         </Grid>
-                    </Grid>
                     </Border>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout x:Name="PlayerBoardPage"
+                                     Grid.Column="1"
                                      Spacing="6"
-                                     IsVisible="False"
-                                     Opacity="0"
-                                     TranslationX="80">
-                    <Label Text="Your Fleet" Style="{StaticResource GameSectionLabelStyle}" Margin="0,8,0,0" />
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Start">
+                    <Label Text="Your Fleet"
+                           Style="{StaticResource GameSectionLabelStyle}"
+                           FontSize="36"
+                           Margin="0,2,0,0" />
 
                     <Border Style="{StaticResource GameCardBorderStyle}"
-                            Padding="2"
+                            Padding="3"
                             HorizontalOptions="Center"
                             WidthRequest="{Binding BoardFramePixelSize}">
-                    <Grid RowDefinitions="20,*"
-                          ColumnDefinitions="20,*"
-                          RowSpacing="4"
-                          ColumnSpacing="4">
-                        <HorizontalStackLayout Grid.Row="0"
-                                               Grid.Column="1"
-                                               BindableLayout.ItemsSource="{Binding ColumnLabels}"
-                                               Spacing="0"
-                                               InputTransparent="True"
-                                               HorizontalOptions="Start"
-                                               HeightRequest="20"
-                                               WidthRequest="{Binding BoardPixelSize}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Label Text="{Binding .}"
-                                           WidthRequest="44"
-                                           HeightRequest="20"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="{DynamicResource GameColorTextMuted}"
-                                           FontSize="11"
-                                           FontAttributes="Bold" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </HorizontalStackLayout>
-
-                        <VerticalStackLayout Grid.Row="1"
-                                             Grid.Column="0"
-                                             BindableLayout.ItemsSource="{Binding RowLabels}"
-                                             Spacing="0"
-                                             InputTransparent="True"
-                                             WidthRequest="20"
-                                             HeightRequest="{Binding BoardPixelSize}">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <Label Text="{Binding .}"
-                                           WidthRequest="20"
-                                           HeightRequest="44"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="{DynamicResource GameColorTextMuted}"
-                                           FontSize="11"
-                                           FontAttributes="Bold" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-
-                        <Grid Grid.Row="1"
-                              Grid.Column="1"
-                              WidthRequest="{Binding BoardPixelSize}"
-                              HeightRequest="{Binding BoardPixelSize}"
-                              HorizontalOptions="Start"
-                              VerticalOptions="Start"
-                              IsClippedToBounds="True">
-                            <Border Stroke="{DynamicResource GameColorBorder}"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 6"
-                                    BackgroundColor="#11253a"
-                                    ZIndex="0" />
-                            <AbsoluteLayout InputTransparent="True"
-                                            BindableLayout.ItemsSource="{Binding PlayerShipSprites}"
-                                            ZIndex="3">
+                        <Grid RowDefinitions="20,*"
+                              ColumnDefinitions="20,*"
+                              RowSpacing="4"
+                              ColumnSpacing="4">
+                            <HorizontalStackLayout Grid.Row="0"
+                                                   Grid.Column="1"
+                                                   BindableLayout.ItemsSource="{Binding ColumnLabels}"
+                                                   Spacing="0"
+                                                   InputTransparent="True"
+                                                   HorizontalOptions="Start"
+                                                   HeightRequest="20"
+                                                   WidthRequest="{Binding BoardPixelSize}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <Border AbsoluteLayout.LayoutBounds="{Binding Bounds}"
-                                                AbsoluteLayout.LayoutFlags="None"
-                                                Rotation="{Binding Rotation}"
-                                                Stroke="{Binding StrokeColor}"
-                                                StrokeThickness="1.25"
-                                                StrokeShape="RoundRectangle 4"
-                                                Padding="1"
-                                                BackgroundColor="{Binding BackgroundColor}"
-                                                Opacity="{Binding Opacity}">
-                                            <Border.Behaviors>
-                                                <behaviors:ShipSpriteAnimationBehavior />
-                                            </Border.Behaviors>
-                                            <Image Source="{Binding ImageSource}"
-                                                   Aspect="AspectFill" />
-                                        </Border>
+                                        <Label Text="{Binding .}"
+                                               WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                               HeightRequest="20"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{DynamicResource GameColorTextMuted}"
+                                               FontSize="12"
+                                               FontAttributes="Bold" />
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
-                            </AbsoluteLayout>
+                            </HorizontalStackLayout>
 
-                            <CollectionView ItemsSource="{Binding PlayerCells}"
-                                            SelectionMode="None"
-                                            IsEnabled="{Binding CanPlaceShips}"
-                                            WidthRequest="{Binding BoardPixelSize}"
-                                            HeightRequest="{Binding BoardPixelSize}"
-                                            VerticalScrollBarVisibility="Never"
-                                            HorizontalScrollBarVisibility="Never"
-                                            ZIndex="2"
-                                            SemanticProperties.Description="Your fleet grid."
-                                            SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. During placement, left-click a cell to place the selected ship and right-click to rotate.">
-                                <CollectionView.ItemsLayout>
-                                    <GridItemsLayout Orientation="Vertical"
-                                                     Span="10"
-                                                     HorizontalItemSpacing="0"
-                                                     VerticalItemSpacing="0" />
-                                </CollectionView.ItemsLayout>
-
-                                <CollectionView.ItemTemplate>
+                            <VerticalStackLayout Grid.Row="1"
+                                                 Grid.Column="0"
+                                                 BindableLayout.ItemsSource="{Binding RowLabels}"
+                                                 Spacing="0"
+                                                 InputTransparent="True"
+                                                 WidthRequest="20"
+                                                 HeightRequest="{Binding BoardPixelSize}">
+                                <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Stroke="{Binding CellStrokeColor}"
-                                                StrokeThickness="0.8"
-                                                StrokeShape="RoundRectangle 2"
-                                                BackgroundColor="{Binding CellFillColor}"
-                                                WidthRequest="44"
-                                                HeightRequest="44"
-                                                SemanticProperties.Description="{Binding AccessibilityText}"
-                                                SemanticProperties.Hint="Your fleet cell. Left-click to place the selected ship. Right-click to rotate orientation.">
-                                            <Grid>
-                                                <Image Source="{Binding MarkerImage}" Aspect="AspectFill" Opacity="0.86">
-                                                    <Image.Behaviors>
-                                                        <behaviors:CellImpactAnimationBehavior />
-                                                    </Image.Behaviors>
-                                                </Image>
-                                                <Label Text="{Binding MarkerText}"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"
-                                                       TextColor="{Binding MarkerColor}"
-                                                       FontSize="16"
-                                                       FontAttributes="Bold" />
-
-                                                <Grid.GestureRecognizers>
-                                                    <TapGestureRecognizer
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=PlayerCellTappedCommand}"
-                                                        CommandParameter="{Binding .}" />
-                                                    <TapGestureRecognizer
-                                                        Buttons="Secondary"
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
-                                                </Grid.GestureRecognizers>
-                                            </Grid>
-                                        </Border>
+                                        <Label Text="{Binding .}"
+                                               WidthRequest="20"
+                                               HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               TextColor="{DynamicResource GameColorTextMuted}"
+                                               FontSize="12"
+                                               FontAttributes="Bold" />
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Row="1"
+                                  Grid.Column="1"
+                                  WidthRequest="{Binding BoardPixelSize}"
+                                  HeightRequest="{Binding BoardPixelSize}"
+                                  HorizontalOptions="Start"
+                                  VerticalOptions="Start"
+                                  IsClippedToBounds="True">
+                                <Border Stroke="{DynamicResource GameColorBorder}"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 6"
+                                        BackgroundColor="#16426A"
+                                        ZIndex="0" />
+                                <AbsoluteLayout InputTransparent="True"
+                                                BindableLayout.ItemsSource="{Binding PlayerShipSprites}"
+                                                ZIndex="3">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border AbsoluteLayout.LayoutBounds="{Binding Bounds}"
+                                                    AbsoluteLayout.LayoutFlags="None"
+                                                    Rotation="{Binding Rotation}"
+                                                    Stroke="{Binding StrokeColor}"
+                                                    StrokeThickness="1.25"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    Padding="1"
+                                                    BackgroundColor="{Binding BackgroundColor}"
+                                                    Opacity="{Binding Opacity}">
+                                                <Border.Behaviors>
+                                                    <behaviors:ShipSpriteAnimationBehavior />
+                                                </Border.Behaviors>
+                                                <Image Source="{Binding ImageSource}"
+                                                       Aspect="AspectFill" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </AbsoluteLayout>
+
+                                <CollectionView ItemsSource="{Binding PlayerCells}"
+                                                SelectionMode="None"
+                                                IsEnabled="{Binding CanPlaceShips}"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                VerticalScrollBarVisibility="Never"
+                                                HorizontalScrollBarVisibility="Never"
+                                                ZIndex="2"
+                                                SemanticProperties.Description="Your fleet grid."
+                                                SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. During placement, left-click a cell to place the selected ship and right-click to rotate.">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical"
+                                                         Span="10"
+                                                         HorizontalItemSpacing="0"
+                                                         VerticalItemSpacing="0" />
+                                    </CollectionView.ItemsLayout>
+
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Stroke="{Binding CellStrokeColor}"
+                                                    StrokeThickness="0.9"
+                                                    StrokeShape="RoundRectangle 2"
+                                                    BackgroundColor="{Binding CellFillColor}"
+                                                    WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                                    HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                                    SemanticProperties.Description="{Binding AccessibilityText}"
+                                                    SemanticProperties.Hint="Your fleet cell. Left-click to place the selected ship. Right-click to rotate orientation.">
+                                                <Grid>
+                                                    <Image Source="{Binding MarkerImage}"
+                                                           IsVisible="{Binding IsHitMarkerVisible}"
+                                                           Aspect="AspectFill"
+                                                           Opacity="0.9">
+                                                        <Image.Behaviors>
+                                                            <behaviors:CellImpactAnimationBehavior />
+                                                        </Image.Behaviors>
+                                                    </Image>
+
+                                                    <Border IsVisible="{Binding IsMissMarkerVisible}"
+                                                            WidthRequest="{Binding MissPegSize}"
+                                                            HeightRequest="{Binding MissPegSize}"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center"
+                                                            BackgroundColor="{Binding MissPegFillColor}"
+                                                            Stroke="{Binding MissPegStrokeColor}"
+                                                            StrokeThickness="1.4"
+                                                            StrokeShape="RoundRectangle 8">
+                                                        <Border.Shadow>
+                                                            <Shadow Brush="#60000000" Radius="5" Opacity="0.35" Offset="0,1" />
+                                                        </Border.Shadow>
+                                                    </Border>
+
+                                                    <Border IsVisible="{Binding IsMissMarkerVisible}"
+                                                            WidthRequest="6"
+                                                            HeightRequest="6"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center"
+                                                            BackgroundColor="{Binding MissPegCapColor}"
+                                                            StrokeThickness="0"
+                                                            StrokeShape="RoundRectangle 3" />
+
+                                                    <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=PlayerCellTappedCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                        <TapGestureRecognizer
+                                                            Buttons="Secondary"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
+                                                    </Grid.GestureRecognizers>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </Grid>
                         </Grid>
-                    </Grid>
                     </Border>
                 </VerticalStackLayout>
-                </Grid>
-            </VerticalStackLayout>
+            </Grid>
 
-        <Grid x:Name="OverlayScrim"
-              IsVisible="{Binding IsOverlayVisible}"
-              BackgroundColor="#A0000000"
-              ZIndex="30"
-              InputTransparent="False">
-            <Border x:Name="OverlayCard"
-                    Style="{StaticResource GameCardBorderStyle}"
-                    Margin="20"
-                    WidthRequest="560"
-                    MaximumWidthRequest="560"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    Padding="18,16"
-                    BackgroundColor="{DynamicResource GameColorSurface}">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="{Binding OverlayTitle}"
-                           Style="{StaticResource GameSectionLabelStyle}"
-                           FontSize="24"
-                           TextColor="{DynamicResource GameColorAccent}" />
+            <Grid x:Name="OverlayScrim"
+                  Grid.RowSpan="4"
+                  IsVisible="{Binding IsOverlayVisible}"
+                  BackgroundColor="#A0000000"
+                  ZIndex="30"
+                  InputTransparent="False">
+                <Border x:Name="OverlayCard"
+                        Style="{StaticResource GameCardBorderStyle}"
+                        Margin="20"
+                        WidthRequest="560"
+                        MaximumWidthRequest="560"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Padding="18,16"
+                        BackgroundColor="{DynamicResource GameColorSurface}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding OverlayTitle}"
+                               Style="{StaticResource GameSectionLabelStyle}"
+                               FontSize="24"
+                               TextColor="{DynamicResource GameColorAccent}" />
 
-                    <Label Text="{Binding OverlaySubtitle}"
-                           Style="{StaticResource GameBodyLabelStyle}"
-                           LineBreakMode="WordWrap" />
+                        <Label Text="{Binding OverlaySubtitle}"
+                               Style="{StaticResource GameBodyLabelStyle}"
+                               LineBreakMode="WordWrap" />
 
-                    <VerticalStackLayout x:Name="FleetRecapStack"
-                                         IsVisible="{Binding ShowOverlayRecap}"
-                                         BindableLayout.ItemsSource="{Binding FleetRecapItems}"
-                                         Spacing="6"
-                                         Margin="0,4,0,0">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource GameCardBorderStyle}"
-                                        Padding="8,6"
-                                        Opacity="0">
-                                    <Grid ColumnDefinitions="36,*,Auto" ColumnSpacing="8" VerticalOptions="Center">
-                                        <Image Source="{Binding ImageSource}" HeightRequest="30" Aspect="AspectFit" />
-                                        <Label Grid.Column="1"
-                                               Text="{Binding Name}"
-                                               Style="{StaticResource GameBodyLabelStyle}"
-                                               VerticalTextAlignment="Center" />
-                                        <Label Grid.Column="2"
-                                               Text="{Binding StatusText}"
-                                               Style="{StaticResource GameCaptionLabelStyle}"
-                                               TextColor="{Binding StatusColor}"
-                                               VerticalTextAlignment="Center" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-
-                    <Border IsVisible="{Binding ShowOverlayAnalytics}"
-                            Style="{StaticResource GameCardBorderStyle}"
-                            BackgroundColor="{DynamicResource GameColorPanel}">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Post-Game Analytics"
-                                   Style="{StaticResource GameSectionLabelStyle}"
-                                   FontSize="16"
-                                   TextColor="{DynamicResource GameColorWarning}" />
-                            <Label Text="{Binding AnalyticsAccuracyByPhase}" Style="{StaticResource GameBodyLabelStyle}" />
-                            <Label Text="{Binding AnalyticsStreaks}" Style="{StaticResource GameBodyLabelStyle}" />
-                            <Label Text="{Binding AnalyticsBestSequence}"
-                                   Style="{StaticResource GameBodyLabelStyle}"
-                                   LineBreakMode="WordWrap" />
+                        <VerticalStackLayout x:Name="FleetRecapStack"
+                                             IsVisible="{Binding ShowOverlayRecap}"
+                                             BindableLayout.ItemsSource="{Binding FleetRecapItems}"
+                                             Spacing="6"
+                                             Margin="0,4,0,0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource GameCardBorderStyle}"
+                                            Padding="8,6"
+                                            Opacity="0">
+                                        <Grid ColumnDefinitions="36,*,Auto" ColumnSpacing="8" VerticalOptions="Center">
+                                            <Image Source="{Binding ImageSource}" HeightRequest="30" Aspect="AspectFit" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Name}"
+                                                   Style="{StaticResource GameBodyLabelStyle}"
+                                                   VerticalTextAlignment="Center" />
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding StatusText}"
+                                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                                   TextColor="{Binding StatusColor}"
+                                                   VerticalTextAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-                    </Border>
 
-                    <Button Text="{Binding OverlayPrimaryActionText}"
-                            Command="{Binding DismissOverlayCommand}"
-                            Style="{StaticResource GamePrimaryButtonStyle}" />
-                </VerticalStackLayout>
-            </Border>
+                        <Border IsVisible="{Binding ShowOverlayAnalytics}"
+                                Style="{StaticResource GameCardBorderStyle}"
+                                BackgroundColor="{DynamicResource GameColorPanel}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Post-Game Analytics"
+                                       Style="{StaticResource GameSectionLabelStyle}"
+                                       FontSize="16"
+                                       TextColor="{DynamicResource GameColorWarning}" />
+                                <Label Text="{Binding AnalyticsAccuracyByPhase}" Style="{StaticResource GameBodyLabelStyle}" />
+                                <Label Text="{Binding AnalyticsStreaks}" Style="{StaticResource GameBodyLabelStyle}" />
+                                <Label Text="{Binding AnalyticsBestSequence}"
+                                       Style="{StaticResource GameBodyLabelStyle}"
+                                       LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Button Text="{Binding OverlayPrimaryActionText}"
+                                Command="{Binding DismissOverlayCommand}"
+                                Style="{StaticResource GamePrimaryButtonStyle}" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </ContentPage>
-

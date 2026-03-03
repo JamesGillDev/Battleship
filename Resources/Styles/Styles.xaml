@@ -4,62 +4,73 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- Design tokens -->
-    <x:Double x:Key="GameTypeDisplay">30</x:Double>
-    <x:Double x:Key="GameTypeTitle">18</x:Double>
-    <x:Double x:Key="GameTypeBody">14</x:Double>
+    <x:Double x:Key="GameTypeDisplay">34</x:Double>
+    <x:Double x:Key="GameTypeTitle">22</x:Double>
+    <x:Double x:Key="GameTypeBody">15</x:Double>
     <x:Double x:Key="GameTypeCaption">12</x:Double>
 
     <x:Double x:Key="GameSpaceXs">4</x:Double>
-    <x:Double x:Key="GameSpaceSm">8</x:Double>
-    <x:Double x:Key="GameSpaceMd">12</x:Double>
-    <x:Double x:Key="GameSpaceLg">16</x:Double>
+    <x:Double x:Key="GameSpaceSm">9</x:Double>
+    <x:Double x:Key="GameSpaceMd">14</x:Double>
+    <x:Double x:Key="GameSpaceLg">18</x:Double>
 
-    <Thickness x:Key="GamePagePadding">14,16,14,20</Thickness>
-    <Thickness x:Key="GameCardPadding">10,8</Thickness>
+    <Thickness x:Key="GamePagePadding">14,12,14,14</Thickness>
+    <Thickness x:Key="GameCardPadding">12,10</Thickness>
 
     <Style x:Key="GameTitleLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="{DynamicResource GameTypeDisplay}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{DynamicResource GameColorTextPrimary}" />
     </Style>
 
     <Style x:Key="GameSectionLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="{DynamicResource GameTypeTitle}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{DynamicResource GameColorTextPrimary}" />
     </Style>
 
     <Style x:Key="GameBodyLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="{DynamicResource GameTypeBody}" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
         <Setter Property="TextColor" Value="{DynamicResource GameColorTextSecondary}" />
     </Style>
 
     <Style x:Key="GameCaptionLabelStyle" TargetType="Label">
         <Setter Property="FontSize" Value="{DynamicResource GameTypeCaption}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
         <Setter Property="TextColor" Value="{DynamicResource GameColorTextMuted}" />
     </Style>
 
     <Style x:Key="GamePrimaryButtonStyle" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{DynamicResource GameColorAccent}" />
-        <Setter Property="TextColor" Value="{DynamicResource GameColorTextPrimary}" />
+        <Setter Property="TextColor" Value="#062239" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="Padding" Value="16,10" />
     </Style>
 
     <Style x:Key="GameSecondaryButtonStyle" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{DynamicResource GameColorSurfaceAlt}" />
         <Setter Property="TextColor" Value="{DynamicResource GameColorTextPrimary}" />
-        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="BorderWidth" Value="1.2" />
         <Setter Property="BorderColor" Value="{DynamicResource GameColorBorder}" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="16,10" />
     </Style>
 
     <Style x:Key="GameCardBorderStyle" TargetType="Border">
         <Setter Property="Stroke" Value="{DynamicResource GameColorBorder}" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="BackgroundColor" Value="{DynamicResource GameColorSurface}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="Padding" Value="{StaticResource GameCardPadding}" />
         <Setter Property="Shadow">
             <Setter.Value>
-                <Shadow Brush="#55000000" Radius="12" Opacity="0.35" Offset="0,3" />
+                <Shadow Brush="#60000000" Radius="14" Opacity="0.4" Offset="0,4" />
             </Setter.Value>
         </Setter>
     </Style>

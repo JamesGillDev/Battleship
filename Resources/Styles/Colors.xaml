@@ -5,12 +5,12 @@
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <Color x:Key="Primary">#1F7FC6</Color>
+    <Color x:Key="PrimaryDark">#63B7F4</Color>
+    <Color x:Key="PrimaryDarkText">#0C1723</Color>
+    <Color x:Key="Secondary">#D6E9F8</Color>
+    <Color x:Key="SecondaryDarkText">#7AA9CD</Color>
+    <Color x:Key="Tertiary">#0A4778</Color>
 
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>
@@ -43,19 +43,19 @@
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
 
     <!-- Battleship visual tokens -->
-    <Color x:Key="GameColorBackground">#0b1118</Color>
-    <Color x:Key="GameColorSurface">#0f1823</Color>
-    <Color x:Key="GameColorSurfaceAlt">#152334</Color>
-    <Color x:Key="GameColorPanel">#13211b</Color>
-    <Color x:Key="GameColorBorder">#314052</Color>
-    <Color x:Key="GameColorAccent">#4cb5ff</Color>
-    <Color x:Key="GameColorAccentSoft">#2f84bf</Color>
-    <Color x:Key="GameColorTextPrimary">#e5eef8</Color>
-    <Color x:Key="GameColorTextSecondary">#ccd7e5</Color>
-    <Color x:Key="GameColorTextMuted">#9fb6cc</Color>
-    <Color x:Key="GameColorSuccess">#7fe3ab</Color>
-    <Color x:Key="GameColorWarning">#f8dca1</Color>
-    <Color x:Key="GameColorDanger">#ff8a6b</Color>
+    <Color x:Key="GameColorBackground">#040C18</Color>
+    <Color x:Key="GameColorSurface">#0C1B2E</Color>
+    <Color x:Key="GameColorSurfaceAlt">#12324D</Color>
+    <Color x:Key="GameColorPanel">#163E60</Color>
+    <Color x:Key="GameColorBorder">#2E5A84</Color>
+    <Color x:Key="GameColorAccent">#61D4FF</Color>
+    <Color x:Key="GameColorAccentSoft">#3196CE</Color>
+    <Color x:Key="GameColorTextPrimary">#EEF8FF</Color>
+    <Color x:Key="GameColorTextSecondary">#D6E9F8</Color>
+    <Color x:Key="GameColorTextMuted">#9EC3E1</Color>
+    <Color x:Key="GameColorSuccess">#8AE7B7</Color>
+    <Color x:Key="GameColorWarning">#FFD07B</Color>
+    <Color x:Key="GameColorDanger">#FF8A69</Color>
 
     <SolidColorBrush x:Key="GameBrushBackground" Color="{DynamicResource GameColorBackground}"/>
     <SolidColorBrush x:Key="GameBrushSurface" Color="{DynamicResource GameColorSurface}"/>

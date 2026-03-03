@@ -71,9 +71,10 @@ public class BoardViewModel : ObservableObject
     private int _gameSessionId;
 
     public const int Size = 10;
-    public const double CellSize = 44;
+    public const double CellSize = 36;
     public const double BoardAxisRailSize = 20;
     public const double BoardRailSpacing = 4;
+    public const double MissPegSize = 16;
 
     private static readonly ShipTemplate[] FleetTemplates =
     {
@@ -86,6 +87,9 @@ public class BoardViewModel : ObservableObject
 
     public double BoardPixelSize => Size * CellSize;
     public double BoardFramePixelSize => BoardPixelSize + BoardAxisRailSize + BoardRailSpacing;
+    public double CellPixelSize => CellSize;
+    public double AxisRailPixelSize => BoardAxisRailSize;
+    public double MissPegPixelSize => MissPegSize;
     public IReadOnlyList<string> RowLabels { get; } = Enumerable.Range(0, Size)
         .Select(i => ((char)('A' + i)).ToString())
         .ToArray();
@@ -1701,6 +1705,8 @@ public class BoardCellVm : ObservableObject
             OnPropertyChanged(nameof(MarkerText));
             OnPropertyChanged(nameof(MarkerColor));
             OnPropertyChanged(nameof(MarkerImage));
+            OnPropertyChanged(nameof(IsHitMarkerVisible));
+            OnPropertyChanged(nameof(IsMissMarkerVisible));
             OnPropertyChanged(nameof(MarkerStateText));
             OnPropertyChanged(nameof(CellFillColor));
             OnPropertyChanged(nameof(CellStrokeColor));
@@ -1726,32 +1732,32 @@ public class BoardCellVm : ObservableObject
 
     public string MarkerText => MarkerState switch
     {
-        ShotMarkerState.Miss => "•",
-        ShotMarkerState.Hit => string.Empty,
         _ => string.Empty
     };
 
-    public Color MarkerColor => MarkerState switch
-    {
-        ShotMarkerState.Hit => Colors.OrangeRed,
-        ShotMarkerState.Miss => Colors.WhiteSmoke,
-        _ => Colors.Transparent
-    };
+    public Color MarkerColor => Colors.Transparent;
+
+    public bool IsHitMarkerVisible => MarkerState == ShotMarkerState.Hit;
+    public bool IsMissMarkerVisible => MarkerState == ShotMarkerState.Miss;
+    public double MissPegSize => BoardViewModel.MissPegSize;
+    public Color MissPegFillColor => IsPlayerBoard ? Color.FromArgb("#f2f8ff") : Color.FromArgb("#e6f3ff");
+    public Color MissPegStrokeColor => IsPlayerBoard ? Color.FromArgb("#7ea5c8") : Color.FromArgb("#6f9bc2");
+    public Color MissPegCapColor => IsPlayerBoard ? Color.FromArgb("#c7e1f4") : Color.FromArgb("#bdd9ef");
 
     public Color CellFillColor => MarkerState switch
     {
-        ShotMarkerState.Hit => Color.FromArgb("#3b2118"),
-        ShotMarkerState.Miss => IsPlayerBoard ? Color.FromArgb("#183047") : Color.FromArgb("#1b3550"),
-        _ when IsPlayerBoard && HasShip => Color.FromArgb("#2f5f86"),
-        _ => IsPlayerBoard ? Color.FromArgb("#14293d") : Color.FromArgb("#173049")
+        ShotMarkerState.Hit => Color.FromArgb("#3d2619"),
+        ShotMarkerState.Miss => IsPlayerBoard ? Color.FromArgb("#214a6f") : Color.FromArgb("#1f4f79"),
+        _ when IsPlayerBoard && HasShip => Color.FromArgb("#2e648c"),
+        _ => IsPlayerBoard ? Color.FromArgb("#173b5e") : Color.FromArgb("#1a4369")
     };
 
     public Color CellStrokeColor => MarkerState switch
     {
-        ShotMarkerState.Hit => Color.FromArgb("#ff8a6b"),
-        ShotMarkerState.Miss => Color.FromArgb("#55799e"),
-        _ when IsPlayerBoard && HasShip => Color.FromArgb("#9bcdf4"),
-        _ => Color.FromArgb("#4a6785")
+        ShotMarkerState.Hit => Color.FromArgb("#ff9366"),
+        ShotMarkerState.Miss => Color.FromArgb("#9ac3e5"),
+        _ when IsPlayerBoard && HasShip => Color.FromArgb("#b8dcf8"),
+        _ => Color.FromArgb("#3d658b")
     };
 
     public string? MarkerImage => MarkerState == ShotMarkerState.Hit ? "explosion.png" : null;

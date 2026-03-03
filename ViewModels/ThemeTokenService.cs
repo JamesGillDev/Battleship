@@ -27,19 +27,19 @@ public static class ThemeTokenService
                 Warning: "#ffd66b",
                 Danger: "#ff7f7f")
             : new ThemePalette(
-                Background: "#0b1118",
-                Surface: "#0f1823",
-                SurfaceAlt: "#152334",
-                Panel: "#13211b",
-                Border: "#314052",
-                Accent: "#4cb5ff",
-                AccentSoft: "#2f84bf",
-                TextPrimary: "#e5eef8",
-                TextSecondary: "#ccd7e5",
-                TextMuted: "#9fb6cc",
-                Success: "#7fe3ab",
-                Warning: "#f8dca1",
-                Danger: "#ff8a6b");
+                Background: "#040C18",
+                Surface: "#0C1B2E",
+                SurfaceAlt: "#12324D",
+                Panel: "#163E60",
+                Border: "#2E5A84",
+                Accent: "#61D4FF",
+                AccentSoft: "#3196CE",
+                TextPrimary: "#EEF8FF",
+                TextSecondary: "#D6E9F8",
+                TextMuted: "#9EC3E1",
+                Success: "#8AE7B7",
+                Warning: "#FFD07B",
+                Danger: "#FF8A69");
 
         SetColor(resources, "GameColorBackground", palette.Background);
         SetColor(resources, "GameColorSurface", palette.Surface);
@@ -56,9 +56,9 @@ public static class ThemeTokenService
         SetColor(resources, "GameColorDanger", palette.Danger);
 
         double scale = largeText ? 1.18 : 1.0;
-        SetDouble(resources, "GameTypeDisplay", 30 * scale);
-        SetDouble(resources, "GameTypeTitle", 18 * scale);
-        SetDouble(resources, "GameTypeBody", 14 * scale);
+        SetDouble(resources, "GameTypeDisplay", 34 * scale);
+        SetDouble(resources, "GameTypeTitle", 22 * scale);
+        SetDouble(resources, "GameTypeBody", 15 * scale);
         SetDouble(resources, "GameTypeCaption", 12 * scale);
     }
 

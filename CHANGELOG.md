@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-03-03
+
+### Added
+- New naval-ship app icon artwork and ocean-themed visual identity.
+- Medium-large peg markers for miss states on both boards.
+- Explicit release-readiness status for public release (`v1.4.0`).
+
+### Changed
+- Overhauled Command Center UI to a game-focused deck layout.
+- Converted gameplay view to always-visible side-by-side boards with even two-column split.
+- Retuned board sizing and typography for full board visibility without scrolling.
+- Refreshed palette, card styling, and control bar presentation for a modern arcade feel.
+
+### Fixed
+- Removed single-board view behavior that hid one board during focus changes.
+- Eliminated tiny miss-dot rendering in favor of readable peg markers.
+- Resolved board clipping pressure by reducing cell size and tightening top-area spacing.
+
 ## [1.3.0] - 2026-02-27
 
 ### Added

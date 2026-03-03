@@ -108,17 +108,17 @@ public partial class MainPage : ContentPage
 
     private void ApplyBoardModeInstant(BoardViewMode mode)
     {
-        bool enemyVisible = mode == BoardViewMode.Enemy;
+        bool enemyFocused = mode == BoardViewMode.Enemy;
 
-        EnemyBoardPage.IsVisible = enemyVisible;
-        EnemyBoardPage.Opacity = enemyVisible ? 1 : 0;
+        EnemyBoardPage.IsVisible = true;
+        EnemyBoardPage.Opacity = enemyFocused ? 1 : 0.9;
         EnemyBoardPage.TranslationX = 0;
-        EnemyBoardPage.Scale = 1;
+        EnemyBoardPage.Scale = enemyFocused ? 1 : 0.985;
 
-        PlayerBoardPage.IsVisible = !enemyVisible;
-        PlayerBoardPage.Opacity = enemyVisible ? 0 : 1;
+        PlayerBoardPage.IsVisible = true;
+        PlayerBoardPage.Opacity = enemyFocused ? 0.9 : 1;
         PlayerBoardPage.TranslationX = 0;
-        PlayerBoardPage.Scale = 1;
+        PlayerBoardPage.Scale = enemyFocused ? 0.985 : 1;
 
         _currentBoardMode = mode;
     }
@@ -153,49 +153,30 @@ public partial class MainPage : ContentPage
             var outgoing = targetMode == BoardViewMode.Enemy ? PlayerBoardPage : EnemyBoardPage;
 
             double speed = AnimationRuntimeSettings.SpeedMultiplier;
-            double width = CommandCenterBoardHost.Width;
-            if (width < 1)
-                width = Math.Max(EnemyBoardPage.Width, PlayerBoardPage.Width);
-
-            if (width < 1 && _viewModel is not null)
-                width = _viewModel.BoardFramePixelSize + 24;
-
-            if (width < 1)
-                width = 420;
-
-            double direction = targetMode == BoardViewMode.Player ? 1 : -1;
-            double incomingStart = direction * Math.Max(80, width * 0.24);
-            double outgoingEnd = -direction * Math.Max(48, width * 0.16);
-            uint duration = ScaleDuration(280, speed);
+            uint duration = ScaleDuration(220, speed);
 
             _isBoardTransitionRunning = true;
             try
             {
                 incoming.IsVisible = true;
-                incoming.Opacity = 0;
-                incoming.TranslationX = incomingStart;
+                incoming.Opacity = 0.94;
+                incoming.TranslationX = 0;
                 incoming.Scale = 0.985;
 
                 outgoing.IsVisible = true;
                 outgoing.Scale = 1;
+                outgoing.TranslationX = 0;
 
                 await Task.WhenAll(
                     incoming.FadeToAsync(1, duration, Easing.CubicOut),
-                    incoming.TranslateToAsync(0, 0, duration, Easing.CubicOut),
                     incoming.ScaleToAsync(1, duration, Easing.CubicOut),
-                    outgoing.FadeToAsync(0, ScaleDuration(210, speed), Easing.CubicIn),
-                    outgoing.TranslateToAsync(outgoingEnd, 0, duration, Easing.CubicIn),
-                    outgoing.ScaleToAsync(0.99, duration, Easing.CubicIn));
+                    outgoing.FadeToAsync(0.9, ScaleDuration(180, speed), Easing.CubicInOut),
+                    outgoing.ScaleToAsync(0.985, duration, Easing.CubicInOut));
 
-                outgoing.IsVisible = false;
-                outgoing.Opacity = 0;
-                outgoing.TranslationX = 0;
-                outgoing.Scale = 1;
-
-                incoming.IsVisible = true;
                 incoming.Opacity = 1;
-                incoming.TranslationX = 0;
                 incoming.Scale = 1;
+                outgoing.Opacity = 0.9;
+                outgoing.Scale = 0.985;
                 _currentBoardMode = targetMode;
             }
             finally
