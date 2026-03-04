@@ -2829,9 +2829,9 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, ShipOrientationScale> ScaleByShipName =
         new Dictionary<string, ShipOrientationScale>(StringComparer.Ordinal)
         {
-            ["aircraftcarrier"] = new ShipOrientationScale(Horizontal: 2.68, Vertical: 3.58),
-            ["battleship"] = new ShipOrientationScale(Horizontal: 2.3, Vertical: 3.5),
-            ["cruiser"] = new ShipOrientationScale(Horizontal: 2.2, Vertical: 2.95),
+            ["aircraftcarrier"] = new ShipOrientationScale(Horizontal: 3.45, Vertical: 4.55),
+            ["battleship"] = new ShipOrientationScale(Horizontal: 3.10, Vertical: 4.45),
+            ["cruiser"] = new ShipOrientationScale(Horizontal: 2.90, Vertical: 3.85),
             ["submarine"] = new ShipOrientationScale(Horizontal: 2.25, Vertical: 2.9),
             ["destroyer"] = new ShipOrientationScale(Horizontal: 2.35, Vertical: 2.35)
         };

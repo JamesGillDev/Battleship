@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.7] - 2026-03-04
+
+### Changed
+- Increased ship visual scale again for the top three ships: `Aircraft Carrier`, `Battleship`, and `Cruiser` (both orientations) for stronger in-grid visibility, allowing intentional visual overlap where needed.
+
+### Fixed
+- Placement preview and placed-board ship sizing now better match requested readability for the three largest ship classes.
+
+### Release
+- `v1.6.7` is marked ready for **public release**.
+
 ## [1.6.6] - 2026-03-04
 
 ### Changed
