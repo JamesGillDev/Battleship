@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.8] - 2026-03-04
+
+### Changed
+- Increased `Aircraft Carrier` sprite scale significantly for both horizontal and vertical orientations so it renders larger on the fleet grid.
+
+### Fixed
+- Carrier placement preview and placed-board sprite now overlap grid lanes with the same stronger visual style used by `Battleship`.
+
+### Release
+- `v1.6.8` is marked ready for **public release**.
+
 ## [1.6.7] - 2026-03-04
 
 ### Changed
