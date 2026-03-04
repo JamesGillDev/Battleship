@@ -20,7 +20,8 @@ public readonly record struct GameSettingsSnapshot(
     bool HasSeenCommandBriefing,
     GameThemePreset Theme = GameThemePreset.RetroWave80s,
     bool MusicEnabled = true,
-    double MusicVolume = 0.25)
+    double MusicVolume = 0.25,
+    bool HasConfiguredMusicPreference = false)
 {
     public static GameSettingsSnapshot Default => new(
         Difficulty: CpuDifficulty.Standard,
@@ -34,7 +35,8 @@ public readonly record struct GameSettingsSnapshot(
         HasSeenCommandBriefing: false,
         Theme: GameThemePreset.RetroWave80s,
         MusicEnabled: true,
-        MusicVolume: 0.25);
+        MusicVolume: 0.25,
+        HasConfiguredMusicPreference: false);
 }
 
 public sealed class JsonFileGameSettingsStore : IGameSettingsStore

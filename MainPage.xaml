@@ -356,6 +356,7 @@
                                                 </Border.Behaviors>
                                                 <Image Source="{Binding ImageSource}"
                                                        Rotation="{Binding ImageRotation}"
+                                                       Scale="{Binding ImageScale}"
                                                        Aspect="AspectFit" />
                                             </Border>
                                         </DataTemplate>
@@ -576,6 +577,7 @@
                                                 </Border.Behaviors>
                                                 <Image Source="{Binding ImageSource}"
                                                        Rotation="{Binding ImageRotation}"
+                                                       Scale="{Binding ImageScale}"
                                                        Aspect="AspectFit" />
                                             </Border>
                                         </DataTemplate>
@@ -598,6 +600,7 @@
                                             Padding="0">
                                         <Image Source="{Binding PlacementPreviewImageSource}"
                                                Rotation="{Binding PlacementPreviewImageRotation}"
+                                               Scale="{Binding PlacementPreviewImageScale}"
                                                Aspect="AspectFit"
                                                Opacity="0.7" />
                                     </Border>

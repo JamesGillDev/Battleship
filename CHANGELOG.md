@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.4] - 2026-03-04
+
+### Changed
+- Music now defaults to enabled for legacy settings that never explicitly set a music preference.
+- Added a persisted `HasConfiguredMusicPreference` flag so explicit user music choices remain respected after the first migration.
+- Retuned ship sprite rendering with per-ship scale profiles to better match each ship class silhouette on the board.
+
+### Fixed
+- Corrected undersized ship visuals on the board and placement preview while preserving existing overlay/grid alignment behavior.
+- Ensured preview ship sizing matches placed ship sizing for `Aircraft Carrier`, `Battleship`, `Cruiser`, `Submarine`, and `Destroyer`.
+
+### Release
+- `v1.6.4` is marked ready for **public release**.
+
 ## [1.6.3] - 2026-03-04
 
 ### Added

@@ -66,6 +66,7 @@ public class BoardViewModel : ObservableObject
     private ThemeOption _selectedThemeOption = ThemeTokenService.ThemeOptions[0];
     private bool _soundEnabled = true;
     private bool _musicEnabled = true;
+    private bool _hasConfiguredMusicPreference;
     private double _musicVolume = 0.25;
     private bool _hapticsEnabled = true;
     private bool _highContrastMode;
@@ -82,6 +83,7 @@ public class BoardViewModel : ObservableObject
     private bool _isPlacementPreviewVisible;
     private Rect _placementPreviewBounds = Rect.Zero;
     private double _placementPreviewImageRotation;
+    private double _placementPreviewImageScale = 1;
     private string _placementPreviewImageSource = string.Empty;
     private Color _placementPreviewStrokeColor = Color.FromArgb("#8ad6ff");
     private Color _placementPreviewFillColor = Color.FromArgb("#4026d6ff");
@@ -507,6 +509,7 @@ public class BoardViewModel : ObservableObject
         {
             if (_musicEnabled == value) return;
             _musicEnabled = value;
+            _hasConfiguredMusicPreference = true;
             OnPropertyChanged();
             OnPropertyChanged(nameof(MusicStateLabel));
             ApplyMusicSettings();
@@ -706,6 +709,17 @@ public class BoardViewModel : ObservableObject
         {
             if (Math.Abs(_placementPreviewImageRotation - value) < 0.001) return;
             _placementPreviewImageRotation = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double PlacementPreviewImageScale
+    {
+        get => _placementPreviewImageScale;
+        private set
+        {
+            if (Math.Abs(_placementPreviewImageScale - value) < 0.001) return;
+            _placementPreviewImageScale = value;
             OnPropertyChanged();
         }
     }
@@ -941,7 +955,8 @@ public class BoardViewModel : ObservableObject
         _selectedAnimationSpeed = settings.AnimationSpeed;
         _selectedThemeOption = ThemeTokenService.GetOption(settings.Theme);
         _soundEnabled = settings.SoundEnabled;
-        _musicEnabled = settings.MusicEnabled;
+        _hasConfiguredMusicPreference = settings.HasConfiguredMusicPreference;
+        _musicEnabled = _hasConfiguredMusicPreference ? settings.MusicEnabled : true;
         _musicVolume = settings.MusicVolume;
         _hapticsEnabled = settings.HapticsEnabled;
         _highContrastMode = settings.HighContrastMode;
@@ -990,7 +1005,8 @@ public class BoardViewModel : ObservableObject
             _hasSeenCommandBriefing,
             SelectedThemeOption.Theme,
             MusicEnabled,
-            MusicVolume));
+            MusicVolume,
+            _hasConfiguredMusicPreference));
     }
 
     private static double GetAnimationSpeedMultiplier(AnimationSpeed speed)
@@ -1646,6 +1662,7 @@ public class BoardViewModel : ObservableObject
 
         PlacementPreviewBounds = BuildShipBounds(row, col, ship.Size, isVertical ? ShipAxis.Vertical : ShipAxis.Horizontal);
         PlacementPreviewImageRotation = isVertical ? 90 : 0;
+        PlacementPreviewImageScale = ShipSpriteVisualProfile.ResolveScale(_selectedPlacementShip.Name);
         PlacementPreviewImageSource = _selectedPlacementShip.ImageSource;
 
         bool isValidPlacement = CanPlaceShipAt(ship, row, col, isVertical);
@@ -1664,6 +1681,7 @@ public class BoardViewModel : ObservableObject
         _placementPreviewAnchorCell = null;
         IsPlacementPreviewVisible = false;
         PlacementPreviewBounds = Rect.Zero;
+        PlacementPreviewImageScale = 1;
     }
 
     private bool CanPlaceShipAt(Ship ship, int startRow, int startCol, bool vertical)
@@ -2524,6 +2542,7 @@ public class ShipSpriteVm : ObservableObject
 
     public string Name { get; }
     public string ImageSource { get; }
+    public double ImageScale { get; }
     public int StartRow { get; }
     public int StartCol { get; }
     public int Length { get; }
@@ -2609,6 +2628,7 @@ public class ShipSpriteVm : ObservableObject
     {
         Name = name;
         ImageSource = imageSource;
+        ImageScale = ShipSpriteVisualProfile.ResolveScale(name);
         StartRow = startRow;
         StartCol = startCol;
         Length = length;
@@ -2744,6 +2764,38 @@ public class PlacementShipVm : ObservableObject
 }
 
 public readonly record struct BoardCoordinate(int Row, int Col);
+
+internal static class ShipSpriteVisualProfile
+{
+    private static readonly IReadOnlyDictionary<string, double> ScaleByShipName =
+        new Dictionary<string, double>(StringComparer.Ordinal)
+        {
+            ["aircraftcarrier"] = 2.15,
+            ["battleship"] = 2.05,
+            ["cruiser"] = 2.2,
+            ["submarine"] = 2.25,
+            ["destroyer"] = 2.35
+        };
+
+    public static double ResolveScale(string? shipName)
+    {
+        if (string.IsNullOrWhiteSpace(shipName))
+            return 2.1;
+
+        string normalized = NormalizeShipName(shipName);
+        return ScaleByShipName.TryGetValue(normalized, out double scale)
+            ? scale
+            : 2.1;
+    }
+
+    private static string NormalizeShipName(string shipName)
+    {
+        return new string(shipName
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+    }
+}
 
 public sealed record ShipTemplate(string Name, int Size, string ImageSource);
 

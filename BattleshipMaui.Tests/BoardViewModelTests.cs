@@ -85,6 +85,38 @@ public class BoardViewModelTests
     }
 
     [Fact]
+    public void Constructor_UpgradesLegacySettings_ToMusicEnabledByDefault()
+    {
+        var vm = new BoardViewModel(
+            new Random(1001),
+            new InMemoryGameStatsStore(),
+            new InMemoryGameSettingsStore(GameSettingsSnapshot.Default with
+            {
+                MusicEnabled = false,
+                HasConfiguredMusicPreference = false
+            }),
+            new NoOpFeedbackService());
+
+        Assert.True(vm.MusicEnabled);
+    }
+
+    [Fact]
+    public void Constructor_RespectsConfiguredMusicPreference()
+    {
+        var vm = new BoardViewModel(
+            new Random(1003),
+            new InMemoryGameStatsStore(),
+            new InMemoryGameSettingsStore(GameSettingsSnapshot.Default with
+            {
+                MusicEnabled = false,
+                HasConfiguredMusicPreference = true
+            }),
+            new NoOpFeedbackService());
+
+        Assert.False(vm.MusicEnabled);
+    }
+
+    [Fact]
     public void EnemyCellTappedCommand_BeforePlacement_ShowsPlacementPrompt()
     {
         var vm = new BoardViewModel(new Random(11));
@@ -366,6 +398,19 @@ public class BoardViewModelTests
         sprite.Reveal();
         Assert.True(sprite.IsRevealed);
         Assert.Equal(0.4, sprite.Opacity, 3);
+    }
+
+    [Fact]
+    public void ShipSpriteVm_UsesPerShipImageScaleProfiles()
+    {
+        var destroyer = new ShipSpriteVm("Destroyer", "destroyer_2_pegs.png", 0, 0, 2, ShipAxis.Horizontal);
+        var carrier = new ShipSpriteVm("Aircraft Carrier", "aircraft_carrier_5_pegs.png", 0, 0, 5, ShipAxis.Horizontal);
+        var submarine = new ShipSpriteVm("Submarine", "submarine_3_pegs.png", 0, 0, 3, ShipAxis.Horizontal);
+
+        Assert.True(destroyer.ImageScale > 1);
+        Assert.True(carrier.ImageScale > 1);
+        Assert.True(submarine.ImageScale > 1);
+        Assert.NotEqual(destroyer.ImageScale, carrier.ImageScale);
     }
 
     private static void PlaceAllShips(BoardViewModel vm)

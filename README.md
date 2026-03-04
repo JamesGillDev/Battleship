@@ -2,18 +2,18 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.3-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.6.4-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.3`
+- Current public app release version: `v1.6.4`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.3`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.4`)
 
 ## Release Readiness
-- `v1.6.3` is **ready for public release**.
+- `v1.6.4` is **ready for public release**.
 
 ## Highlights
 - Full command-center visual overhaul with a game-first style.
@@ -35,10 +35,10 @@ A polished, fully playable Battleship game built with .NET MAUI and a C# game co
 - Medium-large peg markers for misses and animated impact markers for hits.
 - Updated naval ship app icon and refreshed ocean-themed palette.
 - Looping background battle music with settings for on/off and live volume adjustment.
-- Background music now starts when `Let's Fight!` is pressed and defaults to 25% volume.
+- Background music now starts when `Let's Fight!` is pressed, defaults to 25% volume, and defaults to enabled for first-time/legacy profiles.
 - Ship-hit sound FX now use ship-specific explosion audio (submarine gets underwater hit FX).
 - Miss shots now rotate through 4 water-explosion sound effects for less repetitive combat audio.
-- Ship sprites and placement preview now preserve aspect ratio with vertical rotation to prevent warping.
+- Ship sprites and placement preview now preserve aspect ratio with vertical rotation and per-ship scaling to maintain correct class silhouettes.
 - Gameplay area can scroll vertically so both gameboards are no longer clipped at the bottom on tighter windows.
 - Ship overlay opacity tuned so enemy hit/miss markers remain visible on your fleet board.
 - Welcome mission popup now appears at app open with instructions and `Let's Fight!` action.
