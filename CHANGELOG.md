@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.17] - 2026-03-05
+
+### Fixed
+- Removed duplicate `Theme` wording in the top command bar so the control label appears only once.
+- Updated theme dropdown sizing/alignment so its visible control height matches the adjacent `Theme Shift` button.
+
+### Release
+- `v1.6.17` is marked ready for **public release**.
+
 ## [1.6.16] - 2026-03-05
 
 ### Fixed

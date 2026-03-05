@@ -89,11 +89,11 @@
                                VerticalTextAlignment="Center" />
                         <Picker WidthRequest="190"
                                 HeightRequest="36"
-                                Title="Theme"
+                                MinimumHeightRequest="36"
+                                VerticalOptions="Center"
                                 ItemsSource="{Binding ThemeOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
                                 TextColor="{DynamicResource GameColorTextPrimary}"
-                                TitleColor="{DynamicResource GameColorTextMuted}"
                                 BackgroundColor="{DynamicResource GameColorSurfaceAlt}"
                                 SelectedItem="{Binding SelectedThemeOption}" />
                     </HorizontalStackLayout>

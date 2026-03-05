@@ -4,7 +4,7 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Release
 
-- `v1.6.16`
+- `v1.6.17`
 - Public release build with command-center board-first UI and top-bar controls
 - Difficulty-based enemy targeting now applies smarter near-hit follow-up logic (especially on `Hard`)
 - Shot audio playback timing was tightened so hit/miss effects trigger faster while preserving 4-way randomized miss rotation
@@ -14,6 +14,7 @@ Desktop Battleship game built with .NET MAUI.
 - Board containers now allow edge overhang rendering beyond board bounds without changing overall board layout
 - Ship overhang now renders on all four board sides via symmetric spill rails around the board grid
 - Submarine sprite size was increased to better match the visual scale of other ships
+- Theme command bar now shows `Theme` only once, and the theme dropdown height matches the `Theme Shift` button
 - Submarine-hit underwater audio now plays at a fixed 20% volume
 - Manual fleet placement with right-click rotation + live placement preview
 - Carrier sprite remains at larger overlap styling for improved fleet readability
