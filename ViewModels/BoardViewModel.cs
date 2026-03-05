@@ -2925,7 +2925,7 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, ShipOrientationScale> ScaleByShipName =
         new Dictionary<string, ShipOrientationScale>(StringComparer.Ordinal)
         {
-            ["aircraftcarrier"] = new ShipOrientationScale(Horizontal: 5.15, Vertical: 5.95),
+            ["aircraftcarrier"] = new ShipOrientationScale(Horizontal: 5.65, Vertical: 6.55),
             ["battleship"] = new ShipOrientationScale(Horizontal: 3.10, Vertical: 4.45),
             ["cruiser"] = new ShipOrientationScale(Horizontal: 2.90, Vertical: 3.85),
             ["submarine"] = new ShipOrientationScale(Horizontal: 2.25, Vertical: 2.9),
@@ -2934,14 +2934,20 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, double> EndBleedByShipName =
         new Dictionary<string, double>(StringComparer.Ordinal)
         {
-            ["cruiser"] = 8.0,
-            ["destroyer"] = 7.0
+            ["aircraftcarrier"] = 13.0,
+            ["battleship"] = 9.0,
+            ["cruiser"] = 10.0,
+            ["submarine"] = 8.0,
+            ["destroyer"] = 9.0
         };
     private static readonly IReadOnlyDictionary<string, double> CrossBleedByShipName =
         new Dictionary<string, double>(StringComparer.Ordinal)
         {
-            ["cruiser"] = 1.8,
-            ["destroyer"] = 1.6
+            ["aircraftcarrier"] = 3.2,
+            ["battleship"] = 2.3,
+            ["cruiser"] = 2.4,
+            ["submarine"] = 2.0,
+            ["destroyer"] = 2.1
         };
 
     public static double ResolveScale(string? shipName, ShipAxis axis)
@@ -2958,23 +2964,23 @@ internal static class ShipSpriteVisualProfile
     public static double ResolveEndBleed(string? shipName)
     {
         if (string.IsNullOrWhiteSpace(shipName))
-            return 0;
+            return 7.5;
 
         string normalized = NormalizeShipName(shipName);
         return EndBleedByShipName.TryGetValue(normalized, out var bleed)
             ? bleed
-            : 0;
+            : 7.5;
     }
 
     public static double ResolveCrossAxisBleed(string? shipName)
     {
         if (string.IsNullOrWhiteSpace(shipName))
-            return 0;
+            return 1.9;
 
         string normalized = NormalizeShipName(shipName);
         return CrossBleedByShipName.TryGetValue(normalized, out var bleed)
             ? bleed
-            : 0;
+            : 1.9;
     }
 
     private static string NormalizeShipName(string shipName)

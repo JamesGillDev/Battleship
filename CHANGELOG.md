@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.13] - 2026-03-05
+
+### Changed
+- Ship visual overhang tuning now applies to all ship classes (enemy and player), removing edge cut-off at bow/stern while preserving intentional overlap style.
+- `Aircraft Carrier` was increased in visual scale for stronger board presence after overlap corrections.
+- Submarine hit playback volume is now fixed at `20%` for `daviddumaisaudio-large-underwater-explosion-190270.mp3`.
+
+### Fixed
+- Enemy sunk ships now remain visible during player turns while keeping sunk reveal behavior intact.
+
+### Release
+- `v1.6.13` is marked ready for **public release**.
+
 ## [1.6.12] - 2026-03-05
 
 ### Changed

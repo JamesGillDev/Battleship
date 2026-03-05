@@ -56,7 +56,8 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
 
         if (!string.IsNullOrWhiteSpace(effectTrack))
         {
-            if (TryPlayAudioTrack(effectTrack, fxVolume))
+            double trackVolume = ResolveTrackVolume(effectTrack, fxVolume);
+            if (TryPlayAudioTrack(effectTrack, trackVolume))
                 return;
         }
 
@@ -88,6 +89,14 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
             return SubmarineExplosionTrack;
 
         return SurfaceExplosionTrack;
+    }
+
+    private static double ResolveTrackVolume(string effectTrack, double fallbackVolume)
+    {
+        if (string.Equals(effectTrack, SubmarineExplosionTrack, StringComparison.OrdinalIgnoreCase))
+            return 0.20;
+
+        return Math.Clamp(fallbackVolume, 0, 1);
     }
 
     private static string NormalizeShipName(string? shipName)

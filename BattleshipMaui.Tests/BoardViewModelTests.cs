@@ -418,12 +418,14 @@ public class BoardViewModelTests
     {
         var destroyer = new ShipSpriteVm("Destroyer", "destroyer_2_pegs.png", 0, 0, 2, ShipAxis.Horizontal);
         var carrier = new ShipSpriteVm("Aircraft Carrier", "aircraft_carrier_5_pegs.png", 0, 0, 5, ShipAxis.Horizontal);
+        var battleship = new ShipSpriteVm("Battleship", "battleship_4_pegs.png", 0, 0, 4, ShipAxis.Horizontal);
         var submarine = new ShipSpriteVm("Submarine", "submarine_3_pegs.png", 0, 0, 3, ShipAxis.Horizontal);
 
         Assert.True(destroyer.ImageScale > 1);
         Assert.True(carrier.ImageScale > 1);
         Assert.True(submarine.ImageScale > 1);
         Assert.NotEqual(destroyer.ImageScale, carrier.ImageScale);
+        Assert.True(carrier.ImageScale > battleship.ImageScale);
     }
 
     [Fact]
@@ -439,15 +441,24 @@ public class BoardViewModelTests
     }
 
     [Fact]
-    public void ShipSpriteVm_CruiserAndDestroyer_UseExtendedBoundsForGridOverlap()
+    public void ShipSpriteVm_AllShips_UseExtendedBoundsForGridOverlap()
     {
+        var carrier = new ShipSpriteVm("Aircraft Carrier", "aircraft_carrier_5_pegs.png", 1, 1, 5, ShipAxis.Horizontal);
+        var battleship = new ShipSpriteVm("Battleship", "battleship_4_pegs.png", 2, 2, 4, ShipAxis.Horizontal);
         var cruiser = new ShipSpriteVm("Cruiser", "cruiser_3_pegs.png", 2, 2, 3, ShipAxis.Horizontal);
+        var submarine = new ShipSpriteVm("Submarine", "submarine_3_pegs.png", 3, 3, 3, ShipAxis.Horizontal);
         var destroyer = new ShipSpriteVm("Destroyer", "destroyer_2_pegs.png", 4, 4, 2, ShipAxis.Horizontal);
 
+        double carrierBaseWidth = (5 * BoardViewModel.CellSize) - (2 * BoardViewModel.ShipVisualInset);
+        double battleshipBaseWidth = (4 * BoardViewModel.CellSize) - (2 * BoardViewModel.ShipVisualInset);
         double cruiserBaseWidth = (3 * BoardViewModel.CellSize) - (2 * BoardViewModel.ShipVisualInset);
+        double submarineBaseWidth = (3 * BoardViewModel.CellSize) - (2 * BoardViewModel.ShipVisualInset);
         double destroyerBaseWidth = (2 * BoardViewModel.CellSize) - (2 * BoardViewModel.ShipVisualInset);
 
+        Assert.True(carrier.Bounds.Width > carrierBaseWidth);
+        Assert.True(battleship.Bounds.Width > battleshipBaseWidth);
         Assert.True(cruiser.Bounds.Width > cruiserBaseWidth);
+        Assert.True(submarine.Bounds.Width > submarineBaseWidth);
         Assert.True(destroyer.Bounds.Width > destroyerBaseWidth);
     }
 
