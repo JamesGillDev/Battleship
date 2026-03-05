@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.14] - 2026-03-05
+
+### Fixed
+- Removed remaining ship sprite clipping on both boards by rendering ship imagery outside the bordered hull container, eliminating bow/stern and side cut-off.
+- Applied the same no-clip rendering path to placement preview so previewed ships match final placed visuals.
+- Replaced transform-based ship image scaling with centered oversized image bounds, fixing persistent all-side clipping on WinUI while preserving ship overhang.
+
+### Changed
+- Retained enlarged `Aircraft Carrier` scale and full-ship overhang behavior after clipping fix.
+- Retained submarine-hit underwater explosion playback at fixed `20%` volume.
+
+### Release
+- `v1.6.14` is marked ready for **public release**.
+
 ## [1.6.13] - 2026-03-05
 
 ### Changed

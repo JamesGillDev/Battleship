@@ -717,6 +717,8 @@ public class BoardViewModel : ObservableObject
             if (_placementPreviewBounds == value) return;
             _placementPreviewBounds = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(PlacementPreviewImageWidthRequest));
+            OnPropertyChanged(nameof(PlacementPreviewImageHeightRequest));
         }
     }
 
@@ -739,8 +741,13 @@ public class BoardViewModel : ObservableObject
             if (Math.Abs(_placementPreviewImageScale - value) < 0.001) return;
             _placementPreviewImageScale = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(PlacementPreviewImageWidthRequest));
+            OnPropertyChanged(nameof(PlacementPreviewImageHeightRequest));
         }
     }
+
+    public double PlacementPreviewImageWidthRequest => PlacementPreviewBounds.Width * PlacementPreviewImageScale;
+    public double PlacementPreviewImageHeightRequest => PlacementPreviewBounds.Height * PlacementPreviewImageScale;
 
     public string PlacementPreviewImageSource
     {
@@ -2705,6 +2712,8 @@ public class ShipSpriteVm : ObservableObject
 
     public double Rotation => 0;
     public double ImageRotation => Axis == ShipAxis.Vertical ? 90 : 0;
+    public double ImageWidthRequest => Bounds.Width * ImageScale;
+    public double ImageHeightRequest => Bounds.Height * ImageScale;
 
     public bool IsSunk
     {

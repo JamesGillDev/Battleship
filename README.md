@@ -2,18 +2,18 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.13-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.6.14-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.13`
+- Current public app release version: `v1.6.14`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.13`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.14`)
 
 ## Release Readiness
-- `v1.6.13` is **ready for public release**.
+- `v1.6.14` is **ready for public release**.
 
 ## Highlights
 - Full command-center visual overhaul with a game-first style.
@@ -51,6 +51,7 @@ A polished, fully playable Battleship game built with .NET MAUI and a C# game co
 - Explosion markers now randomize quarter-turn orientation for more dynamic hit visuals.
 - Ship sprites and placement preview now preserve aspect ratio with vertical rotation and per-ship scaling to maintain correct class silhouettes.
 - All ship classes now include expanded sprite/preview overhang bounds so bow/stern cut-off is removed across both boards.
+- Ship sprites and placement preview now render with centered oversized image bounds (instead of transform scaling), eliminating all-side clipping while keeping overhang styling.
 - Aircraft Carrier scale is increased again for stronger board presence.
 - Submarine-hit underwater explosion audio now plays at a fixed 20% volume.
 - Aircraft Carrier sprite scale was increased substantially (both orientations) so it now overlaps with the same visual weight as Battleship on the fleet grid.
