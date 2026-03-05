@@ -2042,9 +2042,9 @@ public class BoardViewModel : ObservableObject
         TurnMessage = "Enemy turn";
         ApplyAutoBoardFocus();
 
-        if (ShouldUseCinematicTurnPacing)
+        if (CanUseMainThreadPacing())
         {
-            _ = ResolveEnemyTurnWithPacingAsync(_gameSessionId);
+            _ = ResolveEnemyTurnAfterPlayerDelayAsync(_gameSessionId);
             return;
         }
 
@@ -2114,6 +2114,26 @@ public class BoardViewModel : ObservableObject
     private static async Task PauseAfterPlayerShotAsync()
     {
         await Task.Delay(PlayerShotRevealDelayMilliseconds);
+    }
+
+    private async Task ResolveEnemyTurnAfterPlayerDelayAsync(int sessionId)
+    {
+        if (_isResolvingEnemyTurn || _playerBoard is null)
+            return;
+
+        SetEnemyTurnResolutionState(true);
+        try
+        {
+            await PauseAfterPlayerShotAsync();
+            if (sessionId != _gameSessionId || IsGameOver || IsPlayerTurn)
+                return;
+
+            EnemyTakeTurn();
+        }
+        finally
+        {
+            SetEnemyTurnResolutionState(false);
+        }
     }
 
     private async Task ResolveEnemyTurnWithPacingAsync(int sessionId)
