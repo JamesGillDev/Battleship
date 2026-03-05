@@ -1908,7 +1908,7 @@ public class BoardViewModel : ObservableObject
             return;
         }
 
-        _enemyTargetingStrategy = new EnemyTargetingStrategy(Size, _random);
+        _enemyTargetingStrategy = new EnemyTargetingStrategy(Size, _random, SelectedDifficulty);
     }
 
     private bool TryGetNextEnemyTarget(out BoardCoordinate target)
@@ -1965,6 +1965,10 @@ public class BoardViewModel : ObservableObject
 
         enemySprite.MarkSunk();
         enemySprite.Reveal();
+
+        if (_enemyBoard is not null)
+            MarkSunkShipCells(_enemyBoard, EnemyCells, sunkShipName);
+
         ShowEnemyFleet = true;
     }
 
@@ -2362,6 +2366,26 @@ public class BoardViewModel : ObservableObject
         cells[index].ApplyShot(shot);
     }
 
+    private static void MarkSunkShipCells(GameBoard board, ObservableCollection<BoardCellVm> cells, string? sunkShipName)
+    {
+        if (string.IsNullOrWhiteSpace(sunkShipName))
+            return;
+
+        var ship = board.Fleet.FirstOrDefault(candidate =>
+            string.Equals(candidate.Name, sunkShipName, StringComparison.OrdinalIgnoreCase));
+        if (ship is null)
+            return;
+
+        foreach (var position in ship.Positions)
+        {
+            int index = position.Row * Size + position.Col;
+            if (index < 0 || index >= cells.Count)
+                continue;
+
+            cells[index].MarkAsSunk();
+        }
+    }
+
     private static string ToBoardCoordinate(int row, int col)
     {
         char letter = (char)('A' + row);
@@ -2432,7 +2456,8 @@ public enum ShotMarkerState
 {
     None = 0,
     Miss = 1,
-    Hit = 2
+    Hit = 2,
+    Sunk = 3
 }
 
 public class BoardCellVm : ObservableObject
@@ -2460,6 +2485,7 @@ public class BoardCellVm : ObservableObject
             OnPropertyChanged(nameof(IsHitMarkerVisible));
             OnPropertyChanged(nameof(IsFlameVisible));
             OnPropertyChanged(nameof(IsMissMarkerVisible));
+            OnPropertyChanged(nameof(IsSunkSmokeVisible));
             OnPropertyChanged(nameof(MarkerStateText));
             OnPropertyChanged(nameof(IsTargetLockVisible));
             OnPropertyChanged(nameof(CellFillColor));
@@ -2509,6 +2535,7 @@ public class BoardCellVm : ObservableObject
     public bool IsHitMarkerVisible => MarkerState == ShotMarkerState.Hit;
     public bool IsFlameVisible => MarkerState == ShotMarkerState.Hit;
     public bool IsMissMarkerVisible => MarkerState == ShotMarkerState.Miss;
+    public bool IsSunkSmokeVisible => MarkerState == ShotMarkerState.Sunk;
     public bool IsTargetLockVisible => IsTargetLocked && MarkerState == ShotMarkerState.None;
     public double MissPegSize => BoardViewModel.MissPegSize;
     public Color MissPegFillColor => ResolveThemeColor("GameColorTextPrimary", IsPlayerBoard ? "#f2f8ff" : "#e6f3ff");
@@ -2518,6 +2545,7 @@ public class BoardCellVm : ObservableObject
     public Color CellFillColor => MarkerState switch
     {
         ShotMarkerState.Hit => ResolveThemeColor("GameColorDanger", "#7b2a13"),
+        ShotMarkerState.Sunk => ResolveThemeColor("GameColorSurfaceAlt", "#3a444f"),
         ShotMarkerState.Miss => ResolveThemeColor("GameColorSurfaceAlt", IsPlayerBoard ? "#1f5f91" : "#1d6398"),
         _ when IsTargetLocked => ResolveThemeColor("GameColorAccentSoft", IsPlayerBoard ? "#275f8a" : "#2970a1"),
         _ when IsPlayerBoard && HasShip => ResolveThemeColor("GameColorPanel", "#2e648c"),
@@ -2527,6 +2555,7 @@ public class BoardCellVm : ObservableObject
     public Color CellStrokeColor => MarkerState switch
     {
         ShotMarkerState.Hit => ResolveThemeColor("GameColorWarning", "#ffd08a"),
+        ShotMarkerState.Sunk => ResolveThemeColor("GameColorTextMuted", "#a6b7c8"),
         ShotMarkerState.Miss => ResolveThemeColor("GameColorTextMuted", "#c9ecff"),
         _ when IsTargetLocked => ResolveThemeColor("GameColorAccent", "#8fd9ff"),
         _ when IsPlayerBoard && HasShip => ResolveThemeColor("GameColorTextPrimary", "#b8dcf8"),
@@ -2550,6 +2579,7 @@ public class BoardCellVm : ObservableObject
     public string MarkerStateText => MarkerState switch
     {
         ShotMarkerState.Hit => "hit",
+        ShotMarkerState.Sunk => "sunk",
         ShotMarkerState.Miss => "miss",
         _ => "untargeted"
     };
@@ -2570,6 +2600,12 @@ public class BoardCellVm : ObservableObject
         IsTargetLocked = false;
         HitMarkerRotation = shot.IsHit ? ExplosionRotationProfile.NextQuarterTurn() : 0;
         MarkerState = shot.IsHit ? ShotMarkerState.Hit : ShotMarkerState.Miss;
+    }
+
+    public void MarkAsSunk()
+    {
+        HitMarkerRotation = 0;
+        MarkerState = ShotMarkerState.Sunk;
     }
 
     public void SetTargetLocked(bool isLocked)
@@ -2656,6 +2692,7 @@ public class ShipSpriteVm : ObservableObject
             OnPropertyChanged(nameof(Opacity));
             OnPropertyChanged(nameof(StrokeColor));
             OnPropertyChanged(nameof(BackgroundColor));
+            OnPropertyChanged(nameof(IsSunkSmokeVisible));
         }
     }
 
@@ -2668,6 +2705,7 @@ public class ShipSpriteVm : ObservableObject
             _isRevealed = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(Opacity));
+            OnPropertyChanged(nameof(IsSunkSmokeVisible));
         }
     }
 
@@ -2678,9 +2716,11 @@ public class ShipSpriteVm : ObservableObject
             if (!IsRevealed)
                 return 0;
 
-            return IsSunk ? 0.4 : 0.8;
+            return IsSunk ? 0.74 : 0.86;
         }
     }
+
+    public bool IsSunkSmokeVisible => IsSunk && IsRevealed;
 
     public Color StrokeColor => IsSunk
         ? ResolveThemeColor("GameColorDanger", "#ff8a6b")

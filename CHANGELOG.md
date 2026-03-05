@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.11] - 2026-03-05
+
+### Changed
+- Enemy targeting now scales more clearly by difficulty:
+  - `Hard` now ranks adjacent follow-up targets by directional reach after successful hits for stronger ship-finishing behavior.
+  - `Easy` still remains less aggressive, but now takes an immediate nearby follow-up shot after landing a hit.
+
+### Fixed
+- Reduced perceived shot-audio latency by moving effects to preloaded per-track playback on Windows and applying faster-start miss-clip timing while keeping randomized 4-track miss rotation with no immediate repeats.
+- Enemy sunk ships are now easier to read with higher sunk opacity.
+- Enemy ship explosions are now removed after sink resolution and replaced by continuous smoke animation over the sunk ship sprite.
+
+### Release
+- `v1.6.11` is marked ready for **public release**.
+
 ## [1.6.10] - 2026-03-05
 
 ### Fixed

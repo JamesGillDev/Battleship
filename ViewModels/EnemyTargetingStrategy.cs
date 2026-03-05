@@ -5,22 +5,26 @@ namespace BattleshipMaui.ViewModels;
 public sealed class EnemyTargetingStrategy
 {
     private readonly int _size;
+    private readonly Random _random;
+    private readonly CpuDifficulty _difficulty;
     private readonly Queue<BoardCoordinate> _huntQueue;
     private readonly LinkedList<BoardCoordinate> _targetQueue = new();
     private readonly HashSet<BoardCoordinate> _attempted = new();
     private readonly List<BoardCoordinate> _activeHits = new();
+    private int _easyFocusTurnsRemaining;
 
     public int PendingTargetCount => _targetQueue.Count;
     public int AttemptedCount => _attempted.Count;
     public int RemainingShots => (_size * _size) - _attempted.Count;
 
-    public EnemyTargetingStrategy(int size, Random random)
+    public EnemyTargetingStrategy(int size, Random random, CpuDifficulty difficulty = CpuDifficulty.Standard)
     {
         if (size <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Board size must be greater than zero.");
 
         _size = size;
-        random ??= new Random();
+        _difficulty = difficulty;
+        _random = random ?? new Random();
 
         var parityCells = new List<BoardCoordinate>();
         var nonParityCells = new List<BoardCoordinate>();
@@ -37,21 +41,21 @@ public sealed class EnemyTargetingStrategy
             }
         }
 
-        Shuffle(parityCells, random);
-        Shuffle(nonParityCells, random);
+        Shuffle(parityCells, _random);
+        Shuffle(nonParityCells, _random);
 
         _huntQueue = new Queue<BoardCoordinate>(parityCells.Concat(nonParityCells));
     }
 
     public BoardCoordinate GetNextShot()
     {
-        while (_targetQueue.Count > 0)
+        bool mustUseTargetQueue = _huntQueue.Count == 0;
+        if ((mustUseTargetQueue || ShouldUseTargetQueue()) && TryDequeueTargetShot(out var target))
         {
-            var candidate = _targetQueue.First!.Value;
-            _targetQueue.RemoveFirst();
+            if (_difficulty == CpuDifficulty.Easy && _easyFocusTurnsRemaining > 0)
+                _easyFocusTurnsRemaining--;
 
-            if (_attempted.Add(candidate))
-                return candidate;
+            return target;
         }
 
         while (_huntQueue.Count > 0)
@@ -73,11 +77,15 @@ public sealed class EnemyTargetingStrategy
             case AttackResult.Sunk:
                 _activeHits.Clear();
                 _targetQueue.Clear();
+                _easyFocusTurnsRemaining = 0;
                 return;
 
             case AttackResult.Hit:
                 if (!_activeHits.Contains(shot))
                     _activeHits.Add(shot);
+
+                if (_difficulty == CpuDifficulty.Easy)
+                    _easyFocusTurnsRemaining = 1;
 
                 RebuildTargetQueue();
                 return;
@@ -96,7 +104,11 @@ public sealed class EnemyTargetingStrategy
 
         if (_activeHits.Count == 1)
         {
-            AddAdjacentCandidates(_activeHits[0]);
+            if (_difficulty == CpuDifficulty.Hard)
+                AddAdjacentCandidatesByReach(_activeHits[0]);
+            else
+                AddAdjacentCandidates(_activeHits[0]);
+
             return;
         }
 
@@ -124,13 +136,23 @@ public sealed class EnemyTargetingStrategy
         else
         {
             foreach (var hit in _activeHits)
-                AddAdjacentCandidates(hit);
+            {
+                if (_difficulty == CpuDifficulty.Hard)
+                    AddAdjacentCandidatesByReach(hit);
+                else
+                    AddAdjacentCandidates(hit);
+            }
         }
 
         if (_targetQueue.Count == 0)
         {
             foreach (var hit in _activeHits)
-                AddAdjacentCandidates(hit);
+            {
+                if (_difficulty == CpuDifficulty.Hard)
+                    AddAdjacentCandidatesByReach(hit);
+                else
+                    AddAdjacentCandidates(hit);
+            }
         }
     }
 
@@ -155,6 +177,79 @@ public sealed class EnemyTargetingStrategy
             return;
 
         _targetQueue.AddLast(candidate);
+    }
+
+    private void AddAdjacentCandidatesByReach(BoardCoordinate hit)
+    {
+        var rankedDirections = new List<(int Row, int Col, int Reach)>
+        {
+            BuildDirectionalCandidate(hit, -1, 0),
+            BuildDirectionalCandidate(hit, 1, 0),
+            BuildDirectionalCandidate(hit, 0, -1),
+            BuildDirectionalCandidate(hit, 0, 1)
+        };
+
+        foreach (var candidate in rankedDirections
+                     .Where(c => c.Reach >= 0)
+                     .OrderByDescending(c => c.Reach)
+                     .ThenBy(_ => _random.Next()))
+        {
+            AddCandidate(candidate.Row, candidate.Col);
+        }
+    }
+
+    private (int Row, int Col, int Reach) BuildDirectionalCandidate(BoardCoordinate hit, int rowDelta, int colDelta)
+    {
+        int row = hit.Row + rowDelta;
+        int col = hit.Col + colDelta;
+        var candidate = new BoardCoordinate(row, col);
+        if (!InBounds(candidate) || _attempted.Contains(candidate))
+            return (row, col, -1);
+
+        int reach = 0;
+        int scanRow = row;
+        int scanCol = col;
+        while (InBounds(new BoardCoordinate(scanRow, scanCol)) &&
+               !_attempted.Contains(new BoardCoordinate(scanRow, scanCol)))
+        {
+            reach++;
+            scanRow += rowDelta;
+            scanCol += colDelta;
+        }
+
+        return (row, col, reach);
+    }
+
+    private bool ShouldUseTargetQueue()
+    {
+        if (_targetQueue.Count == 0)
+            return false;
+
+        if (_difficulty != CpuDifficulty.Easy)
+            return true;
+
+        if (_easyFocusTurnsRemaining > 0)
+            return true;
+
+        return _random.NextDouble() < 0.4;
+    }
+
+    private bool TryDequeueTargetShot(out BoardCoordinate shot)
+    {
+        while (_targetQueue.Count > 0)
+        {
+            var candidate = _targetQueue.First!.Value;
+            _targetQueue.RemoveFirst();
+
+            if (_attempted.Add(candidate))
+            {
+                shot = candidate;
+                return true;
+            }
+        }
+
+        shot = default;
+        return false;
     }
 
     private bool InBounds(BoardCoordinate coordinate)

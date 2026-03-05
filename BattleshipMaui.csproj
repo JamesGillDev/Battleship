@@ -19,12 +19,12 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Public release versioning -->
-		<Version>1.6.10</Version>
-		<AssemblyVersion>1.6.10.0</AssemblyVersion>
-		<FileVersion>1.6.10.0</FileVersion>
-		<InformationalVersion>1.6.10</InformationalVersion>
-		<ApplicationDisplayVersion>1.6.10</ApplicationDisplayVersion>
-		<ApplicationVersion>1610</ApplicationVersion>
+		<Version>1.6.11</Version>
+		<AssemblyVersion>1.6.11.0</AssemblyVersion>
+		<FileVersion>1.6.11.0</FileVersion>
+		<InformationalVersion>1.6.11</InformationalVersion>
+		<ApplicationDisplayVersion>1.6.11</ApplicationDisplayVersion>
+		<ApplicationVersion>1611</ApplicationVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

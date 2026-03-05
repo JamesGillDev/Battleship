@@ -2,18 +2,18 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.10-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.6.11-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.10`
+- Current public app release version: `v1.6.11`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.10`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.11`)
 
 ## Release Readiness
-- `v1.6.10` is **ready for public release**.
+- `v1.6.11` is **ready for public release**.
 
 ## Highlights
 - Full command-center visual overhaul with a game-first style.
@@ -30,7 +30,7 @@ A polished, fully playable Battleship game built with .NET MAUI and a C# game co
 - Board markers (`A-J`, `1-10`) stay locked to grid cells with centered ship overlays.
 - Player ship deployment animation now slides/fades in from outside board bounds.
 - Turn-based player vs CPU combat.
-- Smart CPU hunt/target strategy after hits.
+- Smart CPU hunt/target strategy after hits, with stronger difficulty-based follow-up focus.
 - Ship image overlays with sunk/reveal animations.
 - Medium-large peg markers for misses and animated impact markers for hits.
 - Miss markers now render as layered high-visibility water splashes with animated ripples and droplets on both boards.
@@ -43,6 +43,7 @@ A polished, fully playable Battleship game built with .NET MAUI and a C# game co
 - Sound FX now include a dedicated volume slider with persisted level controls.
 - Ship-hit sound FX now use ship-specific explosion audio (submarine gets underwater hit FX).
 - Miss shots rotate through 4 water-explosion sound effects with immediate-repeat prevention.
+- Miss/hit audio playback now starts faster with lower perceived delay while preserving randomized miss rotation behavior.
 - Hit cells now include animated flame rendered beneath the explosion marker on both boards.
 - Flame hit-layer now continuously flickers while active (instead of a single pulse), improving per-cell hit readability.
 - Explosion markers now randomize quarter-turn orientation for more dynamic hit visuals.
@@ -54,6 +55,7 @@ A polished, fully playable Battleship game built with .NET MAUI and a C# game co
 - Welcome mission popup now appears at app open with instructions and `Let's Fight!` action.
 - First-launch "Command Briefing" overlay with gameplay instructions.
 - Enemy ships are revealed only when they are destroyed.
+- Sunk enemy ships now stay clearly visible with reduced transparency and continuous smoke, while explosion overlays clear after sink resolution.
 - Coordinate labels (`A-J` and `1-10`) and accessibility hints.
 - Persistent stats:
   - Wins, losses, draws

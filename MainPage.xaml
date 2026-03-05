@@ -354,10 +354,45 @@
                                                 <Border.Behaviors>
                                                     <behaviors:ShipSpriteAnimationBehavior />
                                                 </Border.Behaviors>
-                                                <Image Source="{Binding ImageSource}"
-                                                       Rotation="{Binding ImageRotation}"
-                                                       Scale="{Binding ImageScale}"
-                                                       Aspect="AspectFit" />
+                                                <Grid InputTransparent="True">
+                                                    <Image Source="{Binding ImageSource}"
+                                                           Rotation="{Binding ImageRotation}"
+                                                           Scale="{Binding ImageScale}"
+                                                           Aspect="AspectFit" />
+
+                                                    <Grid IsVisible="{Binding IsSunkSmokeVisible}"
+                                                          InputTransparent="True">
+                                                        <Grid.Behaviors>
+                                                            <behaviors:ShipSunkSmokeAnimationBehavior />
+                                                        </Grid.Behaviors>
+                                                        <Border Margin="2"
+                                                                StrokeThickness="0"
+                                                                StrokeShape="RoundRectangle 10"
+                                                                Opacity="0.36">
+                                                            <Border.Background>
+                                                                <RadialGradientBrush Center="0.5,0.62" Radius="0.72">
+                                                                    <GradientStop Color="#70A9B1BC" Offset="0.0" />
+                                                                    <GradientStop Color="#5C7E8795" Offset="0.42" />
+                                                                    <GradientStop Color="#30525A66" Offset="0.74" />
+                                                                    <GradientStop Color="#00434A56" Offset="1.0" />
+                                                                </RadialGradientBrush>
+                                                            </Border.Background>
+                                                        </Border>
+
+                                                        <Border Margin="6"
+                                                                StrokeThickness="0"
+                                                                StrokeShape="RoundRectangle 8"
+                                                                Opacity="0.28">
+                                                            <Border.Background>
+                                                                <RadialGradientBrush Center="0.48,0.48" Radius="0.58">
+                                                                    <GradientStop Color="#66D0D5DC" Offset="0.0" />
+                                                                    <GradientStop Color="#2A8A909A" Offset="0.7" />
+                                                                    <GradientStop Color="#00707580" Offset="1.0" />
+                                                                </RadialGradientBrush>
+                                                            </Border.Background>
+                                                        </Border>
+                                                    </Grid>
+                                                </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
@@ -702,10 +737,45 @@
                                                 <Border.Behaviors>
                                                     <behaviors:ShipSpriteAnimationBehavior />
                                                 </Border.Behaviors>
-                                                <Image Source="{Binding ImageSource}"
-                                                       Rotation="{Binding ImageRotation}"
-                                                       Scale="{Binding ImageScale}"
-                                                       Aspect="AspectFit" />
+                                                <Grid InputTransparent="True">
+                                                    <Image Source="{Binding ImageSource}"
+                                                           Rotation="{Binding ImageRotation}"
+                                                           Scale="{Binding ImageScale}"
+                                                           Aspect="AspectFit" />
+
+                                                    <Grid IsVisible="{Binding IsSunkSmokeVisible}"
+                                                          InputTransparent="True">
+                                                        <Grid.Behaviors>
+                                                            <behaviors:ShipSunkSmokeAnimationBehavior />
+                                                        </Grid.Behaviors>
+                                                        <Border Margin="2"
+                                                                StrokeThickness="0"
+                                                                StrokeShape="RoundRectangle 10"
+                                                                Opacity="0.36">
+                                                            <Border.Background>
+                                                                <RadialGradientBrush Center="0.5,0.62" Radius="0.72">
+                                                                    <GradientStop Color="#70A9B1BC" Offset="0.0" />
+                                                                    <GradientStop Color="#5C7E8795" Offset="0.42" />
+                                                                    <GradientStop Color="#30525A66" Offset="0.74" />
+                                                                    <GradientStop Color="#00434A56" Offset="1.0" />
+                                                                </RadialGradientBrush>
+                                                            </Border.Background>
+                                                        </Border>
+
+                                                        <Border Margin="6"
+                                                                StrokeThickness="0"
+                                                                StrokeShape="RoundRectangle 8"
+                                                                Opacity="0.28">
+                                                            <Border.Background>
+                                                                <RadialGradientBrush Center="0.48,0.48" Radius="0.58">
+                                                                    <GradientStop Color="#66D0D5DC" Offset="0.0" />
+                                                                    <GradientStop Color="#2A8A909A" Offset="0.7" />
+                                                                    <GradientStop Color="#00707580" Offset="1.0" />
+                                                                </RadialGradientBrush>
+                                                            </Border.Background>
+                                                        </Border>
+                                                    </Grid>
+                                                </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>

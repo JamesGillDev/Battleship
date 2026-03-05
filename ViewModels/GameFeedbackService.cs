@@ -28,7 +28,8 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
 
 #if WINDOWS
     private static readonly object EffectsLock = new();
-    private static readonly MediaPlayer? EffectsPlayer = CreateEffectsPlayer();
+    private static readonly Lazy<Dictionary<string, MediaPlayer>?> EffectsPlayers =
+        new(CreateEffectsPlayers, LazyThreadSafetyMode.ExecutionAndPublication);
 #endif
 
     public void Play(GameFeedbackCue cue, bool soundEnabled, double soundFxVolume, bool hapticsEnabled, bool reduceMotion, string? shipName = null)
@@ -200,18 +201,26 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
 #if WINDOWS
         try
         {
-            if (EffectsPlayer is null)
+            var players = EffectsPlayers.Value;
+            if (players is null)
                 return false;
 
-            string? path = ResolveAudioPath(fileName);
-            if (string.IsNullOrWhiteSpace(path))
+            if (!players.TryGetValue(fileName, out var player))
                 return false;
 
             lock (EffectsLock)
             {
-                EffectsPlayer.Volume = Math.Clamp(volume, 0, 1);
-                EffectsPlayer.Source = MediaSource.CreateFromUri(new Uri(path));
-                EffectsPlayer.Play();
+                player.Volume = Math.Clamp(volume, 0, 1);
+                player.Pause();
+
+                TimeSpan clipStartOffset = ResolveClipStartOffset(fileName);
+                if (player.PlaybackSession is not null)
+                    player.PlaybackSession.Position = clipStartOffset;
+
+                player.Play();
+
+                if (clipStartOffset > TimeSpan.Zero && player.PlaybackSession is not null)
+                    player.PlaybackSession.Position = clipStartOffset;
             }
 
             return true;
@@ -228,22 +237,47 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
     }
 
 #if WINDOWS
-    private static MediaPlayer? CreateEffectsPlayer()
+    private static Dictionary<string, MediaPlayer>? CreateEffectsPlayers()
     {
         try
         {
-            return new MediaPlayer
+            var tracks = MissExplosionTracks
+                .Concat(new[] { SurfaceExplosionTrack, SubmarineExplosionTrack })
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            var players = new Dictionary<string, MediaPlayer>(StringComparer.OrdinalIgnoreCase);
+            foreach (var track in tracks)
             {
-                IsLoopingEnabled = false,
-                AutoPlay = false,
-                AudioCategory = MediaPlayerAudioCategory.GameEffects,
-                Volume = 1
-            };
+                string? path = ResolveAudioPath(track);
+                if (string.IsNullOrWhiteSpace(path))
+                    continue;
+
+                var player = new MediaPlayer
+                {
+                    IsLoopingEnabled = false,
+                    AutoPlay = false,
+                    AudioCategory = MediaPlayerAudioCategory.GameEffects,
+                    Volume = 1,
+                    Source = MediaSource.CreateFromUri(new Uri(path))
+                };
+
+                players[track] = player;
+            }
+
+            return players.Count == 0 ? null : players;
         }
         catch
         {
             return null;
         }
+    }
+
+    private static TimeSpan ResolveClipStartOffset(string fileName)
+    {
+        if (fileName.StartsWith("Waterside_Explosion_Water_Sound_Effects", StringComparison.OrdinalIgnoreCase))
+            return TimeSpan.FromMilliseconds(110);
+
+        return TimeSpan.Zero;
     }
 #endif
 

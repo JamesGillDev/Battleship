@@ -410,7 +410,7 @@ public class BoardViewModelTests
 
         sprite.Reveal();
         Assert.True(sprite.IsRevealed);
-        Assert.Equal(0.4, sprite.Opacity, 3);
+        Assert.Equal(0.74, sprite.Opacity, 3);
     }
 
     [Fact]

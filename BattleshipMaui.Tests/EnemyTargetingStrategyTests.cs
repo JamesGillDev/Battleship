@@ -38,6 +38,19 @@ public class EnemyTargetingStrategyTests
     }
 
     [Fact]
+    public void EasyMode_AfterHit_StillFocusesImmediateNextShotNearImpact()
+    {
+        var strategy = new EnemyTargetingStrategy(10, new Random(15), CpuDifficulty.Easy);
+        var hit = new BoardCoordinate(6, 6);
+
+        strategy.RegisterShotOutcome(hit, AttackResult.Hit);
+        var next = strategy.GetNextShot();
+
+        int manhattanDistance = Math.Abs(next.Row - hit.Row) + Math.Abs(next.Col - hit.Col);
+        Assert.Equal(1, manhattanDistance);
+    }
+
+    [Fact]
     [Trait("Category", "Core9")]
     public void TwoAlignedHits_TargetsShipLineFirst()
     {
