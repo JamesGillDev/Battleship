@@ -98,6 +98,7 @@ public class BoardViewModel : ObservableObject
     public const double BoardRailSpacing = 6;
     public const double ShipVisualInset = 1.0;
     public const double MissPegSize = 16;
+    public const int PlayerShotRevealDelayMilliseconds = 3000;
 
     private static readonly ShipTemplate[] FleetTemplates =
     {
@@ -2015,7 +2016,7 @@ public class BoardViewModel : ObservableObject
         EmitShotFeedback(playerShot);
 
         PlayerLastShotMessage = $"Your last shot: {ToBoardCoordinate(playerShot.Row, playerShot.Col)} - {playerShot.Message}";
-        StatusMessage = "Enemy is firing...";
+        StatusMessage = BuildPlayerShotCallout(playerShot);
         OnPropertyChanged(nameof(ScoreLine));
 
         if (playerShot.Result == AttackResult.Sunk)
@@ -2092,6 +2093,11 @@ public class BoardViewModel : ObservableObject
                 return;
             }
 
+            StatusMessage = BuildPlayerShotCallout(playerShot);
+            await PauseAfterPlayerShotAsync();
+            if (sessionId != _gameSessionId || IsGameOver)
+                return;
+
             IsPlayerTurn = false;
             TurnMessage = "Enemy turn";
             StatusMessage = "Enemy command is evaluating tactical options.";
@@ -2103,6 +2109,11 @@ public class BoardViewModel : ObservableObject
         {
             SetPlayerShotResolutionState(false);
         }
+    }
+
+    private static async Task PauseAfterPlayerShotAsync()
+    {
+        await Task.Delay(PlayerShotRevealDelayMilliseconds);
     }
 
     private async Task ResolveEnemyTurnWithPacingAsync(int sessionId)
@@ -2486,8 +2497,8 @@ public class BoardCellVm : ObservableObject
 
     public Color CellFillColor => MarkerState switch
     {
-        ShotMarkerState.Hit => ResolveThemeColor("GameColorDanger", "#3d2619"),
-        ShotMarkerState.Miss => ResolveThemeColor("GameColorSurfaceAlt", IsPlayerBoard ? "#214a6f" : "#1f4f79"),
+        ShotMarkerState.Hit => ResolveThemeColor("GameColorDanger", "#7b2a13"),
+        ShotMarkerState.Miss => ResolveThemeColor("GameColorSurfaceAlt", IsPlayerBoard ? "#1f5f91" : "#1d6398"),
         _ when IsTargetLocked => ResolveThemeColor("GameColorAccentSoft", IsPlayerBoard ? "#275f8a" : "#2970a1"),
         _ when IsPlayerBoard && HasShip => ResolveThemeColor("GameColorPanel", "#2e648c"),
         _ => ResolveThemeColor("GameColorSurface", IsPlayerBoard ? "#173b5e" : "#1a4369")
@@ -2495,8 +2506,8 @@ public class BoardCellVm : ObservableObject
 
     public Color CellStrokeColor => MarkerState switch
     {
-        ShotMarkerState.Hit => ResolveThemeColor("GameColorWarning", "#ff9366"),
-        ShotMarkerState.Miss => ResolveThemeColor("GameColorTextMuted", "#9ac3e5"),
+        ShotMarkerState.Hit => ResolveThemeColor("GameColorWarning", "#ffd08a"),
+        ShotMarkerState.Miss => ResolveThemeColor("GameColorTextMuted", "#c9ecff"),
         _ when IsTargetLocked => ResolveThemeColor("GameColorAccent", "#8fd9ff"),
         _ when IsPlayerBoard && HasShip => ResolveThemeColor("GameColorTextPrimary", "#b8dcf8"),
         _ => ResolveThemeColor("GameColorBorder", "#3d658b")

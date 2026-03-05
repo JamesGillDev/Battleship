@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.9] - 2026-03-05
+
+### Added
+- New animated miss marker treatment that renders each miss as a layered water-splash effect (foam core, ripple rings, and droplet spray) on both boards.
+
+### Changed
+- Increased hit-marker visual intensity with brighter blast glow and stronger impact timing so strike feedback is easier to read.
+- Added a fixed `3` second player-shot reveal delay before enemy response during cinematic turn flow.
+
+### Fixed
+- Improved hit/miss readability across themes by increasing per-cell marker contrast during resolved shot states.
+
+### Release
+- `v1.6.9` is marked ready for **public release**.
+
 ## [1.6.8] - 2026-03-04
 
 ### Changed

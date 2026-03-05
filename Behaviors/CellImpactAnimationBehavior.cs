@@ -79,16 +79,21 @@ public sealed class CellImpactAnimationBehavior : Behavior<VisualElement>
             }
 
             view.Opacity = 0;
-            view.Scale = 0.45;
-            view.Rotation = baseRotation - 10;
+            view.Scale = 0.32;
+            view.Rotation = baseRotation - 14;
 
             uint burst = ScaleDuration(120);
-            uint settle = ScaleDuration(180);
+            uint recoil = ScaleDuration(90);
+            uint settle = ScaleDuration(170);
 
             await Task.WhenAll(
                 view.FadeToAsync(1, burst, Easing.CubicOut),
-                view.ScaleToAsync(1.22, burst, Easing.CubicOut),
-                view.RotateToAsync(baseRotation + 8, burst, Easing.CubicOut));
+                view.ScaleToAsync(1.34, burst, Easing.CubicOut),
+                view.RotateToAsync(baseRotation + 10, burst, Easing.CubicOut));
+
+            await Task.WhenAll(
+                view.ScaleToAsync(0.9, recoil, Easing.CubicIn),
+                view.FadeToAsync(0.96, recoil, Easing.CubicIn));
 
             await Task.WhenAll(
                 view.ScaleToAsync(1, settle, Easing.CubicIn),

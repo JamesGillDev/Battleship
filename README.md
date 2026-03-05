@@ -2,18 +2,18 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.8-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.6.9-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.8`
+- Current public app release version: `v1.6.9`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.8`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.9`)
 
 ## Release Readiness
-- `v1.6.8` is **ready for public release**.
+- `v1.6.9` is **ready for public release**.
 
 ## Highlights
 - Full command-center visual overhaul with a game-first style.
@@ -33,6 +33,9 @@ A polished, fully playable Battleship game built with .NET MAUI and a C# game co
 - Smart CPU hunt/target strategy after hits.
 - Ship image overlays with sunk/reveal animations.
 - Medium-large peg markers for misses and animated impact markers for hits.
+- Miss markers now render as layered high-visibility water splashes with animated ripples and droplets on both boards.
+- Hit markers now use brighter blast glow + stronger impact animation timing for clearer strike confirmation.
+- Player shot resolution now holds for `3` seconds before enemy response so impact feedback remains visible.
 - Updated naval ship app icon and refreshed ocean-themed palette.
 - Looping background battle music with settings for on/off and live volume adjustment.
 - Background music now starts when `Let's Fight!` is pressed, defaults to 10% volume, and defaults to enabled for first-time/legacy profiles.
