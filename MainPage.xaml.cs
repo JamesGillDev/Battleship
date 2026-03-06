@@ -2,21 +2,6 @@ using System.ComponentModel;
 using BattleshipMaui.ViewModels;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Graphics;
-#if WINDOWS
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using WinUIThickness = Microsoft.UI.Xaml.Thickness;
-using WinUIStyle = Microsoft.UI.Xaml.Style;
-using WinUISetter = Microsoft.UI.Xaml.Setter;
-using WinUIHorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment;
-using WinUIVerticalAlignment = Microsoft.UI.Xaml.VerticalAlignment;
-using WinUIScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility;
-using WinUIScrollMode = Microsoft.UI.Xaml.Controls.ScrollMode;
-using WinUIZoomMode = Microsoft.UI.Xaml.Controls.ZoomMode;
-#endif
 
 namespace BattleshipMaui;
 
@@ -24,12 +9,13 @@ public partial class MainPage : ContentPage
 {
     private BoardViewModel? _viewModel;
     private BoardViewMode _currentBoardMode = BoardViewMode.Enemy;
-    private bool _isBoardTransitionRunning;
 
     public MainPage()
     {
         InitializeComponent();
-        HookBoardCollectionViewHandlers();
+        EnsureBoardGridStructure(EnemyBoardCellsHost);
+        EnsureBoardGridStructure(PlayerBoardCellsHost);
+        EnsureBoardGridStructure(PlayerBoardImpactOverlayHost);
     }
 
     protected override void OnBindingContextChanged()
@@ -50,8 +36,9 @@ public partial class MainPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        DisableBoardScrolling(EnemyBoardCellsView);
-        DisableBoardScrolling(PlayerBoardCellsView);
+        CommandCenterBoardHost.IsVisible = true;
+        EnemyBoardPage.IsVisible = true;
+        PlayerBoardPage.IsVisible = true;
         ApplyOverlayBlurBackdrop();
 
         if (_viewModel is not null)
@@ -92,44 +79,15 @@ public partial class MainPage : ContentPage
             if (!vm.IsOverlayVisible)
                 return;
 
-            double speed = AnimationRuntimeSettings.SpeedMultiplier;
-            if (vm.ReduceMotionMode)
-            {
-                OverlayScrim.Opacity = 1;
-                OverlayCard.Opacity = 1;
-                OverlayCard.Scale = 1;
-                foreach (var child in FleetRecapStack.Children.OfType<VisualElement>())
-                {
-                    child.Opacity = 1;
-                    child.TranslationY = 0;
-                }
-                return;
-            }
-
-            uint cardDuration = ScaleDuration(280, speed);
-            OverlayScrim.Opacity = 0;
-            OverlayCard.Opacity = 0;
-            OverlayCard.Scale = 0.92;
-
-            await Task.WhenAll(
-                OverlayScrim.FadeToAsync(1, cardDuration, Easing.CubicInOut),
-                OverlayCard.FadeToAsync(1, cardDuration, Easing.CubicOut),
-                OverlayCard.ScaleToAsync(1, cardDuration, Easing.CubicOut));
-
-            if (!vm.ShowOverlayRecap || FleetRecapStack.Children.Count == 0)
-                return;
-
-            int index = 0;
             foreach (var child in FleetRecapStack.Children.OfType<VisualElement>())
             {
-                child.Opacity = 0;
-                child.TranslationY = 8;
-                await Task.Delay((int)ScaleDuration((uint)(35 + (index * 18)), speed));
-                _ = Task.WhenAll(
-                    child.FadeToAsync(1, ScaleDuration(180, speed), Easing.CubicOut),
-                    child.TranslateToAsync(0, 0, ScaleDuration(180, speed), Easing.CubicOut));
-                index++;
+                child.Opacity = 1;
+                child.TranslationY = 0;
             }
+
+            OverlayScrim.Opacity = 1;
+            OverlayCard.Opacity = 1;
+            OverlayCard.Scale = 1;
         });
     }
 
@@ -189,98 +147,6 @@ public partial class MainPage : ContentPage
             _viewModel.ClearPlacementPreviewCommand.Execute(null);
     }
 
-    private void HookBoardCollectionViewHandlers()
-    {
-        EnemyBoardCellsView.HandlerChanged += OnBoardCollectionViewHandlerChanged;
-        PlayerBoardCellsView.HandlerChanged += OnBoardCollectionViewHandlerChanged;
-    }
-
-    private void OnBoardCollectionViewHandlerChanged(object? sender, EventArgs e)
-    {
-        if (sender is not CollectionView board)
-            return;
-
-        board.Dispatcher.Dispatch(() => DisableBoardScrolling(board));
-    }
-
-    private static void DisableBoardScrolling(CollectionView board)
-    {
-        board.Margin = 0;
-
-#if WINDOWS
-        if (board.Handler?.PlatformView is ListViewBase listView)
-        {
-            NormalizeListViewLayout(listView);
-            return;
-        }
-
-        if (board.Handler?.PlatformView is FrameworkElement root)
-        {
-            var nestedListView = FindDescendant<ListViewBase>(root);
-            if (nestedListView is not null)
-                NormalizeListViewLayout(nestedListView);
-
-            var scrollViewer = FindDescendant<ScrollViewer>(root);
-            if (scrollViewer is null)
-                return;
-
-            scrollViewer.VerticalScrollMode = WinUIScrollMode.Disabled;
-            scrollViewer.HorizontalScrollMode = WinUIScrollMode.Disabled;
-            scrollViewer.VerticalScrollBarVisibility = WinUIScrollBarVisibility.Hidden;
-            scrollViewer.HorizontalScrollBarVisibility = WinUIScrollBarVisibility.Hidden;
-            scrollViewer.ZoomMode = WinUIZoomMode.Disabled;
-            scrollViewer.ManipulationMode = ManipulationModes.None;
-        }
-#endif
-    }
-
-#if WINDOWS
-    private static void NormalizeListViewLayout(ListViewBase listView)
-    {
-        // Hard-lock the board layer so it cannot pan independently of ship overlays.
-        ScrollViewer.SetVerticalScrollMode(listView, WinUIScrollMode.Disabled);
-        ScrollViewer.SetHorizontalScrollMode(listView, WinUIScrollMode.Disabled);
-        ScrollViewer.SetVerticalScrollBarVisibility(listView, WinUIScrollBarVisibility.Hidden);
-        ScrollViewer.SetHorizontalScrollBarVisibility(listView, WinUIScrollBarVisibility.Hidden);
-        ScrollViewer.SetZoomMode(listView, WinUIZoomMode.Disabled);
-
-        listView.IsSwipeEnabled = false;
-        listView.CanDragItems = false;
-        listView.CanReorderItems = false;
-        listView.ManipulationMode = ManipulationModes.None;
-        listView.Margin = new WinUIThickness(0);
-        listView.Padding = new WinUIThickness(0);
-
-        // Remove WinUI container spacing so A-J / 1-10 rails line up exactly with cells.
-        var itemStyle = new WinUIStyle(typeof(SelectorItem));
-        itemStyle.Setters.Add(new WinUISetter(FrameworkElement.MarginProperty, new WinUIThickness(0)));
-        itemStyle.Setters.Add(new WinUISetter(Control.PaddingProperty, new WinUIThickness(0)));
-        itemStyle.Setters.Add(new WinUISetter(Control.HorizontalContentAlignmentProperty, WinUIHorizontalAlignment.Stretch));
-        itemStyle.Setters.Add(new WinUISetter(Control.VerticalContentAlignmentProperty, WinUIVerticalAlignment.Stretch));
-        listView.ItemContainerStyle = itemStyle;
-    }
-
-    private static T? FindDescendant<T>(DependencyObject? node) where T : DependencyObject
-    {
-        if (node is null)
-            return null;
-
-        if (node is T target)
-            return target;
-
-        int childCount = VisualTreeHelper.GetChildrenCount(node);
-        for (int index = 0; index < childCount; index++)
-        {
-            var child = VisualTreeHelper.GetChild(node, index);
-            var match = FindDescendant<T>(child);
-            if (match is not null)
-                return match;
-        }
-
-        return null;
-    }
-#endif
-
     private void ApplyOverlayBlurBackdrop()
     {
         bool overlayVisible = _viewModel?.IsOverlayVisible == true;
@@ -288,7 +154,7 @@ public partial class MainPage : ContentPage
             ? Color.FromArgb("#D20A1524")
             : Color.FromArgb("#A0000000");
 
-        double boardOpacity = overlayVisible ? 0.42 : 1;
+        double boardOpacity = 1;
         CommandCenterBoardHost.Opacity = boardOpacity;
         EnemyBoardPage.Opacity = boardOpacity;
         PlayerBoardPage.Opacity = boardOpacity;
@@ -296,17 +162,15 @@ public partial class MainPage : ContentPage
 
     private void ApplyBoardModeInstant(BoardViewMode mode)
     {
-        bool enemyFocused = mode == BoardViewMode.Enemy;
-
         EnemyBoardPage.IsVisible = true;
-        EnemyBoardPage.Opacity = enemyFocused ? 1 : 0.9;
+        EnemyBoardPage.Opacity = 1;
         EnemyBoardPage.TranslationX = 0;
-        EnemyBoardPage.Scale = enemyFocused ? 1 : 0.985;
+        EnemyBoardPage.Scale = 1;
 
         PlayerBoardPage.IsVisible = true;
-        PlayerBoardPage.Opacity = enemyFocused ? 0.9 : 1;
+        PlayerBoardPage.Opacity = 1;
         PlayerBoardPage.TranslationX = 0;
-        PlayerBoardPage.Scale = enemyFocused ? 0.985 : 1;
+        PlayerBoardPage.Scale = 1;
 
         _currentBoardMode = mode;
     }
@@ -324,53 +188,22 @@ public partial class MainPage : ContentPage
                 return;
             }
 
-            if (_isBoardTransitionRunning)
-            {
-                ApplyBoardModeInstant(targetMode);
-                return;
-            }
-
-            bool reduceMotion = instant || _viewModel?.ReduceMotionMode == true;
-            if (reduceMotion)
-            {
-                ApplyBoardModeInstant(targetMode);
-                return;
-            }
-
-            var incoming = targetMode == BoardViewMode.Enemy ? EnemyBoardPage : PlayerBoardPage;
-            var outgoing = targetMode == BoardViewMode.Enemy ? PlayerBoardPage : EnemyBoardPage;
-
-            double speed = AnimationRuntimeSettings.SpeedMultiplier;
-            uint duration = ScaleDuration(220, speed);
-
-            _isBoardTransitionRunning = true;
-            try
-            {
-                incoming.IsVisible = true;
-                incoming.Opacity = 0.94;
-                incoming.TranslationX = 0;
-                incoming.Scale = 0.985;
-
-                outgoing.IsVisible = true;
-                outgoing.Scale = 1;
-                outgoing.TranslationX = 0;
-
-                await Task.WhenAll(
-                    incoming.FadeToAsync(1, duration, Easing.CubicOut),
-                    incoming.ScaleToAsync(1, duration, Easing.CubicOut),
-                    outgoing.FadeToAsync(0.9, ScaleDuration(180, speed), Easing.CubicInOut),
-                    outgoing.ScaleToAsync(0.985, duration, Easing.CubicInOut));
-
-                incoming.Opacity = 1;
-                incoming.Scale = 1;
-                outgoing.Opacity = 0.9;
-                outgoing.Scale = 0.985;
-                _currentBoardMode = targetMode;
-            }
-            finally
-            {
-                _isBoardTransitionRunning = false;
-            }
+            ApplyBoardModeInstant(targetMode);
         });
+    }
+
+    private static void EnsureBoardGridStructure(Grid host)
+    {
+        if (host.RowDefinitions.Count == BoardViewModel.Size && host.ColumnDefinitions.Count == BoardViewModel.Size)
+            return;
+
+        host.RowDefinitions.Clear();
+        host.ColumnDefinitions.Clear();
+
+        for (int index = 0; index < BoardViewModel.Size; index++)
+        {
+            host.RowDefinitions.Add(new RowDefinition { Height = BoardViewModel.CellSize });
+            host.ColumnDefinitions.Add(new ColumnDefinition { Width = BoardViewModel.CellSize });
+        }
     }
 }

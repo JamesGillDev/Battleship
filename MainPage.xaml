@@ -110,11 +110,9 @@
         </Border>
 
         <Grid Grid.Row="1">
-            <ScrollView Orientation="Vertical"
-                        VerticalScrollBarVisibility="Never">
-                <Grid Padding="{StaticResource GamePagePadding}"
-                      RowDefinitions="Auto,Auto,Auto"
-                      RowSpacing="8">
+            <Grid Padding="{StaticResource GamePagePadding}"
+                  RowDefinitions="Auto,Auto,Auto"
+                  RowSpacing="8">
                     <Border Grid.Row="0"
                     Style="{StaticResource GameCardBorderStyle}"
                     Padding="12,8">
@@ -314,9 +312,6 @@
                                   VerticalOptions="Start"
                                   IsClippedToBounds="False">
                                 <Grid ZIndex="0">
-                                    <Grid.Behaviors>
-                                        <behaviors:BoardWaterFlowAnimationBehavior />
-                                    </Grid.Behaviors>
                                     <Border Stroke="{DynamicResource GameColorBorder}"
                                             StrokeThickness="1.1"
                                             StrokeShape="{DynamicResource GameBoardFrameShape}">
@@ -461,238 +456,38 @@
                                     </BindableLayout.ItemTemplate>
                                 </AbsoluteLayout>
 
-                                <CollectionView x:Name="EnemyBoardCellsView"
-                                                ItemsSource="{Binding EnemyCells}"
-                                                SelectionMode="None"
-                                                IsEnabled="{Binding CanFire}"
-                                                WidthRequest="{Binding BoardPixelSize}"
-                                                HeightRequest="{Binding BoardPixelSize}"
-                                                Margin="0"
-                                                VerticalScrollBarVisibility="Never"
-                                                HorizontalScrollBarVisibility="Never"
-                                                ZIndex="2"
-                                                SemanticProperties.Description="Enemy waters grid."
-                                                SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. Tap a cell to fire.">
-                                    <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical"
-                                                         Span="10"
-                                                         HorizontalItemSpacing="0"
-                                                         VerticalItemSpacing="0" />
-                                    </CollectionView.ItemsLayout>
-
-                                    <CollectionView.ItemTemplate>
+                                <Grid x:Name="EnemyBoardCellsHost"
+                                      BindableLayout.ItemsSource="{Binding EnemyCells}"
+                                      IsEnabled="{Binding CanFire}"
+                                      WidthRequest="{Binding BoardPixelSize}"
+                                      HeightRequest="{Binding BoardPixelSize}"
+                                      Margin="0"
+                                      RowSpacing="0"
+                                      ColumnSpacing="0"
+                                      ZIndex="2"
+                                      SemanticProperties.Description="Enemy waters grid."
+                                      SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. Tap a cell to fire.">
+                                    <BindableLayout.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Stroke="{Binding CellStrokeColor}"
+                                            <Border Grid.Row="{Binding Row}"
+                                                    Grid.Column="{Binding Col}"
+                                                    Stroke="{Binding CellStrokeColor}"
                                                     StrokeThickness="0.9"
                                                     StrokeShape="{DynamicResource GameBoardCellShape}"
                                                     BackgroundColor="{Binding CellFillColor}"
-                                                    WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                                    HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                                    WidthRequest="44"
+                                                    HeightRequest="44"
                                                     SemanticProperties.Description="{Binding AccessibilityText}"
                                                     SemanticProperties.Hint="Enemy cell. Tap to fire.">
-                                                <Grid>
-                                                    <Border Margin="1"
-                                                            InputTransparent="True"
-                                                            StrokeThickness="0"
-                                                            StrokeShape="{DynamicResource GameBoardCellShape}"
-                                                            Opacity="0.46">
-                                                        <Border.Background>
-                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                                <GradientStop Color="#28FFFFFF" Offset="0.0" />
-                                                                <GradientStop Color="#0F89B5D0" Offset="0.4" />
-                                                                <GradientStop Color="#1A000000" Offset="1.0" />
-                                                            </LinearGradientBrush>
-                                                        </Border.Background>
-                                                    </Border>
-
-                                                    <Border IsVisible="{Binding IsFlameVisible}"
-                                                            Margin="4"
-                                                            Opacity="0.86"
-                                                            StrokeThickness="0"
-                                                            StrokeShape="RoundRectangle 8">
-                                                        <Border.Background>
-                                                            <RadialGradientBrush Center="0.5,0.72" Radius="0.72">
-                                                                <GradientStop Color="#FFF5B043" Offset="0.0" />
-                                                                <GradientStop Color="#F4FF7D00" Offset="0.42" />
-                                                                <GradientStop Color="#CAD94700" Offset="0.74" />
-                                                                <GradientStop Color="#00D94700" Offset="1.0" />
-                                                            </RadialGradientBrush>
-                                                        </Border.Background>
-                                                        <Border.Behaviors>
-                                                            <behaviors:CellFlameAnimationBehavior />
-                                                        </Border.Behaviors>
-                                                    </Border>
-
-                                                    <Grid IsVisible="{Binding IsHitMarkerVisible}"
-                                                          InputTransparent="True">
-                                                        <Border Margin="2"
-                                                                StrokeThickness="0"
-                                                                Opacity="0.88"
-                                                                StrokeShape="RoundRectangle 10">
-                                                            <Border.Background>
-                                                                <RadialGradientBrush Center="0.5,0.5" Radius="0.75">
-                                                                    <GradientStop Color="#FFFFE78C" Offset="0.0" />
-                                                                    <GradientStop Color="#E9FF9D36" Offset="0.34" />
-                                                                    <GradientStop Color="#BEFF4E00" Offset="0.66" />
-                                                                    <GradientStop Color="#00FF2A00" Offset="1.0" />
-                                                                </RadialGradientBrush>
-                                                            </Border.Background>
-                                                        </Border>
-
-                                                        <Image Source="{Binding MarkerImage}"
-                                                               IsVisible="{Binding IsHitMarkerVisible}"
-                                                               Rotation="{Binding HitMarkerRotation}"
-                                                               Aspect="AspectFit"
-                                                               Margin="-1"
-                                                               Opacity="0.98">
-                                                            <Image.Behaviors>
-                                                                <behaviors:CellImpactAnimationBehavior />
-                                                            </Image.Behaviors>
-                                                        </Image>
-                                                    </Grid>
-
-                                                    <Grid IsVisible="{Binding IsMissMarkerVisible}"
-                                                          InputTransparent="True">
-                                                        <Border ClassId="MissSplashHalo"
-                                                                WidthRequest="36"
-                                                                HeightRequest="36"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                StrokeThickness="0"
-                                                                StrokeShape="RoundRectangle 18"
-                                                                Opacity="0.32">
-                                                            <Border.Background>
-                                                                <RadialGradientBrush Center="0.5,0.5" Radius="0.9">
-                                                                    <GradientStop Color="#66D7F6FF" Offset="0.0" />
-                                                                    <GradientStop Color="#20A6D9F8" Offset="0.58" />
-                                                                    <GradientStop Color="#0076C3EF" Offset="1.0" />
-                                                                </RadialGradientBrush>
-                                                            </Border.Background>
-                                                        </Border>
-
-                                                        <Border ClassId="MissSplashCore"
-                                                                WidthRequest="22"
-                                                                HeightRequest="22"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#E5F8FFFF"
-                                                                StrokeThickness="1.2"
-                                                                StrokeShape="RoundRectangle 11"
-                                                                Opacity="0.9">
-                                                            <Border.Background>
-                                                                <RadialGradientBrush Center="0.5,0.5" Radius="0.8">
-                                                                    <GradientStop Color="#FFF8FFFF" Offset="0.0" />
-                                                                    <GradientStop Color="#E1CCF2FF" Offset="0.56" />
-                                                                    <GradientStop Color="#8A77C0EE" Offset="1.0" />
-                                                                </RadialGradientBrush>
-                                                            </Border.Background>
-                                                            <Border.Shadow>
-                                                                <Shadow Brush="#8037aee6" Radius="9" Opacity="0.65" Offset="0,0" />
-                                                            </Border.Shadow>
-                                                        </Border>
-
-                                                        <Border ClassId="MissSplashFoam"
-                                                                WidthRequest="10"
-                                                                HeightRequest="10"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#F6FFFFFF"
-                                                                StrokeThickness="0.8"
-                                                                BackgroundColor="#F0FFFFFF"
-                                                                StrokeShape="RoundRectangle 5"
-                                                                Opacity="0.96" />
-
-                                                        <Border ClassId="MissSplashRingA"
-                                                                WidthRequest="30"
-                                                                HeightRequest="30"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#C9DDF6FF"
-                                                                StrokeThickness="1.6"
-                                                                BackgroundColor="#00FFFFFF"
-                                                                StrokeShape="RoundRectangle 15"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashRingB"
-                                                                WidthRequest="34"
-                                                                HeightRequest="34"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#93BDE8FF"
-                                                                StrokeThickness="1.15"
-                                                                BackgroundColor="#00FFFFFF"
-                                                                StrokeShape="RoundRectangle 17"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashDropletLeft"
-                                                                WidthRequest="5"
-                                                                HeightRequest="5"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                TranslationX="-10"
-                                                                TranslationY="-6"
-                                                                StrokeThickness="0"
-                                                                BackgroundColor="#E8FFFFFF"
-                                                                StrokeShape="RoundRectangle 2.5"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashDropletCenter"
-                                                                WidthRequest="4"
-                                                                HeightRequest="4"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                TranslationY="-9"
-                                                                StrokeThickness="0"
-                                                                BackgroundColor="#EAFFFFFF"
-                                                                StrokeShape="RoundRectangle 2"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashDropletRight"
-                                                                WidthRequest="5"
-                                                                HeightRequest="5"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                TranslationX="10"
-                                                                TranslationY="-6"
-                                                                StrokeThickness="0"
-                                                                BackgroundColor="#E8FFFFFF"
-                                                                StrokeShape="RoundRectangle 2.5"
-                                                                Opacity="0" />
-
-                                                        <Grid.Behaviors>
-                                                            <behaviors:CellMissSplashAnimationBehavior />
-                                                        </Grid.Behaviors>
-                                                    </Grid>
-
-                                                    <Border IsVisible="{Binding IsTargetLockVisible}"
-                                                            Stroke="#8FD9FF"
-                                                            StrokeThickness="2"
-                                                            StrokeShape="RoundRectangle 4"
-                                                            BackgroundColor="#201A476A">
-                                                        <Border.Shadow>
-                                                            <Shadow Brush="#7049c4ff" Radius="10" Opacity="0.7" Offset="0,0" />
-                                                        </Border.Shadow>
-                                                    </Border>
-
-                                                    <Border IsVisible="{Binding IsTargetLockVisible}"
-                                                            WidthRequest="10"
-                                                            HeightRequest="10"
-                                                            HorizontalOptions="Center"
-                                                            VerticalOptions="Center"
-                                                            StrokeThickness="0"
-                                                            BackgroundColor="#9FE5FF"
-                                                            StrokeShape="RoundRectangle 5" />
-
-                                                    <Grid.GestureRecognizers>
-                                                        <TapGestureRecognizer
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=EnemyCellTappedCommand}"
-                                                            CommandParameter="{Binding .}" />
-                                                    </Grid.GestureRecognizers>
-                                                </Grid>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=EnemyCellTappedCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
                                             </Border>
                                         </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
+                                    </BindableLayout.ItemTemplate>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Border>
@@ -775,9 +570,6 @@
                                   VerticalOptions="Start"
                                   IsClippedToBounds="False">
                                 <Grid ZIndex="0">
-                                    <Grid.Behaviors>
-                                        <behaviors:BoardWaterFlowAnimationBehavior />
-                                    </Grid.Behaviors>
                                     <Border Stroke="{DynamicResource GameColorBorder}"
                                             StrokeThickness="1.1"
                                             StrokeShape="{DynamicResource GameBoardFrameShape}">
@@ -949,323 +741,70 @@
                                     </Grid>
                                 </AbsoluteLayout>
 
-                                <CollectionView x:Name="PlayerBoardCellsView"
-                                                ItemsSource="{Binding PlayerCells}"
-                                                SelectionMode="None"
-                                                IsEnabled="{Binding CanPlaceShips}"
-                                                WidthRequest="{Binding BoardPixelSize}"
-                                                HeightRequest="{Binding BoardPixelSize}"
-                                                Margin="0"
-                                                VerticalScrollBarVisibility="Never"
-                                                HorizontalScrollBarVisibility="Never"
-                                                ZIndex="2"
-                                                SemanticProperties.Description="Your fleet grid."
-                                                SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. During placement, left-click a cell to place the selected ship and right-click to rotate.">
-                                    <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical"
-                                                         Span="10"
-                                                         HorizontalItemSpacing="0"
-                                                         VerticalItemSpacing="0" />
-                                    </CollectionView.ItemsLayout>
-
-                                    <CollectionView.ItemTemplate>
+                                <Grid x:Name="PlayerBoardCellsHost"
+                                      BindableLayout.ItemsSource="{Binding PlayerCells}"
+                                      IsEnabled="{Binding CanPlaceShips}"
+                                      WidthRequest="{Binding BoardPixelSize}"
+                                      HeightRequest="{Binding BoardPixelSize}"
+                                      Margin="0"
+                                      RowSpacing="0"
+                                      ColumnSpacing="0"
+                                      ZIndex="2"
+                                      SemanticProperties.Description="Your fleet grid."
+                                      SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. During placement, left-click a cell to place the selected ship and right-click to rotate.">
+                                    <BindableLayout.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Stroke="{Binding CellStrokeColor}"
+                                            <Border Grid.Row="{Binding Row}"
+                                                    Grid.Column="{Binding Col}"
+                                                    Stroke="{Binding CellStrokeColor}"
                                                     StrokeThickness="0.9"
                                                     StrokeShape="{DynamicResource GameBoardCellShape}"
                                                     BackgroundColor="{Binding CellFillColor}"
-                                                    WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                                    HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
+                                                    WidthRequest="44"
+                                                    HeightRequest="44"
                                                     SemanticProperties.Description="{Binding AccessibilityText}"
                                                     SemanticProperties.Hint="Your fleet cell. Left-click to place the selected ship. Right-click to rotate orientation.">
-                                                <Grid>
-                                                    <Border Margin="1"
-                                                            InputTransparent="True"
-                                                            StrokeThickness="0"
-                                                            StrokeShape="{DynamicResource GameBoardCellShape}"
-                                                            Opacity="0.46">
-                                                        <Border.Background>
-                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                                                <GradientStop Color="#28FFFFFF" Offset="0.0" />
-                                                                <GradientStop Color="#0F89B5D0" Offset="0.4" />
-                                                                <GradientStop Color="#1A000000" Offset="1.0" />
-                                                            </LinearGradientBrush>
-                                                        </Border.Background>
-                                                    </Border>
-
-                                                    <Border IsVisible="{Binding IsFlameVisible}"
-                                                            Margin="4"
-                                                            Opacity="0.86"
-                                                            StrokeThickness="0"
-                                                            StrokeShape="RoundRectangle 8">
-                                                        <Border.Background>
-                                                            <RadialGradientBrush Center="0.5,0.72" Radius="0.72">
-                                                                <GradientStop Color="#FFF5B043" Offset="0.0" />
-                                                                <GradientStop Color="#F4FF7D00" Offset="0.42" />
-                                                                <GradientStop Color="#CAD94700" Offset="0.74" />
-                                                                <GradientStop Color="#00D94700" Offset="1.0" />
-                                                            </RadialGradientBrush>
-                                                        </Border.Background>
-                                                        <Border.Behaviors>
-                                                            <behaviors:CellFlameAnimationBehavior />
-                                                        </Border.Behaviors>
-                                                    </Border>
-
-                                                    <Grid IsVisible="{Binding IsHitMarkerVisible}"
-                                                          InputTransparent="True">
-                                                        <Border Margin="2"
-                                                                StrokeThickness="0"
-                                                                Opacity="0.88"
-                                                                StrokeShape="RoundRectangle 10">
-                                                            <Border.Background>
-                                                                <RadialGradientBrush Center="0.5,0.5" Radius="0.75">
-                                                                    <GradientStop Color="#FFFFE78C" Offset="0.0" />
-                                                                    <GradientStop Color="#E9FF9D36" Offset="0.34" />
-                                                                    <GradientStop Color="#BEFF4E00" Offset="0.66" />
-                                                                    <GradientStop Color="#00FF2A00" Offset="1.0" />
-                                                                </RadialGradientBrush>
-                                                            </Border.Background>
-                                                        </Border>
-
-                                                        <Image Source="{Binding MarkerImage}"
-                                                               IsVisible="{Binding IsHitMarkerVisible}"
-                                                               Rotation="{Binding HitMarkerRotation}"
-                                                               Aspect="AspectFit"
-                                                               Margin="-1"
-                                                               Opacity="0.98">
-                                                            <Image.Behaviors>
-                                                                <behaviors:CellImpactAnimationBehavior />
-                                                            </Image.Behaviors>
-                                                        </Image>
-                                                    </Grid>
-
-                                                    <Grid IsVisible="{Binding IsMissMarkerVisible}"
-                                                          InputTransparent="True">
-                                                        <Border ClassId="MissSplashHalo"
-                                                                WidthRequest="36"
-                                                                HeightRequest="36"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                StrokeThickness="0"
-                                                                StrokeShape="RoundRectangle 18"
-                                                                Opacity="0.32">
-                                                            <Border.Background>
-                                                                <RadialGradientBrush Center="0.5,0.5" Radius="0.9">
-                                                                    <GradientStop Color="#66D7F6FF" Offset="0.0" />
-                                                                    <GradientStop Color="#20A6D9F8" Offset="0.58" />
-                                                                    <GradientStop Color="#0076C3EF" Offset="1.0" />
-                                                                </RadialGradientBrush>
-                                                            </Border.Background>
-                                                        </Border>
-
-                                                        <Border ClassId="MissSplashCore"
-                                                                WidthRequest="22"
-                                                                HeightRequest="22"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#E5F8FFFF"
-                                                                StrokeThickness="1.2"
-                                                                StrokeShape="RoundRectangle 11"
-                                                                Opacity="0.9">
-                                                            <Border.Background>
-                                                                <RadialGradientBrush Center="0.5,0.5" Radius="0.8">
-                                                                    <GradientStop Color="#FFF8FFFF" Offset="0.0" />
-                                                                    <GradientStop Color="#E1CCF2FF" Offset="0.56" />
-                                                                    <GradientStop Color="#8A77C0EE" Offset="1.0" />
-                                                                </RadialGradientBrush>
-                                                            </Border.Background>
-                                                            <Border.Shadow>
-                                                                <Shadow Brush="#8037aee6" Radius="9" Opacity="0.65" Offset="0,0" />
-                                                            </Border.Shadow>
-                                                        </Border>
-
-                                                        <Border ClassId="MissSplashFoam"
-                                                                WidthRequest="10"
-                                                                HeightRequest="10"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#F6FFFFFF"
-                                                                StrokeThickness="0.8"
-                                                                BackgroundColor="#F0FFFFFF"
-                                                                StrokeShape="RoundRectangle 5"
-                                                                Opacity="0.96" />
-
-                                                        <Border ClassId="MissSplashRingA"
-                                                                WidthRequest="30"
-                                                                HeightRequest="30"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#C9DDF6FF"
-                                                                StrokeThickness="1.6"
-                                                                BackgroundColor="#00FFFFFF"
-                                                                StrokeShape="RoundRectangle 15"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashRingB"
-                                                                WidthRequest="34"
-                                                                HeightRequest="34"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                Stroke="#93BDE8FF"
-                                                                StrokeThickness="1.15"
-                                                                BackgroundColor="#00FFFFFF"
-                                                                StrokeShape="RoundRectangle 17"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashDropletLeft"
-                                                                WidthRequest="5"
-                                                                HeightRequest="5"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                TranslationX="-10"
-                                                                TranslationY="-6"
-                                                                StrokeThickness="0"
-                                                                BackgroundColor="#E8FFFFFF"
-                                                                StrokeShape="RoundRectangle 2.5"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashDropletCenter"
-                                                                WidthRequest="4"
-                                                                HeightRequest="4"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                TranslationY="-9"
-                                                                StrokeThickness="0"
-                                                                BackgroundColor="#EAFFFFFF"
-                                                                StrokeShape="RoundRectangle 2"
-                                                                Opacity="0" />
-
-                                                        <Border ClassId="MissSplashDropletRight"
-                                                                WidthRequest="5"
-                                                                HeightRequest="5"
-                                                                HorizontalOptions="Center"
-                                                                VerticalOptions="Center"
-                                                                TranslationX="10"
-                                                                TranslationY="-6"
-                                                                StrokeThickness="0"
-                                                                BackgroundColor="#E8FFFFFF"
-                                                                StrokeShape="RoundRectangle 2.5"
-                                                                Opacity="0" />
-
-                                                        <Grid.Behaviors>
-                                                            <behaviors:CellMissSplashAnimationBehavior />
-                                                        </Grid.Behaviors>
-                                                    </Grid>
-
-                                                    <Border IsVisible="{Binding IsTargetLockVisible}"
-                                                            Stroke="#8FD9FF"
-                                                            StrokeThickness="2"
-                                                            StrokeShape="RoundRectangle 4"
-                                                            BackgroundColor="#201A476A">
-                                                        <Border.Shadow>
-                                                            <Shadow Brush="#7049c4ff" Radius="10" Opacity="0.7" Offset="0,0" />
-                                                        </Border.Shadow>
-                                                    </Border>
-
-                                                    <Border IsVisible="{Binding IsTargetLockVisible}"
-                                                            WidthRequest="10"
-                                                            HeightRequest="10"
-                                                            HorizontalOptions="Center"
-                                                            VerticalOptions="Center"
-                                                            StrokeThickness="0"
-                                                            BackgroundColor="#9FE5FF"
-                                                            StrokeShape="RoundRectangle 5" />
-
-                                                    <Grid.GestureRecognizers>
-                                                        <TapGestureRecognizer
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=PlayerCellTappedCommand}"
-                                                            CommandParameter="{Binding .}" />
-                                                        <TapGestureRecognizer
-                                                            Buttons="Secondary"
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
-                                                        <PointerGestureRecognizer PointerEntered="OnPlayerCellPointerEntered"
-                                                                                  PointerExited="OnPlayerBoardPointerExited" />
-                                                    </Grid.GestureRecognizers>
-                                                </Grid>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=PlayerCellTappedCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                    <TapGestureRecognizer
+                                                        Buttons="Secondary"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=RotatePlacementCommand}" />
+                                                    <PointerGestureRecognizer PointerEntered="OnPlayerCellPointerEntered"
+                                                                              PointerExited="OnPlayerBoardPointerExited" />
+                                                </Border.GestureRecognizers>
                                             </Border>
                                         </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
+                                    </BindableLayout.ItemTemplate>
+                                </Grid>
 
-                                <CollectionView x:Name="PlayerBoardImpactOverlayView"
-                                                ItemsSource="{Binding PlayerCells}"
-                                                SelectionMode="None"
-                                                IsEnabled="False"
-                                                InputTransparent="True"
-                                                WidthRequest="{Binding BoardPixelSize}"
-                                                HeightRequest="{Binding BoardPixelSize}"
-                                                Margin="0"
-                                                VerticalScrollBarVisibility="Never"
-                                                HorizontalScrollBarVisibility="Never"
-                                                ZIndex="5">
-                                    <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical"
-                                                         Span="10"
-                                                         HorizontalItemSpacing="0"
-                                                         VerticalItemSpacing="0" />
-                                    </CollectionView.ItemsLayout>
-
-                                    <CollectionView.ItemTemplate>
+                                <Grid x:Name="PlayerBoardImpactOverlayHost"
+                                      BindableLayout.ItemsSource="{Binding PlayerCells}"
+                                      IsEnabled="False"
+                                      InputTransparent="True"
+                                      WidthRequest="{Binding BoardPixelSize}"
+                                      HeightRequest="{Binding BoardPixelSize}"
+                                      Margin="0"
+                                      RowSpacing="0"
+                                      ColumnSpacing="0"
+                                      ZIndex="5">
+                                    <BindableLayout.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                                  HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=CellPixelSize}"
-                                                  InputTransparent="True">
-                                                <Border IsVisible="{Binding IsFlameVisible}"
-                                                        Margin="4"
-                                                        Opacity="0.86"
-                                                        StrokeThickness="0"
-                                                        StrokeShape="RoundRectangle 8">
-                                                    <Border.Background>
-                                                        <RadialGradientBrush Center="0.5,0.72" Radius="0.72">
-                                                            <GradientStop Color="#FFF5B043" Offset="0.0" />
-                                                            <GradientStop Color="#F4FF7D00" Offset="0.42" />
-                                                            <GradientStop Color="#CAD94700" Offset="0.74" />
-                                                            <GradientStop Color="#00D94700" Offset="1.0" />
-                                                        </RadialGradientBrush>
-                                                    </Border.Background>
-                                                    <Border.Behaviors>
-                                                        <behaviors:CellFlameAnimationBehavior />
-                                                    </Border.Behaviors>
-                                                </Border>
-
-                                                <Grid IsVisible="{Binding IsHitMarkerVisible}"
-                                                      InputTransparent="True">
-                                                    <Border Margin="2"
-                                                            StrokeThickness="0"
-                                                            Opacity="0.88"
-                                                            StrokeShape="RoundRectangle 10">
-                                                        <Border.Background>
-                                                            <RadialGradientBrush Center="0.5,0.5" Radius="0.75">
-                                                                <GradientStop Color="#FFFFE78C" Offset="0.0" />
-                                                                <GradientStop Color="#E9FF9D36" Offset="0.34" />
-                                                                <GradientStop Color="#BEFF4E00" Offset="0.66" />
-                                                                <GradientStop Color="#00FF2A00" Offset="1.0" />
-                                                            </RadialGradientBrush>
-                                                        </Border.Background>
-                                                    </Border>
-
-                                                    <Image Source="{Binding MarkerImage}"
-                                                           IsVisible="{Binding IsHitMarkerVisible}"
-                                                           Rotation="{Binding HitMarkerRotation}"
-                                                           Aspect="AspectFit"
-                                                           Margin="-1"
-                                                           Opacity="0.98">
-                                                        <Image.Behaviors>
-                                                            <behaviors:CellImpactAnimationBehavior />
-                                                        </Image.Behaviors>
-                                                    </Image>
-                                                </Grid>
-                                            </Grid>
+                                            <Grid Grid.Row="{Binding Row}"
+                                                  Grid.Column="{Binding Col}"
+                                                  WidthRequest="44"
+                                                  HeightRequest="44"
+                                                  InputTransparent="True" />
                                         </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
+                                    </BindableLayout.ItemTemplate>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Border>
                 </VerticalStackLayout>
                     </Grid>
                 </Grid>
-            </ScrollView>
 
             <Grid x:Name="TurnTransitionScrim"
                   IsVisible="{Binding IsTurnTransitionActive}"

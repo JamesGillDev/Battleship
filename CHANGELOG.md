@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.20] - 2026-03-05
+
+### Changed
+- Replaced the Windows board rendering path with fixed `10x10` grid hosts for enemy cells, player cells, and impact overlays so board layout is deterministic at startup.
+- Simplified per-cell board visuals on Windows to stable fill/stroke state cues instead of large per-cell animated overlay trees.
+
+### Fixed
+- Resolved the real WinUI `LayoutCycleException` behind the black-window startup failure, so the published Windows `.exe` now launches without swallowing the exception.
+- Removed the temporary WinUI `LayoutCycleException` handler from the Windows app startup path after verifying the real fix.
+
+### Release
+- `v1.6.20` is marked ready for **public release**.
+
 ## [1.6.19] - 2026-03-05
 
 ### Added
