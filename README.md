@@ -2,21 +2,22 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.18-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.6.19-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.18`
+- Current public app release version: `v1.6.19`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.18`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.19`)
 
 ## Release Readiness
-- `v1.6.18` is **ready for public release**.
+- `v1.6.19` is **ready for public release**.
 
 ## Highlights
 - Full command-center visual overhaul with a game-first style.
+- Windows published app startup is stabilized so the local `.exe` no longer closes immediately on launch, and WinUI startup exceptions are logged for diagnostics.
 - New default `RetroWave 80s` theme plus 9 additional high-contrast visual presets.
 - Side-by-side board layout with even two-column split and no board scrolling.
 - Main-page theme picker for instant style switching across 10 distinct themes.
@@ -106,6 +107,9 @@ dotnet publish BattleshipMaui.csproj -c Release -f net10.0-windows10.0.19041.0 -
 ```
 Then launch:
 `bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\BattleshipMaui.exe`
+
+If startup fails on Windows, review:
+`%LOCALAPPDATA%\BattleshipMaui\logs\crash.log`
 
 ## Gameplay
 1. Press `New Game`.

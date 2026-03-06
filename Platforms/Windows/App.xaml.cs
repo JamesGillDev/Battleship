@@ -16,9 +16,18 @@ public partial class App : MauiWinUIApplication
 	/// </summary>
 	public App()
 	{
+		CrashLog.Initialize();
 		this.InitializeComponent();
+		CrashLog.HookWinUiUnhandledException(this);
+		this.UnhandledException += OnUnhandledException;
 	}
 
 	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+
+	private static void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+	{
+		if (e.Exception is LayoutCycleException)
+			e.Handled = true;
+	}
 }
 

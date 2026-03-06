@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.19] - 2026-03-05
+
+### Added
+- Added local crash logging for startup failures under `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log`.
+
+### Fixed
+- Prevented the published Windows app from exiting immediately on launch by handling the WinUI `LayoutCycleException` that was terminating startup.
+
+### Release
+- `v1.6.19` is marked ready for **public release**.
+
 ## [1.6.18] - 2026-03-05
 
 ### Changed

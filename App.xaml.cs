@@ -6,6 +6,7 @@ public partial class App : Application
 {
 	public App()
 	{
+		CrashLog.Initialize();
 		InitializeComponent();
 	}
 

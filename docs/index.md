@@ -4,8 +4,9 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Release
 
-- `v1.6.18`
-- Public release build with command-center board-first UI and top-bar controls
+- `v1.6.19`
+- Public release build with command-center board-first UI, top-bar controls, and Windows startup stabilization for the published `.exe`
+- WinUI startup exceptions are now logged to `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log` for local diagnostics
 - Difficulty-based enemy targeting now applies smarter near-hit follow-up logic (especially on `Hard`)
 - Shot audio playback timing was tightened so hit/miss effects trigger faster while preserving 4-way randomized miss rotation
 - Sunk enemy ships now retain higher visibility with continuous smoke and cleared explosion overlays
