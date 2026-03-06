@@ -479,6 +479,19 @@ public class BoardViewModelTests
     }
 
     [Fact]
+    public void ShipSpriteVm_UsesImageAlignmentProfiles()
+    {
+        var battleshipHorizontal = new ShipSpriteVm("Battleship", "battleship_4_pegs.png", 0, 0, 4, ShipAxis.Horizontal);
+        var battleshipVertical = new ShipSpriteVm("Battleship", "battleship_4_pegs.png", 0, 0, 4, ShipAxis.Vertical);
+
+        Assert.NotEqual(0, Math.Round(battleshipHorizontal.ImageTranslationY, 2));
+        Assert.NotEqual(0, Math.Round(battleshipVertical.ImageTranslationX, 2));
+        Assert.NotEqual(
+            Math.Round(battleshipHorizontal.ImageTranslationY, 2),
+            Math.Round(battleshipVertical.ImageTranslationY, 2));
+    }
+
+    [Fact]
     public void ShipSpriteVm_AllShips_UseExtendedBoundsForGridOverlap()
     {
         var carrier = new ShipSpriteVm("Aircraft Carrier", "aircraft_carrier_5_pegs.png", 1, 1, 5, ShipAxis.Horizontal);

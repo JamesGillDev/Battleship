@@ -87,6 +87,8 @@ public class BoardViewModel : ObservableObject
     private double _placementPreviewImageRotation;
     private double _placementPreviewImageScale = 1;
     private string _placementPreviewImageSource = string.Empty;
+    private string _placementPreviewShipName = string.Empty;
+    private ShipAxis _placementPreviewShipAxis = ShipAxis.Horizontal;
     private Color _placementPreviewStrokeColor = Color.FromArgb("#8ad6ff");
     private Color _placementPreviewFillColor = Color.FromArgb("#4026d6ff");
     private bool _isResolvingEnemyTurn;
@@ -100,6 +102,7 @@ public class BoardViewModel : ObservableObject
     public const double ShipVisualInset = 1.0;
     public const double MissPegSize = 16;
     public const int PlayerShotRevealDelayMilliseconds = 3000;
+    private const int PlayerTargetLockDelayMilliseconds = 420;
 
     private static readonly ShipTemplate[] FleetTemplates =
     {
@@ -723,6 +726,8 @@ public class BoardViewModel : ObservableObject
             OnPropertyChanged();
             OnPropertyChanged(nameof(PlacementPreviewImageWidthRequest));
             OnPropertyChanged(nameof(PlacementPreviewImageHeightRequest));
+            OnPropertyChanged(nameof(PlacementPreviewImageTranslationX));
+            OnPropertyChanged(nameof(PlacementPreviewImageTranslationY));
         }
     }
 
@@ -747,11 +752,23 @@ public class BoardViewModel : ObservableObject
             OnPropertyChanged();
             OnPropertyChanged(nameof(PlacementPreviewImageWidthRequest));
             OnPropertyChanged(nameof(PlacementPreviewImageHeightRequest));
+            OnPropertyChanged(nameof(PlacementPreviewImageTranslationX));
+            OnPropertyChanged(nameof(PlacementPreviewImageTranslationY));
         }
     }
 
     public double PlacementPreviewImageWidthRequest => PlacementPreviewBounds.Width * PlacementPreviewImageScale;
     public double PlacementPreviewImageHeightRequest => PlacementPreviewBounds.Height * PlacementPreviewImageScale;
+    public double PlacementPreviewImageTranslationX => ShipSpriteVisualProfile.ResolveImageTranslationX(
+        _placementPreviewShipName,
+        _placementPreviewShipAxis,
+        PlacementPreviewImageWidthRequest,
+        PlacementPreviewImageHeightRequest);
+    public double PlacementPreviewImageTranslationY => ShipSpriteVisualProfile.ResolveImageTranslationY(
+        _placementPreviewShipName,
+        _placementPreviewShipAxis,
+        PlacementPreviewImageWidthRequest,
+        PlacementPreviewImageHeightRequest);
 
     public string PlacementPreviewImageSource
     {
@@ -1739,18 +1756,23 @@ public class BoardViewModel : ObservableObject
         bool isVertical = IsVerticalPlacement;
         int row = _placementPreviewAnchorCell.Row;
         int col = _placementPreviewAnchorCell.Col;
+        ShipAxis axis = isVertical ? ShipAxis.Vertical : ShipAxis.Horizontal;
 
         PlacementPreviewBounds = BuildShipBounds(
             row,
             col,
             ship.Size,
-            isVertical ? ShipAxis.Vertical : ShipAxis.Horizontal,
+            axis,
             ship.Name);
         PlacementPreviewImageRotation = isVertical ? 90 : 0;
         PlacementPreviewImageScale = ShipSpriteVisualProfile.ResolveScale(
             _selectedPlacementShip.Name,
-            isVertical ? ShipAxis.Vertical : ShipAxis.Horizontal);
+            axis);
         PlacementPreviewImageSource = _selectedPlacementShip.ImageSource;
+        _placementPreviewShipName = _selectedPlacementShip.Name;
+        _placementPreviewShipAxis = axis;
+        OnPropertyChanged(nameof(PlacementPreviewImageTranslationX));
+        OnPropertyChanged(nameof(PlacementPreviewImageTranslationY));
 
         bool isValidPlacement = CanPlaceShipAt(ship, row, col, isVertical);
         PlacementPreviewStrokeColor = isValidPlacement
@@ -1769,6 +1791,10 @@ public class BoardViewModel : ObservableObject
         IsPlacementPreviewVisible = false;
         PlacementPreviewBounds = Rect.Zero;
         PlacementPreviewImageScale = 1;
+        _placementPreviewShipName = string.Empty;
+        _placementPreviewShipAxis = ShipAxis.Horizontal;
+        OnPropertyChanged(nameof(PlacementPreviewImageTranslationX));
+        OnPropertyChanged(nameof(PlacementPreviewImageTranslationY));
     }
 
     private bool CanPlaceShipAt(Ship ship, int startRow, int startCol, bool vertical)
@@ -2141,6 +2167,14 @@ public class BoardViewModel : ObservableObject
         try
         {
             string targetCoordinate = ToBoardCoordinate(targetCell.Row, targetCell.Col);
+            targetCell.SetTargetLocked(true);
+            await PauseForDramaAsync(
+                PlayerTargetLockDelayMilliseconds,
+                $"Target lock acquired at {targetCoordinate}...",
+                showTransitionCard: false);
+            if (sessionId != _gameSessionId || IsGameOver)
+                return;
+
             var playerShot = _enemyBoard.Attack(targetCell.Row, targetCell.Col);
             if (playerShot.Result == AttackResult.AlreadyTried)
             {
@@ -2188,6 +2222,7 @@ public class BoardViewModel : ObservableObject
         }
         finally
         {
+            targetCell.SetTargetLocked(false);
             SetPlayerShotResolutionState(false);
         }
     }
@@ -2769,6 +2804,8 @@ public class ShipSpriteVm : ObservableObject
     public double ImageRotation => Axis == ShipAxis.Vertical ? 90 : 0;
     public double ImageWidthRequest => Bounds.Width * ImageScale;
     public double ImageHeightRequest => Bounds.Height * ImageScale;
+    public double ImageTranslationX => ShipSpriteVisualProfile.ResolveImageTranslationX(Name, Axis, ImageWidthRequest, ImageHeightRequest);
+    public double ImageTranslationY => ShipSpriteVisualProfile.ResolveImageTranslationY(Name, Axis, ImageWidthRequest, ImageHeightRequest);
 
     public bool IsSunk
     {
@@ -2986,6 +3023,15 @@ internal static class ExplosionRotationProfile
 
 internal static class ShipSpriteVisualProfile
 {
+    private static readonly IReadOnlyDictionary<string, ShipImageAlignmentProfile> ImageAlignmentByShipName =
+        new Dictionary<string, ShipImageAlignmentProfile>(StringComparer.Ordinal)
+        {
+            ["aircraftcarrier"] = new ShipImageAlignmentProfile(SourceWidth: 1024, SourceHeight: 1024, CenterOffsetX: -1.5, CenterOffsetY: -30.5),
+            ["battleship"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: -19.0, CenterOffsetY: -62.5),
+            ["cruiser"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: -7.5, CenterOffsetY: -84.0),
+            ["submarine"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: 6.5, CenterOffsetY: -3.5),
+            ["destroyer"] = new ShipImageAlignmentProfile(SourceWidth: 1024, SourceHeight: 1024, CenterOffsetX: 1.0, CenterOffsetY: -75.5)
+        };
     private static readonly IReadOnlyDictionary<string, ShipOrientationScale> ScaleByShipName =
         new Dictionary<string, ShipOrientationScale>(StringComparer.Ordinal)
         {
@@ -3047,6 +3093,36 @@ internal static class ShipSpriteVisualProfile
             : 1.9;
     }
 
+    public static double ResolveImageTranslationX(string? shipName, ShipAxis axis, double imageWidthRequest, double imageHeightRequest)
+    {
+        if (!TryResolveImageAlignment(shipName, out var profile))
+            return 0;
+
+        return axis == ShipAxis.Vertical
+            ? ((-profile.CenterOffsetY / profile.SourceWidth) * imageWidthRequest)
+            : ((-profile.CenterOffsetX / profile.SourceHeight) * imageHeightRequest);
+    }
+
+    public static double ResolveImageTranslationY(string? shipName, ShipAxis axis, double imageWidthRequest, double imageHeightRequest)
+    {
+        if (!TryResolveImageAlignment(shipName, out var profile))
+            return 0;
+
+        return axis == ShipAxis.Vertical
+            ? ((profile.CenterOffsetX / profile.SourceWidth) * imageWidthRequest)
+            : ((-profile.CenterOffsetY / profile.SourceHeight) * imageHeightRequest);
+    }
+
+    private static bool TryResolveImageAlignment(string? shipName, out ShipImageAlignmentProfile profile)
+    {
+        profile = default;
+        if (string.IsNullOrWhiteSpace(shipName))
+            return false;
+
+        string normalized = NormalizeShipName(shipName);
+        return ImageAlignmentByShipName.TryGetValue(normalized, out profile);
+    }
+
     private static string NormalizeShipName(string shipName)
     {
         return new string(shipName
@@ -3057,6 +3133,7 @@ internal static class ShipSpriteVisualProfile
 }
 
 internal readonly record struct ShipOrientationScale(double Horizontal, double Vertical);
+internal readonly record struct ShipImageAlignmentProfile(int SourceWidth, int SourceHeight, double CenterOffsetX, double CenterOffsetY);
 
 public sealed record ShipTemplate(string Name, int Size, string ImageSource);
 

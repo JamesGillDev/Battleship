@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.24] - 2026-03-05
+
+### Changed
+- Expanded the pre-impact targeting animation into a `3x3` acquisition pulse that contracts toward the selected strike cell.
+- Corrected ship-art alignment using per-image content offsets so enemy ship reveals and player overlays use the same centered composition.
+
+### Fixed
+- Player cinematic shots now keep the target-acquisition indicator visible briefly before resolving to hit or miss, matching the enemy pre-fire lock behavior.
+- Enemy ship image overlays now match the player fleet's fit more closely instead of reading slightly offset during reveal.
+
+### Release
+- `v1.6.24` is marked ready for **public release**.
+
 ## [1.6.23] - 2026-03-05
 
 ### Changed

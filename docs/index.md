@@ -4,13 +4,14 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Release
 
-- `v1.6.23`
+- `v1.6.24`
 - Public release build with the verified Windows startup fix for the published `.exe`
 - Windows board rendering now combines fixed `10x10` input grids with deeper 3D ocean surfaces, macro wave drift, and lightweight overlay effects
 - Hit explosions now use the real `explosion.png` art on both boards without reintroducing the WinUI layout cycle
-- Enemy hover targeting now shows a pulsing circular target indicator before firing
+- Enemy and player pre-impact targeting now use a `3x3` pulsing acquisition circle that converges on the strike cell
 - Sunk ships now keep smoking across every sunk grid block while the revealed ship layer remains visible
 - Aircraft carrier sizing is trimmed slightly to fit the board composition better
+- Ship image overlays are now centered more consistently between enemy reveals and player ships
 - WinUI startup exceptions are still logged to `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log` for local diagnostics
 - Difficulty-based enemy targeting now applies smarter near-hit follow-up logic (especially on `Hard`)
 - Shot audio playback timing was tightened so hit/miss effects trigger faster while preserving 4-way randomized miss rotation

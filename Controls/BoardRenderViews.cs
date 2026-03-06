@@ -589,13 +589,16 @@ public sealed class BoardEffectsView : BoardRenderViewBase
     private static void DrawTargetLock(ICanvas canvas, RectF rect, float phase, BoardCellVm cell)
     {
         Color accent = WithAlpha(Lighten(cell.CellStrokeColor, 0.16f), 0.88f);
-        Color halo = WithAlpha(Lighten(cell.CellStrokeColor, 0.35f), 0.22f);
+        Color halo = WithAlpha(Lighten(cell.CellStrokeColor, 0.35f), 0.24f);
+        Color matrix = WithAlpha(Lighten(cell.CellStrokeColor, 0.52f), 0.44f);
         float pulse = (MathF.Sin((phase * 2.4f) + (cell.Row * 0.46f) + (cell.Col * 0.39f)) + 1f) * 0.5f;
         float inset = rect.Width * 0.16f;
         float arm = rect.Width * 0.2f;
         float centerSize = rect.Width * 0.14f;
-        float pulseSize = rect.Width * (0.48f + (pulse * 0.18f));
-        float outerPulseSize = rect.Width * (0.72f + (pulse * 0.22f));
+        float convergence = 1f - (pulse * 0.34f);
+        float acquisitionSize = rect.Width * (2.85f - (pulse * 1.28f));
+        float secondarySize = rect.Width * (2.15f - (pulse * 0.94f));
+        float pulseSize = rect.Width * (0.54f + (pulse * 0.14f));
 
         canvas.FillColor = WithAlpha(halo, 0.1f + (pulse * 0.08f));
         canvas.FillEllipse(
@@ -604,13 +607,43 @@ public sealed class BoardEffectsView : BoardRenderViewBase
             pulseSize,
             pulseSize);
 
-        canvas.StrokeColor = WithAlpha(halo, 0.3f + (pulse * 0.2f));
-        canvas.StrokeSize = 1.6f;
+        canvas.StrokeColor = WithAlpha(halo, 0.28f + ((1f - pulse) * 0.24f));
+        canvas.StrokeSize = 2f;
         canvas.DrawEllipse(
-            rect.Center.X - (outerPulseSize * 0.5f),
-            rect.Center.Y - (outerPulseSize * 0.5f),
-            outerPulseSize,
-            outerPulseSize);
+            rect.Center.X - (acquisitionSize * 0.5f),
+            rect.Center.Y - (acquisitionSize * 0.5f),
+            acquisitionSize,
+            acquisitionSize);
+
+        canvas.StrokeColor = WithAlpha(halo, 0.22f + (pulse * 0.18f));
+        canvas.StrokeSize = 1.4f;
+        canvas.DrawEllipse(
+            rect.Center.X - (secondarySize * 0.5f),
+            rect.Center.Y - (secondarySize * 0.5f),
+            secondarySize,
+            secondarySize);
+
+        for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
+        {
+            for (int colOffset = -1; colOffset <= 1; colOffset++)
+            {
+                float distance = MathF.Abs(rowOffset) + MathF.Abs(colOffset);
+                float nodeDrift = 1f - (distance * 0.14f * pulse);
+                float nodeCenterX = rect.Center.X + (colOffset * rect.Width * nodeDrift * convergence);
+                float nodeCenterY = rect.Center.Y + (rowOffset * rect.Height * nodeDrift * convergence);
+                float nodeSize = rect.Width * (distance == 0 ? 0.16f : 0.11f + ((1f - pulse) * 0.03f));
+                float alpha = distance == 0
+                    ? 0.92f
+                    : 0.18f + ((1f - pulse) * (0.18f - (distance * 0.03f)));
+
+                canvas.FillColor = WithAlpha(matrix, alpha);
+                canvas.FillEllipse(
+                    nodeCenterX - (nodeSize * 0.5f),
+                    nodeCenterY - (nodeSize * 0.5f),
+                    nodeSize,
+                    nodeSize);
+            }
+        }
 
         canvas.StrokeColor = accent;
         canvas.StrokeSize = 1.6f;
@@ -635,7 +668,7 @@ public sealed class BoardEffectsView : BoardRenderViewBase
             centerSize,
             centerSize * 0.5f);
 
-        float coreRing = rect.Width * (0.22f + (pulse * 0.04f));
+        float coreRing = rect.Width * (0.26f + (pulse * 0.08f));
         canvas.StrokeColor = WithAlpha(accent, 0.6f + (pulse * 0.2f));
         canvas.StrokeSize = 1.2f;
         canvas.DrawEllipse(
