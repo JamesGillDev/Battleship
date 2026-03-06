@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.21] - 2026-03-05
+
+### Changed
+- Reintroduced advanced board visuals through board-level renderers that animate layered ocean motion, caustics, and beveled cell shading without returning to the old per-cell layout tree.
+- Restored macro board-frame wave drift on top of the new board surface renderer for a stronger 3D water effect.
+
+### Fixed
+- Restored visible hit explosions and miss splash markers on both boards using lightweight overlay rendering that remains stable on WinUI startup.
+- Preserved the Windows startup fix while bringing the richer board visuals back.
+
+### Release
+- `v1.6.21` is marked ready for **public release**.
+
 ## [1.6.20] - 2026-03-05
 
 ### Changed

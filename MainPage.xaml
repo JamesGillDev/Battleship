@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:behaviors="clr-namespace:BattleshipMaui.Behaviors"
+    xmlns:controls="clr-namespace:BattleshipMaui.Controls"
     xmlns:vm="clr-namespace:BattleshipMaui.ViewModels"
     BackgroundColor="{DynamicResource GameColorBackground}">
 
@@ -312,6 +313,9 @@
                                   VerticalOptions="Start"
                                   IsClippedToBounds="False">
                                 <Grid ZIndex="0">
+                                    <Grid.Behaviors>
+                                        <behaviors:BoardWaterFlowAnimationBehavior />
+                                    </Grid.Behaviors>
                                     <Border Stroke="{DynamicResource GameColorBorder}"
                                             StrokeThickness="1.1"
                                             StrokeShape="{DynamicResource GameBoardFrameShape}">
@@ -384,6 +388,11 @@
                                         </Border.Background>
                                     </Border>
                                 </Grid>
+                                <controls:OceanBoardSurfaceView
+                                    WidthRequest="{Binding BoardPixelSize}"
+                                    HeightRequest="{Binding BoardPixelSize}"
+                                    ItemsSource="{Binding EnemyCells}"
+                                    ZIndex="1" />
                                 <AbsoluteLayout InputTransparent="True"
                                                 WidthRequest="{Binding BoardPixelSize}"
                                                 HeightRequest="{Binding BoardPixelSize}"
@@ -474,7 +483,7 @@
                                                     Stroke="{Binding CellStrokeColor}"
                                                     StrokeThickness="0.9"
                                                     StrokeShape="{DynamicResource GameBoardCellShape}"
-                                                    BackgroundColor="{Binding CellFillColor}"
+                                                    BackgroundColor="#01000000"
                                                     WidthRequest="44"
                                                     HeightRequest="44"
                                                     SemanticProperties.Description="{Binding AccessibilityText}"
@@ -488,6 +497,11 @@
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
                                 </Grid>
+                                <controls:BoardEffectsView
+                                    WidthRequest="{Binding BoardPixelSize}"
+                                    HeightRequest="{Binding BoardPixelSize}"
+                                    ItemsSource="{Binding EnemyCells}"
+                                    ZIndex="5" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -570,6 +584,9 @@
                                   VerticalOptions="Start"
                                   IsClippedToBounds="False">
                                 <Grid ZIndex="0">
+                                    <Grid.Behaviors>
+                                        <behaviors:BoardWaterFlowAnimationBehavior />
+                                    </Grid.Behaviors>
                                     <Border Stroke="{DynamicResource GameColorBorder}"
                                             StrokeThickness="1.1"
                                             StrokeShape="{DynamicResource GameBoardFrameShape}">
@@ -642,6 +659,12 @@
                                         </Border.Background>
                                     </Border>
                                 </Grid>
+                                <controls:OceanBoardSurfaceView
+                                    WidthRequest="{Binding BoardPixelSize}"
+                                    HeightRequest="{Binding BoardPixelSize}"
+                                    ItemsSource="{Binding PlayerCells}"
+                                    IsPlayerBoard="True"
+                                    ZIndex="1" />
                                 <AbsoluteLayout InputTransparent="True"
                                                 WidthRequest="{Binding BoardPixelSize}"
                                                 HeightRequest="{Binding BoardPixelSize}"
@@ -759,7 +782,7 @@
                                                     Stroke="{Binding CellStrokeColor}"
                                                     StrokeThickness="0.9"
                                                     StrokeShape="{DynamicResource GameBoardCellShape}"
-                                                    BackgroundColor="{Binding CellFillColor}"
+                                                    BackgroundColor="#01000000"
                                                     WidthRequest="44"
                                                     HeightRequest="44"
                                                     SemanticProperties.Description="{Binding AccessibilityText}"
@@ -779,26 +802,11 @@
                                     </BindableLayout.ItemTemplate>
                                 </Grid>
 
-                                <Grid x:Name="PlayerBoardImpactOverlayHost"
-                                      BindableLayout.ItemsSource="{Binding PlayerCells}"
-                                      IsEnabled="False"
-                                      InputTransparent="True"
-                                      WidthRequest="{Binding BoardPixelSize}"
-                                      HeightRequest="{Binding BoardPixelSize}"
-                                      Margin="0"
-                                      RowSpacing="0"
-                                      ColumnSpacing="0"
-                                      ZIndex="5">
-                                    <BindableLayout.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Grid.Row="{Binding Row}"
-                                                  Grid.Column="{Binding Col}"
-                                                  WidthRequest="44"
-                                                  HeightRequest="44"
-                                                  InputTransparent="True" />
-                                        </DataTemplate>
-                                    </BindableLayout.ItemTemplate>
-                                </Grid>
+                                <controls:BoardEffectsView
+                                    WidthRequest="{Binding BoardPixelSize}"
+                                    HeightRequest="{Binding BoardPixelSize}"
+                                    ItemsSource="{Binding PlayerCells}"
+                                    ZIndex="5" />
                             </Grid>
                         </Grid>
                     </Border>

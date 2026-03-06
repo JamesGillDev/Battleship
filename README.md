@@ -2,23 +2,24 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.20-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.6.21-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.20`
+- Current public app release version: `v1.6.21`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.20`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.21`)
 
 ## Release Readiness
-- `v1.6.20` is **ready for public release**.
+- `v1.6.21` is **ready for public release**.
 
 ## Highlights
 - Windows published app startup is fixed with a stable fixed-grid board rendering path, so the local `.exe` no longer closes on launch.
 - WinUI crash logging remains enabled at `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log` for real unhandled startup/runtime failures.
-- Board state on Windows now uses high-contrast fill/stroke cues instead of per-cell animated overlays, eliminating the WinUI layout cycle.
+- Board surfaces now use advanced animated ocean rendering with layered wave motion, caustics, and beveled 3D cell shading while keeping the stable startup fix.
+- Hit explosions and miss splash markers are restored above the boards through lightweight renderer overlays instead of the old per-cell visual tree.
 - Side-by-side `Enemy Waters` and `Your Fleet` boards keep `A-J` / `1-10` rails aligned with ship overlays.
 - Manual fleet placement supports left-click deploy, right-click rotation, and live hover preview.
 - Ten visual themes are available through both the `Theme Shift` button and the theme picker.

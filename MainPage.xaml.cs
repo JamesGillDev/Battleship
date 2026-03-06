@@ -15,7 +15,6 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         EnsureBoardGridStructure(EnemyBoardCellsHost);
         EnsureBoardGridStructure(PlayerBoardCellsHost);
-        EnsureBoardGridStructure(PlayerBoardImpactOverlayHost);
     }
 
     protected override void OnBindingContextChanged()

@@ -4,9 +4,10 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Release
 
-- `v1.6.20`
+- `v1.6.21`
 - Public release build with the verified Windows startup fix for the published `.exe`
-- Windows board rendering now uses fixed `10x10` grid hosts with stable high-contrast cell-state visuals to avoid the WinUI layout cycle
+- Windows board rendering now combines fixed `10x10` input grids with advanced animated ocean surfaces, macro wave drift, and lightweight overlay effects
+- Hit explosions and miss splash markers are restored on both boards without reintroducing the WinUI layout cycle
 - WinUI startup exceptions are still logged to `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log` for local diagnostics
 - Difficulty-based enemy targeting now applies smarter near-hit follow-up logic (especially on `Hard`)
 - Shot audio playback timing was tightened so hit/miss effects trigger faster while preserving 4-way randomized miss rotation
