@@ -146,6 +146,22 @@ public partial class MainPage : ContentPage
             _viewModel.ClearPlacementPreviewCommand.Execute(null);
     }
 
+    private void OnEnemyCellPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (_viewModel is null)
+            return;
+
+        if (sender is not BindableObject bindable || bindable.BindingContext is not BoardCellVm cell)
+            return;
+
+        _viewModel.UpdateEnemyHoverTarget(cell);
+    }
+
+    private void OnEnemyBoardPointerExited(object? sender, PointerEventArgs e)
+    {
+        _viewModel?.ClearEnemyHoverTarget();
+    }
+
     private void ApplyOverlayBlurBackdrop()
     {
         bool overlayVisible = _viewModel?.IsOverlayVisible == true;

@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.23] - 2026-03-05
+
+### Changed
+- Added an enemy-board hover target state so desktop pointer movement can preview the next shot location before the player clicks.
+- Tuned the aircraft carrier sprite profile down slightly so its board footprint and placement preview stay large without feeling oversized.
+
+### Fixed
+- Added a pulsing circular pre-impact lock indicator that appears before a shot resolves to hit or miss, including both player hover targeting and enemy lock-on beats.
+- Preserved the stable board renderer path while extending the targeting overlay behavior.
+
+### Release
+- `v1.6.23` is marked ready for **public release**.
+
 ## [1.6.22] - 2026-03-05
 
 ### Changed

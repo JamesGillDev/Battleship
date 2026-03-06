@@ -492,6 +492,8 @@
                                                     <TapGestureRecognizer
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=EnemyCellTappedCommand}"
                                                         CommandParameter="{Binding .}" />
+                                                    <PointerGestureRecognizer PointerEntered="OnEnemyCellPointerEntered"
+                                                                              PointerExited="OnEnemyBoardPointerExited" />
                                                 </Border.GestureRecognizers>
                                             </Border>
                                         </DataTemplate>

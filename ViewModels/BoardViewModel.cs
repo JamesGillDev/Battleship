@@ -22,6 +22,7 @@ public class BoardViewModel : ObservableObject
     private readonly Queue<BoardCoordinate> _easyEnemyShotQueue = new();
     private readonly List<PlayerShotRecord> _currentGameShotHistory = new();
     private BoardCellVm? _placementPreviewAnchorCell;
+    private BoardCellVm? _enemyHoverTargetCell;
     private bool _hasShownWelcomeOverlayThisSession;
     private bool _musicPlaybackUnlocked;
 
@@ -155,6 +156,7 @@ public class BoardViewModel : ObservableObject
             _isPlayerTurn = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(CanFire));
+            SyncEnemyHoverTarget();
         }
     }
 
@@ -169,6 +171,7 @@ public class BoardViewModel : ObservableObject
             OnPropertyChanged(nameof(CanFire));
             OnPropertyChanged(nameof(CanPlaceShips));
             OnPropertyChanged(nameof(CanRotatePlacement));
+            SyncEnemyHoverTarget();
         }
     }
 
@@ -184,6 +187,7 @@ public class BoardViewModel : ObservableObject
             OnPropertyChanged(nameof(CanPlaceShips));
             OnPropertyChanged(nameof(CanRotatePlacement));
             OnPropertyChanged(nameof(PlacementSelectionMessage));
+            SyncEnemyHoverTarget();
         }
     }
 
@@ -1120,6 +1124,7 @@ public class BoardViewModel : ObservableObject
 
         _isResolvingEnemyTurn = isActive;
         OnPropertyChanged(nameof(CanFire));
+        SyncEnemyHoverTarget();
     }
 
     private void SetPlayerShotResolutionState(bool isActive)
@@ -1129,6 +1134,54 @@ public class BoardViewModel : ObservableObject
 
         _isResolvingPlayerShot = isActive;
         OnPropertyChanged(nameof(CanFire));
+        SyncEnemyHoverTarget();
+    }
+
+    public void UpdateEnemyHoverTarget(BoardCellVm? cell)
+    {
+        if (cell is null)
+        {
+            ClearEnemyHoverTarget();
+            return;
+        }
+
+        if (!CanFire || cell.IsPlayerBoard || cell.MarkerState != ShotMarkerState.None)
+        {
+            ClearEnemyHoverTarget();
+            return;
+        }
+
+        if (ReferenceEquals(_enemyHoverTargetCell, cell))
+        {
+            cell.SetTargetLocked(true);
+            return;
+        }
+
+        if (_enemyHoverTargetCell is not null)
+            _enemyHoverTargetCell.SetTargetLocked(false);
+
+        _enemyHoverTargetCell = cell;
+        _enemyHoverTargetCell.SetTargetLocked(true);
+    }
+
+    public void ClearEnemyHoverTarget()
+    {
+        if (_enemyHoverTargetCell is null)
+            return;
+
+        _enemyHoverTargetCell.SetTargetLocked(false);
+        _enemyHoverTargetCell = null;
+    }
+
+    private void SyncEnemyHoverTarget()
+    {
+        if (!CanFire || _enemyHoverTargetCell is null || _enemyHoverTargetCell.MarkerState != ShotMarkerState.None)
+        {
+            ClearEnemyHoverTarget();
+            return;
+        }
+
+        _enemyHoverTargetCell.SetTargetLocked(true);
     }
 
     private async Task PauseForDramaAsync(
@@ -2022,6 +2075,8 @@ public class BoardViewModel : ObservableObject
             StatusMessage = "You already fired at that cell.";
             return;
         }
+
+        ClearEnemyHoverTarget();
 
         if (ShouldUseCinematicTurnPacing)
         {
@@ -2934,7 +2989,7 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, ShipOrientationScale> ScaleByShipName =
         new Dictionary<string, ShipOrientationScale>(StringComparer.Ordinal)
         {
-            ["aircraftcarrier"] = new ShipOrientationScale(Horizontal: 5.65, Vertical: 6.55),
+            ["aircraftcarrier"] = new ShipOrientationScale(Horizontal: 5.35, Vertical: 6.2),
             ["battleship"] = new ShipOrientationScale(Horizontal: 3.10, Vertical: 4.45),
             ["cruiser"] = new ShipOrientationScale(Horizontal: 2.90, Vertical: 3.85),
             ["submarine"] = new ShipOrientationScale(Horizontal: 3.25, Vertical: 4.15),
@@ -2943,7 +2998,7 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, double> EndBleedByShipName =
         new Dictionary<string, double>(StringComparer.Ordinal)
         {
-            ["aircraftcarrier"] = 13.0,
+            ["aircraftcarrier"] = 11.5,
             ["battleship"] = 9.0,
             ["cruiser"] = 10.0,
             ["submarine"] = 8.0,
@@ -2952,7 +3007,7 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, double> CrossBleedByShipName =
         new Dictionary<string, double>(StringComparer.Ordinal)
         {
-            ["aircraftcarrier"] = 3.2,
+            ["aircraftcarrier"] = 2.7,
             ["battleship"] = 2.3,
             ["cruiser"] = 2.4,
             ["submarine"] = 2.0,

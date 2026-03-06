@@ -243,6 +243,44 @@ public class BoardViewModelTests
     }
 
     [Fact]
+    public void UpdateEnemyHoverTarget_LocksAndClearsSingleEnemyCell()
+    {
+        var vm = new BoardViewModel(new Random(24));
+        PlaceAllShips(vm);
+
+        var target = vm.EnemyCells[12];
+        var other = vm.EnemyCells[13];
+
+        vm.UpdateEnemyHoverTarget(target);
+
+        Assert.True(target.IsTargetLockVisible);
+        Assert.False(other.IsTargetLockVisible);
+
+        vm.ClearEnemyHoverTarget();
+
+        Assert.False(target.IsTargetLockVisible);
+        Assert.False(other.IsTargetLockVisible);
+    }
+
+    [Fact]
+    public void EnemyHoverTarget_ClearsAfterCellResolvesToShotResult()
+    {
+        var vm = new BoardViewModel(new Random(25));
+        PlaceAllShips(vm);
+
+        var target = vm.EnemyCells[0];
+        vm.UpdateEnemyHoverTarget(target);
+
+        Assert.True(target.IsTargetLockVisible);
+
+        vm.EnemyCellTappedCommand.Execute(target);
+
+        Assert.NotEqual(ShotMarkerState.None, target.MarkerState);
+        Assert.False(target.IsTargetLockVisible);
+        Assert.DoesNotContain(vm.EnemyCells, cell => cell.IsTargetLockVisible);
+    }
+
+    [Fact]
     public void EnemyCellTappedCommand_SameCellTwiceShowsAlreadyFired()
     {
         var vm = new BoardViewModel(new Random(29));

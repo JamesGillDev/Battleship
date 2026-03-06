@@ -512,7 +512,7 @@ public sealed class BoardEffectsView : BoardRenderViewBase
                 DrawSunkSmoke(canvas, rect, phase, cell);
 
             if (cell.IsTargetLockVisible)
-                DrawTargetLock(canvas, rect, cell);
+                DrawTargetLock(canvas, rect, phase, cell);
 
             if (cell.IsMissMarkerVisible)
                 DrawMissSplash(canvas, rect, phase, cell);
@@ -586,12 +586,31 @@ public sealed class BoardEffectsView : BoardRenderViewBase
             rect.Height * 0.14f);
     }
 
-    private static void DrawTargetLock(ICanvas canvas, RectF rect, BoardCellVm cell)
+    private static void DrawTargetLock(ICanvas canvas, RectF rect, float phase, BoardCellVm cell)
     {
         Color accent = WithAlpha(Lighten(cell.CellStrokeColor, 0.16f), 0.88f);
+        Color halo = WithAlpha(Lighten(cell.CellStrokeColor, 0.35f), 0.22f);
+        float pulse = (MathF.Sin((phase * 2.4f) + (cell.Row * 0.46f) + (cell.Col * 0.39f)) + 1f) * 0.5f;
         float inset = rect.Width * 0.16f;
         float arm = rect.Width * 0.2f;
         float centerSize = rect.Width * 0.14f;
+        float pulseSize = rect.Width * (0.48f + (pulse * 0.18f));
+        float outerPulseSize = rect.Width * (0.72f + (pulse * 0.22f));
+
+        canvas.FillColor = WithAlpha(halo, 0.1f + (pulse * 0.08f));
+        canvas.FillEllipse(
+            rect.Center.X - (pulseSize * 0.5f),
+            rect.Center.Y - (pulseSize * 0.5f),
+            pulseSize,
+            pulseSize);
+
+        canvas.StrokeColor = WithAlpha(halo, 0.3f + (pulse * 0.2f));
+        canvas.StrokeSize = 1.6f;
+        canvas.DrawEllipse(
+            rect.Center.X - (outerPulseSize * 0.5f),
+            rect.Center.Y - (outerPulseSize * 0.5f),
+            outerPulseSize,
+            outerPulseSize);
 
         canvas.StrokeColor = accent;
         canvas.StrokeSize = 1.6f;
@@ -615,6 +634,15 @@ public sealed class BoardEffectsView : BoardRenderViewBase
             centerSize,
             centerSize,
             centerSize * 0.5f);
+
+        float coreRing = rect.Width * (0.22f + (pulse * 0.04f));
+        canvas.StrokeColor = WithAlpha(accent, 0.6f + (pulse * 0.2f));
+        canvas.StrokeSize = 1.2f;
+        canvas.DrawEllipse(
+            rect.Center.X - (coreRing * 0.5f),
+            rect.Center.Y - (coreRing * 0.5f),
+            coreRing,
+            coreRing);
     }
 
     private static void DrawMissSplash(ICanvas canvas, RectF rect, float phase, BoardCellVm cell)
