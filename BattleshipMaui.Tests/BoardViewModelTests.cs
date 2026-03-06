@@ -486,6 +486,8 @@ public class BoardViewModelTests
 
         Assert.NotEqual(0, Math.Round(battleshipHorizontal.ImageTranslationY, 2));
         Assert.NotEqual(0, Math.Round(battleshipVertical.ImageTranslationX, 2));
+        Assert.InRange(Math.Abs(battleshipHorizontal.ImageTranslationY), 1.0, 6.0);
+        Assert.InRange(Math.Abs(battleshipVertical.ImageTranslationX), 1.0, 6.0);
         Assert.NotEqual(
             Math.Round(battleshipHorizontal.ImageTranslationY, 2),
             Math.Round(battleshipVertical.ImageTranslationY, 2));

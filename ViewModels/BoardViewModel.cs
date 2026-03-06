@@ -3026,11 +3026,11 @@ internal static class ShipSpriteVisualProfile
     private static readonly IReadOnlyDictionary<string, ShipImageAlignmentProfile> ImageAlignmentByShipName =
         new Dictionary<string, ShipImageAlignmentProfile>(StringComparer.Ordinal)
         {
-            ["aircraftcarrier"] = new ShipImageAlignmentProfile(SourceWidth: 1024, SourceHeight: 1024, CenterOffsetX: -1.5, CenterOffsetY: -30.5),
-            ["battleship"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: -19.0, CenterOffsetY: -62.5),
-            ["cruiser"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: -7.5, CenterOffsetY: -84.0),
-            ["submarine"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: 6.5, CenterOffsetY: -3.5),
-            ["destroyer"] = new ShipImageAlignmentProfile(SourceWidth: 1024, SourceHeight: 1024, CenterOffsetX: 1.0, CenterOffsetY: -75.5)
+            ["aircraftcarrier"] = new ShipImageAlignmentProfile(SourceWidth: 1024, SourceHeight: 1024, CenterOffsetX: -1.5, CenterOffsetY: -30.5, TranslationStrength: 0.42),
+            ["battleship"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: -19.0, CenterOffsetY: -62.5, TranslationStrength: 0.38),
+            ["cruiser"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: -7.5, CenterOffsetY: -84.0, TranslationStrength: 0.34),
+            ["submarine"] = new ShipImageAlignmentProfile(SourceWidth: 1536, SourceHeight: 1024, CenterOffsetX: 6.5, CenterOffsetY: -3.5, TranslationStrength: 0.3),
+            ["destroyer"] = new ShipImageAlignmentProfile(SourceWidth: 1024, SourceHeight: 1024, CenterOffsetX: 1.0, CenterOffsetY: -75.5, TranslationStrength: 0.34)
         };
     private static readonly IReadOnlyDictionary<string, ShipOrientationScale> ScaleByShipName =
         new Dictionary<string, ShipOrientationScale>(StringComparer.Ordinal)
@@ -3098,9 +3098,10 @@ internal static class ShipSpriteVisualProfile
         if (!TryResolveImageAlignment(shipName, out var profile))
             return 0;
 
-        return axis == ShipAxis.Vertical
+        double rawTranslation = axis == ShipAxis.Vertical
             ? ((-profile.CenterOffsetY / profile.SourceWidth) * imageWidthRequest)
             : ((-profile.CenterOffsetX / profile.SourceHeight) * imageHeightRequest);
+        return rawTranslation * profile.TranslationStrength;
     }
 
     public static double ResolveImageTranslationY(string? shipName, ShipAxis axis, double imageWidthRequest, double imageHeightRequest)
@@ -3108,9 +3109,10 @@ internal static class ShipSpriteVisualProfile
         if (!TryResolveImageAlignment(shipName, out var profile))
             return 0;
 
-        return axis == ShipAxis.Vertical
+        double rawTranslation = axis == ShipAxis.Vertical
             ? ((profile.CenterOffsetX / profile.SourceWidth) * imageWidthRequest)
             : ((-profile.CenterOffsetY / profile.SourceHeight) * imageHeightRequest);
+        return rawTranslation * profile.TranslationStrength;
     }
 
     private static bool TryResolveImageAlignment(string? shipName, out ShipImageAlignmentProfile profile)
@@ -3133,7 +3135,7 @@ internal static class ShipSpriteVisualProfile
 }
 
 internal readonly record struct ShipOrientationScale(double Horizontal, double Vertical);
-internal readonly record struct ShipImageAlignmentProfile(int SourceWidth, int SourceHeight, double CenterOffsetX, double CenterOffsetY);
+internal readonly record struct ShipImageAlignmentProfile(int SourceWidth, int SourceHeight, double CenterOffsetX, double CenterOffsetY, double TranslationStrength);
 
 public sealed record ShipTemplate(string Name, int Size, string ImageSource);
 

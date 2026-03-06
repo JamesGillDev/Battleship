@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.25] - 2026-03-05
+
+### Changed
+- Retuned ship image alignment to use softer visual-fit offsets derived from the art assets, keeping overlays closer to the reference fleet screenshots.
+
+### Fixed
+- Reduced overcorrection in ship-art centering so player ships, enemy ship reveals, and placement preview render with more natural positioning on the board.
+
+### Release
+- `v1.6.25` is marked ready for **public release**.
+
 ## [1.6.24] - 2026-03-05
 
 ### Changed
