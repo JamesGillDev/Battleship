@@ -25,11 +25,11 @@
             </Border.Background>
             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="14">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="Task Force Command"
+                    <Label Text="{Binding AppHeaderTitle}"
                            Style="{StaticResource GameTitleLabelStyle}"
                            FontSize="28"
                            TextColor="#E9F7FF" />
-                    <Label Text="Arcade naval battle control deck"
+                    <Label Text="{Binding AppHeaderSubtitle}"
                            Style="{StaticResource GameCaptionLabelStyle}"
                            FontSize="13"
                            TextColor="#9BC4E7" />
@@ -115,30 +115,33 @@
                         Padding="12,10">
                     <Grid RowDefinitions="Auto,Auto,Auto"
                           RowSpacing="8">
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,*"
+                        <Grid IsVisible="{Binding SupportsSoloEdition}"
+                              ColumnDefinitions="Auto,*"
                               ColumnSpacing="8">
-                            <Label Text="Match Mode"
+                            <Label Text="{Binding SessionPanelTitle}"
                                    Style="{StaticResource GameCaptionLabelStyle}"
                                    FontSize="12"
                                    VerticalTextAlignment="Center"
                                    TextColor="{DynamicResource GameColorTextMuted}" />
-                            <Button Grid.Column="1"
-                                    Text="Solo vs CPU"
-                                    Command="{Binding SetMatchModeCommand}"
-                                    CommandParameter="SoloCpu"
-                                    Style="{StaticResource GameSecondaryButtonStyle}"
-                                    BackgroundColor="{Binding SoloMatchTabBackground}"
-                                    HeightRequest="36"
-                                    Padding="12,7" />
-                            <Button Grid.Column="2"
-                                    Text="LAN Match"
-                                    Command="{Binding SetMatchModeCommand}"
-                                    CommandParameter="Lan"
-                                    Style="{StaticResource GameSecondaryButtonStyle}"
-                                    BackgroundColor="{Binding LanMatchTabBackground}"
-                                    HeightRequest="36"
-                                    Padding="12,7" />
-                            <Label Grid.Column="3"
+                            <Label Grid.Column="1"
+                                   Text="{Binding SoloEditionSummary}"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   FontSize="12"
+                                   LineBreakMode="TailTruncation"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="End"
+                                   TextColor="{DynamicResource GameColorAccent}" />
+                        </Grid>
+
+                        <Grid IsVisible="{Binding SupportsLanEdition}"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="8">
+                            <Label Text="{Binding SessionPanelTitle}"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   FontSize="12"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{DynamicResource GameColorTextMuted}" />
+                            <Label Grid.Column="1"
                                    Text="{Binding LanStatusLine}"
                                    Style="{StaticResource GameCaptionLabelStyle}"
                                    FontSize="12"
@@ -149,7 +152,7 @@
                         </Grid>
 
                         <Grid Grid.Row="1"
-                              IsVisible="{Binding IsLanMode}"
+                              IsVisible="{Binding SupportsLanEdition}"
                               ColumnDefinitions="Auto,2.2*,Auto,0.9*,Auto,Auto,Auto"
                               ColumnSpacing="8">
                             <Label Text="Host IP"
@@ -202,7 +205,16 @@
                         </Grid>
 
                         <Label Grid.Row="2"
+                               IsVisible="{Binding SupportsLanEdition}"
                                Text="{Binding LanConnectionHelpText}"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="12"
+                               LineBreakMode="WordWrap"
+                               TextColor="{DynamicResource GameColorTextMuted}" />
+
+                        <Label Grid.Row="2"
+                               IsVisible="{Binding SupportsSoloEdition}"
+                               Text="{Binding SoloEditionHelpText}"
                                Style="{StaticResource GameCaptionLabelStyle}"
                                FontSize="12"
                                LineBreakMode="WordWrap"
@@ -1038,7 +1050,8 @@
                                   RowDefinitions="Auto,Auto,Auto,Auto"
                                   ColumnSpacing="12"
                                   RowSpacing="10">
-                                <VerticalStackLayout Spacing="4">
+                                <VerticalStackLayout Spacing="4"
+                                                     IsVisible="{Binding ShowCpuDifficultySettings}">
                                     <Label Text="CPU Difficulty"
                                            Style="{StaticResource GameCaptionLabelStyle}" />
                                     <Picker Title="Difficulty"

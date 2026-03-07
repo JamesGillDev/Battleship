@@ -4,6 +4,15 @@
 		<!-- Windows-only while we stabilize -->
 		<TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
 
+		<!-- Public release flavoring -->
+		<AppFlavor Condition="'$(AppFlavor)' == ''">Solo</AppFlavor>
+		<PublicAppName Condition="'$(AppFlavor)' == 'Lan'">LANBattleshipMAUI</PublicAppName>
+		<PublicAppName Condition="'$(AppFlavor)' != 'Lan'">BattleshipMaui</PublicAppName>
+		<PublicAppVersion Condition="'$(AppFlavor)' == 'Lan'">2.0.0</PublicAppVersion>
+		<PublicAppVersion Condition="'$(AppFlavor)' != 'Lan'">1.7.1</PublicAppVersion>
+		<PublicApplicationVersion Condition="'$(AppFlavor)' == 'Lan'">2000</PublicApplicationVersion>
+		<PublicApplicationVersion Condition="'$(AppFlavor)' != 'Lan'">1701</PublicApplicationVersion>
+
 		<!-- MAUI essentials -->
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
@@ -19,12 +28,18 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Public release versioning -->
-		<Version>1.7.0</Version>
-		<AssemblyVersion>1.7.0.0</AssemblyVersion>
-		<FileVersion>1.7.0.0</FileVersion>
-		<InformationalVersion>1.7.0</InformationalVersion>
-		<ApplicationDisplayVersion>1.7.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1700</ApplicationVersion>
+		<AssemblyName>$(PublicAppName)</AssemblyName>
+		<ApplicationTitle>$(PublicAppName)</ApplicationTitle>
+		<Version>$(PublicAppVersion)</Version>
+		<AssemblyVersion>$(PublicAppVersion).0</AssemblyVersion>
+		<FileVersion>$(PublicAppVersion).0</FileVersion>
+		<InformationalVersion>$(PublicAppVersion)</InformationalVersion>
+		<ApplicationDisplayVersion>$(PublicAppVersion)</ApplicationDisplayVersion>
+		<ApplicationVersion>$(PublicApplicationVersion)</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(AppFlavor)' == 'Lan'">
+		<DefineConstants>$(DefineConstants);ENABLE_LAN</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

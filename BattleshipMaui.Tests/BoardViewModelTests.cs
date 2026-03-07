@@ -611,6 +611,22 @@ public class BoardViewModelTests
         Assert.StartsWith("Your last shot:", vm.PlayerLastShotMessage);
     }
 
+#if ENABLE_LAN
+    [Fact]
+    public void ApplyBuildFlavorDefaults_LanEditionSwitchesToDedicatedLanMode()
+    {
+        var lanService = new FakeLanSessionService();
+        var vm = CreateLanViewModel(lanService, seed: 603);
+
+        vm.ApplyBuildFlavorDefaults();
+
+        Assert.True(vm.SupportsLanEdition);
+        Assert.True(vm.IsLanMode);
+        Assert.Contains("Host on one PC and join from the other", vm.StatusMessage);
+        Assert.Contains("LAN IP", vm.LanConnectionHelpText);
+    }
+#endif
+
     private static void PlaceAllShips(BoardViewModel vm)
     {
         PlaceShip(vm, "Aircraft Carrier", row: 0, col: 0, vertical: false);

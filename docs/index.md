@@ -2,51 +2,50 @@
 
 Desktop Battleship game built with .NET MAUI.
 
-## Current Release
+## Current Public Releases
 
-- `v1.6.27`
-- Public Release build with the verified Windows startup fix for the published `.exe`
-- Version tags now produce a self-contained Windows zip that can be extracted and launched locally via `BattleshipMaui.exe`
-- Windows board rendering now combines fixed `10x10` input grids with deeper 3D ocean surfaces, macro wave drift, and lightweight overlay effects
-- Hit explosions now use the real `explosion.png` art on both boards without reintroducing the WinUI layout cycle
-- Enemy and player pre-impact targeting now use a `3x3` pulsing acquisition circle that converges on the strike cell
-- Sunk ships now keep smoking across every sunk grid block while the revealed ship layer remains visible
-- Aircraft carrier sizing is trimmed slightly to fit the board composition better
-- Enemy AI now uses smarter hunt scoring and better hit-cluster follow-up on both `Easy` and `Hard`, and hard mode is back to one shot per turn
-- WinUI startup exceptions are still logged to `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log` for local diagnostics
-- Difficulty-based enemy targeting now applies smarter near-hit follow-up logic (especially on `Hard`)
-- Shot audio playback timing was tightened so hit/miss effects trigger faster while preserving 4-way randomized miss rotation
-- Sunk enemy ships now retain higher visibility with continuous smoke and cleared explosion overlays
-- Enemy sunk ships now remain reliably visible on `Enemy Waters` during player turns
-- Ship sprites and placement preview now use centered oversized bounds to eliminate all-side clipping while preserving overhang and larger carrier styling
-- Board containers now allow edge overhang rendering beyond board bounds without changing overall board layout
-- Ship overhang now renders on all four board sides via symmetric spill rails around the board grid
-- Submarine sprite size was increased to better match the visual scale of other ships
-- Theme command bar now shows `Theme` only once, and the theme dropdown height matches the `Theme Shift` button
-- Submarine-hit underwater audio now plays at a fixed 20% volume
-- Manual fleet placement with right-click rotation + live placement preview
-- Carrier sprite remains at larger overlap styling for improved fleet readability
+- `BattleshipMaui v1.7.1`
+  - Dedicated single-player Windows build against the onboard CPU
+- `LANBattleshipMAUI v2.0.0`
+  - Dedicated same-network multiplayer Windows build for 2 PCs on the same LAN
+
+Both releases are in **Public Release** status and ship as self-contained Windows `win-x64` zip downloads.
 
 ## Quick Start
 
 1. Clone the repo.
-2. Install .NET 10 SDK and MAUI workload.
+2. Install the .NET 10 SDK and MAUI workload.
 3. Run `dotnet build BattleshipMaui.sln`.
-4. Run the app from Visual Studio or `dotnet run`.
+4. Launch the flavor you want:
+   - `dotnet run --project BattleshipMaui.csproj`
+   - `dotnet run --project BattleshipMaui.csproj -p:AppFlavor=Lan`
 
 ## Publish Locally
 
+Publish both public releases:
+
 ```powershell
-.\scripts\Publish-WindowsZip.ps1
+.\scripts\Publish-PublicReleases.ps1
+```
+
+Publish a single flavor:
+
+```powershell
+.\scripts\Publish-WindowsZip.ps1 -AppFlavor Solo
+.\scripts\Publish-WindowsZip.ps1 -AppFlavor Lan
 ```
 
 Launch:
-`artifacts\release\BattleshipMaui-v1.6.27-win-x64\BattleshipMaui.exe`
 
-GitHub Releases:
-- Push a `v*` tag to run `.github/workflows/windows-release.yml`.
-- The workflow publishes a self-contained `win-x64` zip and matching `.sha256` asset to the tagged release.
+- `artifacts\release\BattleshipMaui-v1.7.1-win-x64\BattleshipMaui.exe`
+- `artifacts\release\LANBattleshipMAUI-v2.0.0-win-x64\LANBattleshipMAUI.exe`
+
+## GitHub Releases
+
+- Push `v1.x.x` tags to publish the solo `BattleshipMaui` release.
+- Push `v2.x.x` tags to publish the LAN `LANBattleshipMAUI` release.
+- `.github/workflows/windows-release.yml` uploads the matching zip and `.sha256` checksum to the tagged release.
 
 ## Current CI Scope
 
-GitHub Actions runs the `Category=Core9` test subset (9 tests) on each push and pull request.
+GitHub Actions runs the `Category=Core9` test subset on each push and pull request.

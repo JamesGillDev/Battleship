@@ -27,6 +27,7 @@ public partial class MainPage : ContentPage
 
         if (_viewModel is not null)
         {
+            _viewModel.ApplyBuildFlavorDefaults();
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             _ = AnimateBoardModeTransitionAsync(_viewModel.BoardViewMode, instant: true);
         }

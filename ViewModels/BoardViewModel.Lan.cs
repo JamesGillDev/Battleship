@@ -20,7 +20,17 @@ public partial class BoardViewModel
     private bool _isLocalFleetReady;
     private bool _isRemoteFleetReady;
     private bool _hasSharedLocalFleetWithPeer;
+    private bool _hasAppliedBuildFlavorDefaults;
     private BoardCellVm? _pendingLanShotCell;
+
+    public string AppHeaderTitle => AppVariant.HeaderTitle;
+    public string AppHeaderSubtitle => AppVariant.HeaderSubtitle;
+    public string SessionPanelTitle => AppVariant.SessionPanelTitle;
+    public string SoloEditionSummary => AppVariant.SoloEditionSummary;
+    public string SoloEditionHelpText => AppVariant.SoloEditionHelpText;
+    public bool SupportsLanEdition => AppVariant.IsLanEdition;
+    public bool SupportsSoloEdition => AppVariant.IsSoloEdition;
+    public bool ShowCpuDifficultySettings => SupportsSoloEdition;
 
     public MatchMode SelectedMatchMode
     {
@@ -133,7 +143,9 @@ public partial class BoardViewModel
         : ResolveThemeColor("GameColorSurfaceAlt", "#1d3146");
 
     public string LanStatusLine => IsCpuMode
-        ? "Solo vs CPU is active."
+        ? AppVariant.IsLanEdition
+            ? "LAN edition ready. Configure the host and join settings below."
+            : "Solo edition active. Battle the onboard CPU on this PC."
         : LanConnectionState switch
         {
             LanConnectionState.Hosting => $"Hosting on port {ResolveLanPortOrDefault()}. Waiting for the other commander.",
@@ -149,10 +161,31 @@ public partial class BoardViewModel
         };
 
     public string LanConnectionHelpText => IsCpuMode
-        ? "Switch to LAN Match to play another person on your local network."
+        ? AppVariant.IsLanEdition
+            ? "Install this LAN build on both PCs. Host on one PC, then join from the other with the host IP and the same port."
+            : "This public release is the original single-player build. CPU difficulty remains available in Settings."
         : string.IsNullOrWhiteSpace(_lanLocalAddressSummary)
             ? $"Share this PC's LAN IP and port {ResolveLanPortOrDefault()} with the other player."
             : $"This PC LAN IPs: {_lanLocalAddressSummary}. The joining player should enter one of these IPs and port {ResolveLanPortOrDefault()}.";
+
+    public void ApplyBuildFlavorDefaults()
+    {
+        if (_hasAppliedBuildFlavorDefaults)
+            return;
+
+        _hasAppliedBuildFlavorDefaults = true;
+
+        if (!AppVariant.IsLanEdition)
+            return;
+
+        SelectedMatchMode = MatchMode.Lan;
+        ResetLanMissionState();
+        StartNewGame(broadcastLanReset: false);
+        ShowGameStartOverlay();
+        _musicPlaybackUnlocked = false;
+        ApplyMusicSettings();
+        StatusMessage = "Host on one PC and join from the other using the host PC's LAN IP and the same port.";
+    }
 
     private void InitializeLanSession()
     {
@@ -179,14 +212,14 @@ public partial class BoardViewModel
     private string BuildGameStartOverlaySubtitle()
     {
         return IsLanMode
-            ? "1) Select LAN Match. On one PC choose Host LAN; on the other enter the host IP and choose Join LAN.\n2) Place your fleet locally on both PCs.\n3) After both fleets are deployed, the host takes the first shot.\n4) If Windows asks about firewall access, allow the app on your private network."
-            : "1) Pick a ship, then hover over Your Fleet to preview live placement.\n2) Right-click to rotate. Left-click to deploy.\n3) Fire on Enemy Waters and sink the full fleet before they sink yours.\n4) Use Theme Shift for dramatic style changes and Settings for music/FX.";
+            ? "1) Put this LAN build on both PCs and launch it on both machines.\n2) On one PC choose Host LAN. On the other PC enter the host LAN IP and choose Join LAN.\n3) Place your fleets locally on both PCs.\n4) After both fleets are deployed, the host takes the first shot. If Windows prompts for firewall access, allow the app on your private network."
+            : "1) Pick a ship, then hover over Your Fleet to preview live placement.\n2) Right-click to rotate. Left-click to deploy.\n3) Fire on Enemy Waters and sink the full fleet before the CPU sinks yours.\n4) Use Theme Shift for dramatic style changes and Settings for music and FX.";
     }
 
     private string BuildStartNewGameStatusMessage()
     {
         if (IsCpuMode)
-            return "Select a ship and tap Your Fleet board to place it.";
+            return "Select a ship and tap Your Fleet board to place it. This release plays against the onboard CPU.";
 
         return IsLanConnected
             ? "Select a ship and deploy your fleet. The host opens fire once both fleets are ready."
@@ -257,13 +290,13 @@ public partial class BoardViewModel
 
         if (IsCpuMode)
         {
-            StatusMessage = "Solo vs CPU selected.";
+            StatusMessage = "Dedicated solo mode selected.";
             StartNewGame(broadcastLanReset: false);
             return;
         }
 
         await _lanSessionService.DisconnectAsync();
-        StatusMessage = "LAN Match selected. Host on one PC and join from the other using the host IP and port.";
+        StatusMessage = "Dedicated LAN mode selected. Host on one PC and join from the other using the host IP and port.";
         StartNewGame(broadcastLanReset: false);
     }
 

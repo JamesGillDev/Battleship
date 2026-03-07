@@ -3,7 +3,9 @@ param(
     [string]$Project = "BattleshipMaui.csproj",
     [string]$Configuration = "Release",
     [string]$Framework = "net10.0-windows10.0.19041.0",
-    [string]$RuntimeIdentifier = "win-x64"
+    [string]$RuntimeIdentifier = "win-x64",
+    [ValidateSet("Solo", "Lan")]
+    [string]$AppFlavor = "Solo"
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,19 +13,27 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $projectPath = (Resolve-Path (Join-Path $repoRoot $Project)).Path
 
-[xml]$projectXml = Get-Content -Path $projectPath
-$version = @($projectXml.Project.PropertyGroup.Version | Where-Object { $_ })[0]
-
-if ([string]::IsNullOrWhiteSpace($version)) {
-    throw "Could not determine the project version from $Project."
+$metadataJson = & dotnet msbuild $projectPath -nologo "-p:AppFlavor=$AppFlavor" -getProperty:PublicAppName -getProperty:Version -getProperty:ApplicationTitle
+if ($LASTEXITCODE -ne 0) {
+    throw "Could not evaluate public release metadata for AppFlavor '$AppFlavor'."
 }
 
-$releaseName = "BattleshipMaui-v$version-$RuntimeIdentifier"
+$metadata = $metadataJson | ConvertFrom-Json
+$appName = $metadata.Properties.PublicAppName
+$version = $metadata.Properties.Version
+$applicationTitle = $metadata.Properties.ApplicationTitle
+
+if ([string]::IsNullOrWhiteSpace($appName) -or [string]::IsNullOrWhiteSpace($version)) {
+    throw "Could not determine the public release metadata for $Project."
+}
+
+$releaseName = "$appName-v$version-$RuntimeIdentifier"
 $artifactsRoot = Join-Path $repoRoot "artifacts\release"
 $publishDir = Join-Path $artifactsRoot $releaseName
 $zipPath = Join-Path $artifactsRoot "$releaseName.zip"
 $checksumPath = Join-Path $artifactsRoot "$releaseName.sha256"
 $startHerePath = Join-Path $publishDir "START_HERE.txt"
+$exeName = "$appName.exe"
 
 New-Item -ItemType Directory -Path $artifactsRoot -Force | Out-Null
 
@@ -46,6 +56,7 @@ $publishArgs = @(
     "-f", $Framework,
     "-r", $RuntimeIdentifier,
     "--self-contained", "true",
+    "-p:AppFlavor=$AppFlavor",
     "-p:WindowsAppSDKSelfContained=true",
     "-p:PublishReadyToRun=false",
     "-p:PublishDir=$publishDir\"
@@ -61,16 +72,34 @@ if ($LASTEXITCODE -ne 0) {
 Copy-Item -Path (Join-Path $repoRoot "README.md") -Destination (Join-Path $publishDir "README.md") -Force
 Copy-Item -Path (Join-Path $repoRoot "LICENSE.md") -Destination (Join-Path $publishDir "LICENSE.md") -Force
 
+$startHereText = if ($AppFlavor -eq "Lan") {
 @"
-Battleship MAUI
+$applicationTitle
 
-1. Extract the full zip to a normal folder.
-2. Open BattleshipMaui.exe.
+1. Extract the full zip to a normal folder on each PC.
+2. Open $exeName on both PCs.
 3. If Windows shows a SmartScreen prompt for this unsigned build, choose More info > Run anyway.
-4. For LAN play, put this same build on both PCs, choose LAN Match in the header, host on one PC, and join from the other using the host PC's LAN IP and the same port.
+4. On one PC, leave the default port or choose another unused port and click Host LAN.
+5. On the other PC, enter the host PC's LAN IP and the same port, then click Join LAN.
+6. Both players place fleets locally. The host fires first after both fleets are ready.
 
 Target platform: Windows 10/11 x64
-"@ | Set-Content -Path $startHerePath -Encoding ascii
+"@
+}
+else {
+@"
+$applicationTitle
+
+1. Extract the full zip to a normal folder.
+2. Open $exeName.
+3. If Windows shows a SmartScreen prompt for this unsigned build, choose More info > Run anyway.
+4. Start a new mission, place your fleet, and battle the onboard CPU opponent.
+
+Target platform: Windows 10/11 x64
+"@
+}
+
+$startHereText | Set-Content -Path $startHerePath -Encoding ascii
 
 Compress-Archive -Path $publishDir -DestinationPath $zipPath -CompressionLevel Optimal
 
@@ -80,3 +109,12 @@ $hash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
 Write-Host "Created:"
 Write-Host "  $zipPath"
 Write-Host "  $checksumPath"
+
+[PSCustomObject]@{
+    AppFlavor = $AppFlavor
+    AppName = $appName
+    Version = $version
+    ReleaseName = $releaseName
+    ZipPath = $zipPath
+    ChecksumPath = $checksumPath
+}

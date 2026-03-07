@@ -30,26 +30,49 @@ jobs:
       - name: Install MAUI workload
         run: dotnet workload install maui --skip-sign-check
 
-      - name: Verify tag matches project version
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Resolve public release flavor
+        id: release_meta
         shell: pwsh
         run: |
-          [xml]$projectXml = Get-Content BattleshipMaui.csproj
-          $projectVersion = @($projectXml.Project.PropertyGroup.Version | Where-Object { $_ })[0]
+          if ($env:GITHUB_REF -like 'refs/tags/*') {
+            $tag = $env:GITHUB_REF_NAME
+
+            if ($tag -match '^v1\.') {
+              $appFlavor = 'Solo'
+            }
+            elseif ($tag -match '^v2\.') {
+              $appFlavor = 'Lan'
+            }
+            else {
+              throw "Unsupported public release tag '$tag'. Use v1.x.x for BattleshipMaui or v2.x.x for LANBattleshipMAUI."
+            }
+          }
+          else {
+            $appFlavor = 'Solo'
+          }
+
+          $metadata = dotnet msbuild BattleshipMaui.csproj -nologo "-p:AppFlavor=$appFlavor" -getProperty:PublicAppName -getProperty:Version | ConvertFrom-Json
+          $appName = $metadata.Properties.PublicAppName
+          $projectVersion = $metadata.Properties.Version
           $expectedTag = "v$projectVersion"
 
-          if ($env:GITHUB_REF_NAME -ne $expectedTag) {
-            throw "Tag $env:GITHUB_REF_NAME does not match project version $expectedTag."
+          if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF_NAME -ne $expectedTag) {
+            throw "Tag $env:GITHUB_REF_NAME does not match the $appName version $expectedTag."
           }
+
+          "appFlavor=$appFlavor" >> $env:GITHUB_OUTPUT
+          "appName=$appName" >> $env:GITHUB_OUTPUT
+          "projectVersion=$projectVersion" >> $env:GITHUB_OUTPUT
+          "expectedTag=$expectedTag" >> $env:GITHUB_OUTPUT
 
       - name: Publish self-contained release zip
         shell: pwsh
-        run: .\scripts\Publish-WindowsZip.ps1
+        run: .\scripts\Publish-WindowsZip.ps1 -AppFlavor "${{ steps.release_meta.outputs.appFlavor }}"
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-release-zip
+          name: windows-release-zip-${{ steps.release_meta.outputs.appFlavor }}
           path: |
             artifacts/release/*.zip
             artifacts/release/*.sha256
@@ -70,5 +93,5 @@ jobs:
             gh release upload $tag $assets --clobber
           }
           else {
-            gh release create $tag $assets --title "Battleship MAUI $tag" --generate-notes
+            gh release create $tag $assets --title "${{ steps.release_meta.outputs.appName }} $tag" --generate-notes
           }

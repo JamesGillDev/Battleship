@@ -1554,7 +1554,7 @@ public partial class BoardViewModel : ObservableObject
     private void ShowGameStartOverlay()
     {
         FleetRecapItems.Clear();
-        OverlayTitle = "Welcome To Task Force Command";
+        OverlayTitle = $"Welcome To {AppVariant.PublicAppName}";
         OverlaySubtitle = BuildGameStartOverlaySubtitle();
         OverlayPrimaryActionText = "Let's Fight!";
         ShowOverlayRecap = false;

@@ -5,6 +5,30 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-03-07
+
+### Added
+- Added a dedicated `LANBattleshipMAUI` public release line so LAN multiplayer now ships as its own Windows app instead of sharing the solo public build.
+- Added flavor-aware publish and release packaging so the repository can produce separate `v1.x.x` solo and `v2.x.x` LAN public zips from the same codebase.
+
+### Changed
+- Updated the app shell, command header, and startup briefing so the LAN build launches directly into host/join LAN flow with no mixed-mode switch in the published UI.
+- Kept the existing LAN synchronization, fleet exchange, turn flow, and rematch behavior inside the dedicated LAN release line.
+
+### Release
+- `v2.0.0` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.0.0-win-x64.zip`.
+
+## [1.7.1] - 2026-03-07
+
+### Changed
+- Restored `BattleshipMaui` as the dedicated original single-player public release line for player-vs-CPU gameplay.
+- Updated the shared app shell, README, release workflow, and publish scripts so `v1.x.x` tags now map cleanly to the solo build while `v2.x.x` tags map to the LAN build.
+
+### Release
+- `v1.7.1` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.7.1-win-x64.zip`.
+
 ## [1.7.0] - 2026-03-07
 
 ### Added
