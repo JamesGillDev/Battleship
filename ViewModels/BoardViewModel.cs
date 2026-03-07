@@ -9,7 +9,7 @@ using Microsoft.Maui.Graphics;
 
 namespace BattleshipMaui.ViewModels;
 
-public class BoardViewModel : ObservableObject
+public partial class BoardViewModel : ObservableObject
 {
     private readonly Random _random;
     private readonly IGameStatsStore _statsStore;
@@ -148,6 +148,10 @@ public class BoardViewModel : ObservableObject
     public ICommand CycleThemeCommand { get; }
     public ICommand UpdatePlacementPreviewCommand { get; }
     public ICommand ClearPlacementPreviewCommand { get; }
+    public ICommand SetMatchModeCommand { get; }
+    public ICommand HostLanCommand { get; }
+    public ICommand JoinLanCommand { get; }
+    public ICommand DisconnectLanCommand { get; }
 
     public bool IsPlayerTurn
     {
@@ -456,7 +460,7 @@ public class BoardViewModel : ObservableObject
             if (_selectedDifficulty == value) return;
             _selectedDifficulty = value;
             OnPropertyChanged();
-            if (_playerBoard is not null && _enemyBoard is not null && !IsGameOver)
+            if (IsCpuMode && _playerBoard is not null && _enemyBoard is not null && !IsGameOver)
             {
                 InitializeEnemyTargeting();
                 if (!IsPlacementPhase)
@@ -946,19 +950,21 @@ public class BoardViewModel : ObservableObject
         IGameStatsStore statsStore,
         IGameSettingsStore settingsStore,
         IGameFeedbackService feedbackService,
-        IBackgroundMusicService backgroundMusicService)
+        IBackgroundMusicService backgroundMusicService,
+        ILanSessionService? lanSessionService = null)
     {
         _random = random ?? throw new ArgumentNullException(nameof(random));
         _statsStore = statsStore ?? throw new ArgumentNullException(nameof(statsStore));
         _settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
         _feedbackService = feedbackService ?? throw new ArgumentNullException(nameof(feedbackService));
         _backgroundMusicService = backgroundMusicService ?? throw new ArgumentNullException(nameof(backgroundMusicService));
+        _lanSessionService = lanSessionService ?? new TcpLanSessionService();
 
         EnemyCellTappedCommand = new Command<BoardCellVm>(OnEnemyCellTapped);
         PlayerCellTappedCommand = new Command<BoardCellVm>(OnPlayerCellTapped);
         SelectPlacementShipCommand = new Command<PlacementShipVm>(OnSelectPlacementShip);
         RotatePlacementCommand = new Command(TogglePlacementOrientation);
-        NewGameCommand = new Command(StartNewGame);
+        NewGameCommand = new Command(() => StartNewGame());
         ResetStatsCommand = new Command(ResetStats);
         ToggleSettingsPanelCommand = new Command(() => IsSettingsOpen = !IsSettingsOpen);
         DismissOverlayCommand = new Command(DismissOverlay);
@@ -966,7 +972,12 @@ public class BoardViewModel : ObservableObject
         CycleThemeCommand = new Command(CycleTheme);
         UpdatePlacementPreviewCommand = new Command<BoardCellVm>(UpdatePlacementPreview);
         ClearPlacementPreviewCommand = new Command(ClearPlacementPreview);
+        SetMatchModeCommand = new Command<string?>(async token => await SetMatchModeAsync(token));
+        HostLanCommand = new Command(async () => await HostLanAsync());
+        JoinLanCommand = new Command(async () => await JoinLanAsync());
+        DisconnectLanCommand = new Command(async () => await DisconnectLanAsync());
 
+        InitializeLanSession();
         LoadStats();
         LoadSettings();
         ApplyVisualSettings();
@@ -1544,7 +1555,7 @@ public class BoardViewModel : ObservableObject
     {
         FleetRecapItems.Clear();
         OverlayTitle = "Welcome To Task Force Command";
-        OverlaySubtitle = "1) Pick a ship, then hover over Your Fleet to preview live placement.\n2) Right-click to rotate. Left-click to deploy.\n3) Fire on Enemy Waters and sink the full fleet before they sink yours.\n4) Use Theme Shift for dramatic style changes and Settings for music/FX.";
+        OverlaySubtitle = BuildGameStartOverlaySubtitle();
         OverlayPrimaryActionText = "Let's Fight!";
         ShowOverlayRecap = false;
         ShowOverlayAnalytics = false;
@@ -1575,7 +1586,7 @@ public class BoardViewModel : ObservableObject
         IsOverlayVisible = true;
     }
 
-    private void StartNewGame()
+    private void StartNewGame(bool broadcastLanReset = true)
     {
         ResetCurrentGameStats();
         _currentGameShotHistory.Clear();
@@ -1589,10 +1600,11 @@ public class BoardViewModel : ObservableObject
         var playerFleet = CreateFleet();
         var enemyFleet = CreateFleet();
 
-        PlaceFleetRandomly(_enemyBoard, enemyFleet, allowVertical: true);
-
         _playerBoard.SetFleet(playerFleet);
         _enemyBoard.SetFleet(enemyFleet);
+
+        if (IsCpuMode)
+            PlaceFleetRandomly(_enemyBoard, enemyFleet, allowVertical: true);
 
         ResetCells(EnemyCells, clearShips: true);
         ResetCells(PlayerCells, clearShips: true);
@@ -1600,10 +1612,18 @@ public class BoardViewModel : ObservableObject
         EnemyShipSprites.Clear();
         _playerSpritesByName.Clear();
         _enemySpritesByName.Clear();
+        ResetLanMissionState();
 
         InitializePlacementShips(playerFleet);
-        BuildEnemyShipSprites(enemyFleet);
-        InitializeEnemyTargeting();
+        if (IsCpuMode)
+        {
+            BuildEnemyShipSprites(enemyFleet);
+            InitializeEnemyTargeting();
+        }
+        else
+        {
+            _enemyTargetingStrategy = null;
+        }
 
         IsGameOver = false;
         IsPlacementPhase = true;
@@ -1618,7 +1638,7 @@ public class BoardViewModel : ObservableObject
         SetBoardViewMode(BoardViewMode.Player);
 
         TurnMessage = "Placement phase";
-        StatusMessage = "Select a ship and tap Your Fleet board to place it.";
+        StatusMessage = BuildStartNewGameStatusMessage();
         PlayerLastShotMessage = "Your last shot: --";
         EnemyLastShotMessage = "Enemy last shot: --";
         OverlayPrimaryActionText = "Begin Mission";
@@ -1639,6 +1659,9 @@ public class BoardViewModel : ObservableObject
         }
 
         EmitFeedback(GameFeedbackCue.NewGame);
+
+        if (broadcastLanReset)
+            _ = BroadcastLanResetIfNeededAsync();
 
         OnPropertyChanged(nameof(PlacementOrientationText));
         OnPropertyChanged(nameof(PlacementSelectionMessage));
@@ -1863,6 +1886,9 @@ public class BoardViewModel : ObservableObject
 
     private void CompletePlacementPhase()
     {
+        if (TryCompleteLanPlacementPhase())
+            return;
+
         SetSelectedPlacementShip(null);
         ClearPlacementPreview();
         IsPlacementPhase = false;
@@ -2103,6 +2129,9 @@ public class BoardViewModel : ObservableObject
         }
 
         ClearEnemyHoverTarget();
+
+        if (TryHandleLanEnemyCellTapped(targetCell))
+            return;
 
         if (ShouldUseCinematicTurnPacing)
         {
@@ -3120,3 +3149,4 @@ public abstract class ObservableObject : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
+

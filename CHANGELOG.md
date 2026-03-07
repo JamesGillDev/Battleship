@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-03-07
+
+### Added
+- Added LAN multiplayer for two Windows builds on the same local network, including host/join commands, fleet exchange, synchronized turns, and rematch reset propagation.
+- Added explicit in-app and README setup instructions so players can reliably start a LAN session from the published `.exe`.
+
+### Changed
+- Updated the command-deck header to expose `Solo vs CPU` and `LAN Match` modes with live connection status, host IP entry, port entry, and connect/disconnect controls.
+- Extended automated coverage with LAN view-model tests for host startup, fleet synchronization, and remote shot resolution.
+
+### Release
+- `v1.7.0` is in **Public Release** status.
+- Public release distribution remains a self-contained Windows `win-x64` zip, now including LAN host/join support for same-network play.
+
 ## [1.6.27] - 2026-03-06
 
 ### Changed

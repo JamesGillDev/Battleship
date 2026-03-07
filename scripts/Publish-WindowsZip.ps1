@@ -67,6 +67,7 @@ Battleship MAUI
 1. Extract the full zip to a normal folder.
 2. Open BattleshipMaui.exe.
 3. If Windows shows a SmartScreen prompt for this unsigned build, choose More info > Run anyway.
+4. For LAN play, put this same build on both PCs, choose LAN Match in the header, host on one PC, and join from the other using the host PC's LAN IP and the same port.
 
 Target platform: Windows 10/11 x64
 "@ | Set-Content -Path $startHerePath -Encoding ascii

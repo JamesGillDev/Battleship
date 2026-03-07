@@ -23,7 +23,7 @@
                     <GradientStop Color="{DynamicResource GameColorHeaderEnd}" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
-            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10" ColumnSpacing="14">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="14">
                 <VerticalStackLayout Spacing="2">
                     <Label Text="Task Force Command"
                            Style="{StaticResource GameTitleLabelStyle}"
@@ -107,6 +107,108 @@
                            HorizontalTextAlignment="End"
                            TextColor="{DynamicResource GameColorTextMuted}" />
                 </Grid>
+
+                <Border Grid.Row="2"
+                        Grid.ColumnSpan="2"
+                        Stroke="{DynamicResource GameColorBorder}"
+                        BackgroundColor="#20111E2E"
+                        Padding="12,10">
+                    <Grid RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="8">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*"
+                              ColumnSpacing="8">
+                            <Label Text="Match Mode"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   FontSize="12"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{DynamicResource GameColorTextMuted}" />
+                            <Button Grid.Column="1"
+                                    Text="Solo vs CPU"
+                                    Command="{Binding SetMatchModeCommand}"
+                                    CommandParameter="SoloCpu"
+                                    Style="{StaticResource GameSecondaryButtonStyle}"
+                                    BackgroundColor="{Binding SoloMatchTabBackground}"
+                                    HeightRequest="36"
+                                    Padding="12,7" />
+                            <Button Grid.Column="2"
+                                    Text="LAN Match"
+                                    Command="{Binding SetMatchModeCommand}"
+                                    CommandParameter="Lan"
+                                    Style="{StaticResource GameSecondaryButtonStyle}"
+                                    BackgroundColor="{Binding LanMatchTabBackground}"
+                                    HeightRequest="36"
+                                    Padding="12,7" />
+                            <Label Grid.Column="3"
+                                   Text="{Binding LanStatusLine}"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   FontSize="12"
+                                   LineBreakMode="TailTruncation"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="End"
+                                   TextColor="{DynamicResource GameColorAccent}" />
+                        </Grid>
+
+                        <Grid Grid.Row="1"
+                              IsVisible="{Binding IsLanMode}"
+                              ColumnDefinitions="Auto,2.2*,Auto,0.9*,Auto,Auto,Auto"
+                              ColumnSpacing="8">
+                            <Label Text="Host IP"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   FontSize="12"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{DynamicResource GameColorTextMuted}" />
+                            <Entry Grid.Column="1"
+                                   Text="{Binding LanHostAddress}"
+                                   Placeholder="192.168.1.50"
+                                   ClearButtonVisibility="WhileEditing"
+                                   HeightRequest="38"
+                                   BackgroundColor="{DynamicResource GameColorSurfaceAlt}"
+                                   TextColor="{DynamicResource GameColorTextPrimary}" />
+                            <Label Grid.Column="2"
+                                   Text="Port"
+                                   Style="{StaticResource GameCaptionLabelStyle}"
+                                   FontSize="12"
+                                   VerticalTextAlignment="Center"
+                                   TextColor="{DynamicResource GameColorTextMuted}" />
+                            <Entry Grid.Column="3"
+                                   Text="{Binding LanPortText}"
+                                   Placeholder="47652"
+                                   Keyboard="Numeric"
+                                   MaxLength="5"
+                                   HeightRequest="38"
+                                   BackgroundColor="{DynamicResource GameColorSurfaceAlt}"
+                                   TextColor="{DynamicResource GameColorTextPrimary}" />
+                            <Button Grid.Column="4"
+                                    Text="Host LAN"
+                                    Command="{Binding HostLanCommand}"
+                                    IsEnabled="{Binding CanHostLan}"
+                                    Style="{StaticResource GamePrimaryButtonStyle}"
+                                    HeightRequest="38"
+                                    Padding="12,7" />
+                            <Button Grid.Column="5"
+                                    Text="Join LAN"
+                                    Command="{Binding JoinLanCommand}"
+                                    IsEnabled="{Binding CanJoinLan}"
+                                    Style="{StaticResource GameSecondaryButtonStyle}"
+                                    HeightRequest="38"
+                                    Padding="12,7" />
+                            <Button Grid.Column="6"
+                                    Text="Disconnect"
+                                    Command="{Binding DisconnectLanCommand}"
+                                    IsEnabled="{Binding CanDisconnectLan}"
+                                    Style="{StaticResource GameSecondaryButtonStyle}"
+                                    HeightRequest="38"
+                                    Padding="12,7" />
+                        </Grid>
+
+                        <Label Grid.Row="2"
+                               Text="{Binding LanConnectionHelpText}"
+                               Style="{StaticResource GameCaptionLabelStyle}"
+                               FontSize="12"
+                               LineBreakMode="WordWrap"
+                               TextColor="{DynamicResource GameColorTextMuted}" />
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
 

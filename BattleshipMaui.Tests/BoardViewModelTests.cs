@@ -1,3 +1,4 @@
+using Battleship.GameCore;
 using BattleshipMaui.ViewModels;
 
 namespace BattleshipMaui.Tests;
@@ -548,6 +549,68 @@ public class BoardViewModelTests
         Assert.True(destroyer.Bounds.Width > destroyerBaseWidth);
     }
 
+    [Fact]
+    public void LanMatch_HostStartsBattleAfterBothFleetsDeploy()
+    {
+        var lanService = new FakeLanSessionService();
+        var vm = CreateLanViewModel(lanService, seed: 601);
+
+        vm.SetMatchModeCommand.Execute("Lan");
+        vm.HostLanCommand.Execute(null);
+        lanService.SimulateConnected(LanRole.Host);
+
+        PlaceAllShips(vm);
+
+        Assert.False(vm.IsPlacementPhase);
+        Assert.Single(lanService.SentFleets);
+        Assert.False(vm.IsPlayerTurn);
+
+        lanService.SimulateReceiveFleet(BuildRemoteFleetPackets());
+
+        Assert.True(vm.IsLanMode);
+        Assert.True(vm.IsLanConnected);
+        Assert.True(vm.IsPlayerTurn);
+        Assert.Equal("Your turn", vm.TurnMessage);
+        Assert.Equal(5, vm.EnemyShipSprites.Count);
+        Assert.All(vm.EnemyShipSprites, ship => Assert.False(ship.IsRevealed));
+    }
+
+    [Fact]
+    public void LanMatch_RemoteShotResultUpdatesEnemyBoardAndStats()
+    {
+        var lanService = new FakeLanSessionService();
+        var vm = CreateLanViewModel(lanService, seed: 602);
+
+        vm.SetMatchModeCommand.Execute("Lan");
+        vm.HostLanCommand.Execute(null);
+        lanService.SimulateConnected(LanRole.Host);
+        PlaceAllShips(vm);
+        lanService.SimulateReceiveFleet(BuildRemoteFleetPackets());
+
+        var target = vm.EnemyCells[0];
+        vm.EnemyCellTappedCommand.Execute(target);
+
+        Assert.Single(lanService.SentShots);
+        Assert.Equal(new BoardCoordinate(0, 0), lanService.SentShots[0]);
+        Assert.Equal("Shot in flight", vm.TurnMessage);
+
+        lanService.SimulateReceiveShotResult(new LanShotResultPacket(
+            Row: 0,
+            Col: 0,
+            Result: AttackResult.Miss,
+            IsHit: false,
+            SunkShipName: null,
+            Message: "Miss!",
+            GameOver: false));
+
+        Assert.Equal(ShotMarkerState.Miss, target.MarkerState);
+        Assert.Equal(1, vm.CurrentGameTurns);
+        Assert.Equal(1, vm.CurrentGameShots);
+        Assert.Equal(1, vm.TotalTurns);
+        Assert.Equal("Opponent turn", vm.TurnMessage);
+        Assert.StartsWith("Your last shot:", vm.PlayerLastShotMessage);
+    }
+
     private static void PlaceAllShips(BoardViewModel vm)
     {
         PlaceShip(vm, "Aircraft Carrier", row: 0, col: 0, vertical: false);
@@ -567,6 +630,29 @@ public class BoardViewModelTests
 
         vm.PlayerCellTappedCommand.Execute(vm.PlayerCells[row * BoardViewModel.Size + col]);
         Assert.True(shipVm.IsPlaced);
+    }
+
+    private static BoardViewModel CreateLanViewModel(FakeLanSessionService lanService, int seed)
+    {
+        return new BoardViewModel(
+            new Random(seed),
+            new InMemoryGameStatsStore(),
+            new InMemoryGameSettingsStore(GameSettingsSnapshot.Default with { HasSeenCommandBriefing = false }),
+            new NoOpFeedbackService(),
+            new RecordingBackgroundMusicService(),
+            lanService);
+    }
+
+    private static IReadOnlyList<ShipPlacementPacket> BuildRemoteFleetPackets()
+    {
+        return
+        [
+            new ShipPlacementPacket("Aircraft Carrier", 0, 0, ShipAxis.Horizontal, 5),
+            new ShipPlacementPacket("Battleship", 1, 0, ShipAxis.Horizontal, 4),
+            new ShipPlacementPacket("Cruiser", 2, 0, ShipAxis.Horizontal, 3),
+            new ShipPlacementPacket("Submarine", 3, 0, ShipAxis.Horizontal, 3),
+            new ShipPlacementPacket("Destroyer", 4, 0, ShipAxis.Horizontal, 2)
+        ];
     }
 
     private sealed class InMemoryGameStatsStore : IGameStatsStore
@@ -629,6 +715,105 @@ public class BoardViewModelTests
         {
             LastEnabled = enabled;
             LastVolume = volume;
+        }
+    }
+
+    private sealed class FakeLanSessionService : ILanSessionService
+    {
+        public event EventHandler<LanConnectionChangedEventArgs>? ConnectionChanged;
+        public event EventHandler<LanPayloadReceivedEventArgs>? PayloadReceived;
+
+        public LanConnectionState State { get; private set; } = LanConnectionState.Disconnected;
+        public LanRole Role { get; private set; } = LanRole.None;
+        public string? RemoteEndpoint { get; private set; }
+
+        public List<IReadOnlyList<ShipPlacementPacket>> SentFleets { get; } = new();
+        public List<BoardCoordinate> SentShots { get; } = new();
+        public List<LanShotResultPacket> SentShotResults { get; } = new();
+        public int SentResetCount { get; private set; }
+
+        public IReadOnlyList<string> GetLocalAddresses()
+        {
+            return ["192.168.1.55"];
+        }
+
+        public Task StartHostingAsync(int port, CancellationToken cancellationToken = default)
+        {
+            State = LanConnectionState.Hosting;
+            Role = LanRole.Host;
+            RemoteEndpoint = null;
+            RaiseConnectionChanged();
+            return Task.CompletedTask;
+        }
+
+        public Task JoinAsync(string host, int port, CancellationToken cancellationToken = default)
+        {
+            State = LanConnectionState.Connecting;
+            Role = LanRole.Guest;
+            RemoteEndpoint = $"{host}:{port}";
+            RaiseConnectionChanged();
+            return Task.CompletedTask;
+        }
+
+        public Task SendFleetAsync(IReadOnlyList<ShipPlacementPacket> fleet, CancellationToken cancellationToken = default)
+        {
+            SentFleets.Add(fleet.ToArray());
+            return Task.CompletedTask;
+        }
+
+        public Task SendShotAsync(BoardCoordinate shot, CancellationToken cancellationToken = default)
+        {
+            SentShots.Add(shot);
+            return Task.CompletedTask;
+        }
+
+        public Task SendShotResultAsync(LanShotResultPacket shotResult, CancellationToken cancellationToken = default)
+        {
+            SentShotResults.Add(shotResult);
+            return Task.CompletedTask;
+        }
+
+        public Task SendResetAsync(CancellationToken cancellationToken = default)
+        {
+            SentResetCount++;
+            return Task.CompletedTask;
+        }
+
+        public Task DisconnectAsync(CancellationToken cancellationToken = default)
+        {
+            State = LanConnectionState.Disconnected;
+            Role = LanRole.None;
+            RemoteEndpoint = null;
+            RaiseConnectionChanged();
+            return Task.CompletedTask;
+        }
+
+        public void SimulateConnected(LanRole role, string remoteEndpoint = "192.168.1.91:47652")
+        {
+            State = LanConnectionState.Connected;
+            Role = role;
+            RemoteEndpoint = remoteEndpoint;
+            RaiseConnectionChanged();
+        }
+
+        public void SimulateReceiveFleet(IReadOnlyList<ShipPlacementPacket> fleet)
+        {
+            PayloadReceived?.Invoke(this, LanPayloadReceivedEventArgs.ForFleet(fleet));
+        }
+
+        public void SimulateReceiveShotResult(LanShotResultPacket shotResult)
+        {
+            PayloadReceived?.Invoke(this, LanPayloadReceivedEventArgs.ForShotResult(shotResult));
+        }
+
+        private void RaiseConnectionChanged(string? errorMessage = null)
+        {
+            ConnectionChanged?.Invoke(this, new LanConnectionChangedEventArgs(
+                State,
+                Role,
+                GetLocalAddresses(),
+                RemoteEndpoint,
+                errorMessage));
         }
     }
 }

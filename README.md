@@ -2,22 +2,23 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Release](https://img.shields.io/badge/Release-v1.6.27-2ea44f)](#versioning--releases)
+[![Release](https://img.shields.io/badge/Release-v1.7.0-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished, fully playable Battleship game built with .NET MAUI and a C# game core.
 
 ## Versioning & Releases
-- Current public app release version: `v1.6.27`
+- Current public app release version: `v1.7.0`
 - Release history and iteration details: [CHANGELOG.md](./CHANGELOG.md)
-- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.6.27`)
+- Recommended GitHub release tag format: `vMAJOR.MINOR.PATCH` (example: `v1.7.0`)
 - Public release distribution format: self-contained Windows `win-x64` zip
 
 ## Release Readiness
-- `v1.6.27` is in **Public Release** status.
+- `v1.7.0` is in **Public Release** status.
 - Version tags now produce a self-contained Windows `win-x64` zip so players can extract it and launch `BattleshipMaui.exe` immediately.
 
 ## Highlights
+- `LAN Match` now lets two players run the published Windows `.exe` on separate PCs on the same local network, host/join a session, place fleets privately, and take alternating turns against each other.
 - Windows published app startup is fixed with a stable fixed-grid board rendering path, so the local `.exe` no longer closes on launch.
 - WinUI crash logging remains enabled at `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log` for real unhandled startup/runtime failures.
 - Board surfaces now use deeper animated ocean rendering with subsurface contours, crest-shadow layering, specular sweeps, and beveled 3D cell shading while keeping the stable startup fix.
@@ -68,8 +69,8 @@ Release publish for a public zip download:
 ```
 
 This creates:
-- `artifacts\release\BattleshipMaui-v1.6.27-win-x64.zip`
-- `artifacts\release\BattleshipMaui-v1.6.27-win-x64.sha256`
+- `artifacts\release\BattleshipMaui-v1.7.0-win-x64.zip`
+- `artifacts\release\BattleshipMaui-v1.7.0-win-x64.sha256`
 
 The zip is built as:
 - `.NET self-contained`
@@ -77,37 +78,62 @@ The zip is built as:
 - unpackaged Windows desktop output
 
 After extracting the zip, launch:
-`BattleshipMaui-v1.6.27-win-x64\BattleshipMaui.exe`
+`BattleshipMaui-v1.7.0-win-x64\BattleshipMaui.exe`
 
 Raw CLI equivalent:
 ```powershell
-dotnet publish BattleshipMaui.csproj -c Release -f net10.0-windows10.0.19041.0 -r win-x64 --self-contained true -p:WindowsAppSDKSelfContained=true -p:PublishReadyToRun=false -p:PublishDir=artifacts\release\BattleshipMaui-v1.6.27-win-x64\
+dotnet publish BattleshipMaui.csproj -c Release -f net10.0-windows10.0.19041.0 -r win-x64 --self-contained true -p:WindowsAppSDKSelfContained=true -p:PublishReadyToRun=false -p:PublishDir=artifacts\release\BattleshipMaui-v1.7.0-win-x64\
 ```
 
 GitHub public release flow:
-- Push a version tag such as `v1.6.27`.
+- Push a version tag such as `v1.7.0`.
 - GitHub Actions runs `.github/workflows/windows-release.yml`.
 - The workflow uploads the zip and SHA-256 file to the GitHub Release for that tag.
 
 If startup fails on Windows, review:
 `%LOCALAPPDATA%\BattleshipMaui\logs\crash.log`
 
+## LAN Match Setup
+1. Put the same published Windows build on both PCs. Both machines must be on the same local network.
+2. Launch the app on both PCs and switch the header from `Solo vs CPU` to `LAN Match`.
+3. On the host PC:
+   - Leave the default port `47652` or choose another unused port.
+   - Note one of the LAN IPs shown in the header.
+   - Click `Host LAN`.
+4. On the joining PC:
+   - Enter the host PC's LAN IP in `Host IP`.
+   - Enter the same port number.
+   - Click `Join LAN`.
+5. Place fleets on both PCs. The host takes the first shot once both fleets are deployed.
+6. Use `New Mission` for a synced rematch and `Disconnect` to close the LAN session.
+
+If the connection fails:
+- Make sure both PCs are on the same router or switch.
+- Make sure the host IP is the host PC's local address, not a public internet IP.
+- Allow `BattleshipMaui.exe` through Windows Firewall on private networks if Windows prompts.
+
 ## Gameplay
-1. Press `New Game`.
-2. Place all ships on `Your Fleet`:
+1. Choose `Solo vs CPU` or `LAN Match`.
+2. If using LAN, complete the steps in [LAN Match Setup](#lan-match-setup).
+3. Press `New Mission`.
+4. Place all ships on `Your Fleet`:
    - Select ship card.
    - Right-click on your fleet board (or use `Orientation`) to rotate.
    - Left-click board cells to place.
-3. Fire on `Enemy Waters` by tapping a cell.
-4. Alternate turns with CPU until one fleet is sunk.
-5. At game-over:
+5. Fire on `Enemy Waters` by tapping a cell.
+6. Alternate turns with the CPU or the connected LAN player until one fleet is sunk.
+7. At game-over:
    - Result is shown.
    - Enemy fleet is revealed.
    - Stats are updated and saved.
 
 ## Controls
-- `New Game`: reset boards and begin placement.
+- `New Mission`: reset boards and begin placement. In LAN mode this also signals a synced rematch to the other PC.
 - `Reset Stats`: clear saved cumulative stats.
+- `Solo vs CPU` / `LAN Match`: switch between local AI play and same-network multiplayer.
+- `Host LAN`: start listening on the selected port and share your local IP with the other player.
+- `Join LAN`: connect to the host PC by LAN IP and matching port.
+- `Disconnect`: close the current LAN session.
 - `Theme` picker: switch among 10 visual themes from the command header.
 - `Rotate` / right-click: switch ship placement orientation.
 - `Fire Control` / `Fleet Ops`: set board focus while both boards remain visible.
