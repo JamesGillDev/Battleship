@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-03-10
+
+### Added
+- Added an `F11` keyboard shortcut that toggles `LANBattleshipMAUI` into and out of true Windows full-screen mode.
+
+### Release
+- `v2.1.1` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.1.1-win-x64.zip`.
+
+## [1.8.1] - 2026-03-10
+
+### Added
+- Added an `F11` keyboard shortcut that toggles `BattleshipMaui` into and out of true Windows full-screen mode.
+
+### Release
+- `v1.8.1` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.8.1-win-x64.zip`.
+
 ## [2.1.0] - 2026-03-10
 
 ### Added
