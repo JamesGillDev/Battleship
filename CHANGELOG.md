@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.6] - 2026-03-11
+
+### Changed
+- Corrected the LAN startup presentation so the intro cards now render as a true full-screen layer with no visible dashboard or welcome overlay behind them.
+- Replaced the broken LAN VS Code intro artwork with the packaged official VS Code logo so the second startup card renders cleanly.
+
+### Release
+- `v2.2.6` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.6-win-x64.zip`.
+
 ## [2.2.5] - 2026-03-11
 
 ### Changed
@@ -14,6 +24,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Release
 - `v2.2.5` is in **Public Release** status.
 - Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.5-win-x64.zip`.
+
+## [1.9.6] - 2026-03-11
+
+### Changed
+- Corrected the solo startup presentation so the intro cards now render as a true full-screen layer with no visible dashboard or welcome overlay behind them.
+- Replaced the broken solo VS Code intro artwork with the packaged official VS Code logo so the second startup card renders cleanly.
+
+### Release
+- `v1.9.6` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.6-win-x64.zip`.
 
 ## [1.9.5] - 2026-03-11
 

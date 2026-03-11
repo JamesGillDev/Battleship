@@ -277,7 +277,8 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1">
+        <Grid x:Name="GameplayViewport"
+              Grid.Row="1">
             <Grid Padding="{Binding GameplayContentPadding}"
                   RowDefinitions="Auto,Auto,*"
                   RowSpacing="8">
@@ -1017,6 +1018,7 @@
                 </VerticalStackLayout>
                     </Grid>
                 </Grid>
+            </Grid>
 
             <Grid x:Name="TurnTransitionScrim"
                   Grid.RowSpan="2"
@@ -1142,7 +1144,7 @@
                   Grid.RowSpan="2"
                   IsVisible="False"
                   BackgroundColor="#000000"
-                  ZIndex="28"
+                  ZIndex="40"
                   InputTransparent="False">
                 <Grid>
                     <BoxView Color="#000000" />
@@ -1227,7 +1229,8 @@
                                             StrokeShape="RoundRectangle 42"
                                             Padding="28"
                                             BackgroundColor="#12040C12">
-                                        <Image Source="vs_code.png"
+                                        <Image Source="vscode_logo.svg"
+                                               Margin="4"
                                                Aspect="AspectFit" />
                                     </Border>
                                     <Label x:Name="StartupVsCodeLabel"
@@ -1584,6 +1587,5 @@
                     </VerticalStackLayout>
                 </Border>
             </Grid>
-        </Grid>
     </Grid>
 </ContentPage>

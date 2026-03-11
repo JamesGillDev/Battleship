@@ -4,17 +4,17 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Public Releases
 
-- `BattleshipMaui v1.9.5`
+- `BattleshipMaui v1.9.6`
   - Dedicated single-player Windows build against the onboard CPU
-- `LANBattleshipMAUI v2.2.5`
+- `LANBattleshipMAUI v2.2.6`
   - Dedicated same-network multiplayer Windows build for 2 PCs on the same LAN
 
 Both releases are in **Public Release** status and ship as self-contained Windows `win-x64` zip downloads.
 
 ## Current Highlights
 
-- `BattleshipMaui v1.9.5` now randomizes the supplied end-state outcome callouts instead of replaying a fixed win/loss order.
-- `LANBattleshipMAUI v2.2.5` now randomizes the supplied end-state outcome callouts instead of replaying a fixed win/loss order.
+- `BattleshipMaui v1.9.6` now keeps the intro/title cards isolated on a full-screen black presentation layer instead of showing the live dashboard behind them.
+- `LANBattleshipMAUI v2.2.6` now keeps the intro/title cards isolated on a full-screen black presentation layer instead of showing the live dashboard behind them.
 
 ## Quick Start
 
@@ -42,8 +42,8 @@ Publish a single flavor:
 
 Launch:
 
-- `artifacts\release\BattleshipMaui-v1.9.5-win-x64\BattleshipMaui.exe`
-- `artifacts\release\LANBattleshipMAUI-v2.2.5-win-x64\LANBattleshipMAUI.exe`
+- `artifacts\release\BattleshipMaui-v1.9.6-win-x64\BattleshipMaui.exe`
+- `artifacts\release\LANBattleshipMAUI-v2.2.6-win-x64\LANBattleshipMAUI.exe`
 
 ## GitHub Releases
 
