@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.10] - 2026-03-11
+
+### Changed
+- Removed the stray intro guide marks from the startup presentation, switched the VS Code screen to a cleaned packaged logo asset, and rebuilt the LAN title card with a larger zooming `MAUI` / `Battleship` reveal, layered depth, crack accents, and a brighter backlit glow.
+
+### Release
+- `v2.2.10` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.10-win-x64.zip`.
+
 ## [2.2.9] - 2026-03-11
 
 ### Fixed
@@ -52,6 +61,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Release
 - `v2.2.5` is in **Public Release** status.
 - Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.5-win-x64.zip`.
+
+## [1.9.10] - 2026-03-11
+
+### Changed
+- Removed the stray intro guide marks from the startup presentation, switched the VS Code screen to a cleaned packaged logo asset, and rebuilt the solo title card with a larger zooming `MAUI` / `Battleship` reveal, layered depth, crack accents, and a brighter backlit glow.
+
+### Release
+- `v1.9.10` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.10-win-x64.zip`.
 
 ## [1.9.9] - 2026-03-11
 

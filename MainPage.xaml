@@ -1327,24 +1327,9 @@
                         </Border.Background>
                     </Border>
 
-                    <Grid RowDefinitions="Auto,*,Auto"
+                    <Grid RowDefinitions="*,Auto"
                           Padding="42,32">
-                        <HorizontalStackLayout Spacing="14"
-                                               Opacity="0.16"
-                                               HorizontalOptions="Fill"
-                                               VerticalOptions="Start">
-                            <BoxView WidthRequest="160"
-                                     HeightRequest="2"
-                                     Color="#3CD7FF" />
-                            <BoxView WidthRequest="120"
-                                     HeightRequest="2"
-                                     Color="#1F88B4" />
-                            <BoxView WidthRequest="220"
-                                     HeightRequest="2"
-                                     Color="#3CD7FF" />
-                        </HorizontalStackLayout>
-
-                        <Grid Grid.Row="1">
+                        <Grid Grid.Row="0">
                             <Grid x:Name="StartupCreatorScene"
                                   Opacity="0"
                                   IsVisible="True">
@@ -1388,17 +1373,47 @@
                                 <VerticalStackLayout Spacing="16"
                                                      HorizontalOptions="Center"
                                                      VerticalOptions="Center">
-                                    <Border WidthRequest="176"
-                                            HeightRequest="176"
+                                    <Grid WidthRequest="240"
+                                          HeightRequest="240">
+                                        <Border WidthRequest="240"
+                                                HeightRequest="240"
+                                                StrokeThickness="0"
+                                                BackgroundColor="#00000000">
+                                            <Border.Background>
+                                                <RadialGradientBrush Center="0.5,0.5"
+                                                                     Radius="0.58">
+                                                    <GradientStop Color="#2A5EF6FF" Offset="0.0" />
+                                                    <GradientStop Color="#084CA8D8" Offset="0.48" />
+                                                    <GradientStop Color="#00000000" Offset="1.0" />
+                                                </RadialGradientBrush>
+                                            </Border.Background>
+                                        </Border>
+
+                                        <Border x:Name="StartupVsCodeCard"
+                                                WidthRequest="196"
+                                                HeightRequest="196"
                                             Stroke="#4FD4FF"
-                                            StrokeThickness="1.6"
-                                            StrokeShape="RoundRectangle 42"
-                                            Padding="28"
-                                            BackgroundColor="#12040C12">
-                                        <Image Source="vscode_logo.svg"
-                                               Margin="4"
-                                               Aspect="AspectFit" />
-                                    </Border>
+                                                StrokeThickness="1.8"
+                                                StrokeShape="RoundRectangle 48"
+                                                Padding="26"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                BackgroundColor="#12040C12">
+                                            <Border.Shadow>
+                                                <Shadow Brush="#A00AAFFF"
+                                                        Radius="32"
+                                                        Opacity="0.92"
+                                                        Offset="0,0" />
+                                            </Border.Shadow>
+                                            <Image x:Name="StartupVsCodeLogoImage"
+                                                   Source="vs_code_logo_clean.png"
+                                                   Aspect="AspectFit"
+                                                   WidthRequest="132"
+                                                   HeightRequest="132"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+                                    </Grid>
                                     <Label x:Name="StartupVsCodeLabel"
                                            Text=""
                                            FontFamily="Impact"
@@ -1419,36 +1434,165 @@
                             <Grid x:Name="StartupTitleScene"
                                   Opacity="0"
                                   IsVisible="False">
-                                <VerticalStackLayout Spacing="-4"
-                                                     HorizontalOptions="Center"
-                                                     VerticalOptions="Center">
-                                    <Label x:Name="StartupTitleTopLabel"
-                                           Text="MAUI"
-                                           FontFamily="Impact"
-                                           FontSize="38"
-                                           CharacterSpacing="8"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="#85E7FF"
-                                           Opacity="0.92" />
-                                    <Label x:Name="StartupTitleMainLabel"
-                                           Text="Battleship"
-                                           FontFamily="Impact"
-                                           FontSize="84"
-                                           CharacterSpacing="2"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="#E9FCFF">
-                                        <Label.Shadow>
-                                            <Shadow Brush="#AA1AD8FF"
-                                                    Opacity="1"
-                                                    Radius="30"
-                                                    Offset="0,0" />
-                                        </Label.Shadow>
-                                    </Label>
-                                </VerticalStackLayout>
+                                <Grid x:Name="StartupTitleSceneContent"
+                                      WidthRequest="1320"
+                                      MaximumWidthRequest="1320"
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center">
+                                    <Grid RowDefinitions="Auto,Auto"
+                                          RowSpacing="-18">
+                                        <Label x:Name="StartupTitleTopLabel"
+                                               Text="MAUI"
+                                               FontFamily="Impact"
+                                               FontSize="78"
+                                               CharacterSpacing="12"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="#8DEFFF"
+                                               Opacity="0" />
+
+                                        <Grid Grid.Row="1"
+                                              WidthRequest="1260"
+                                              HeightRequest="430"
+                                              HorizontalOptions="Center"
+                                              VerticalOptions="Center">
+                                            <Grid x:Name="StartupTitleSunburst"
+                                                  InputTransparent="True"
+                                                  Opacity="0">
+                                                <Border WidthRequest="1020"
+                                                        HeightRequest="1020"
+                                                        HorizontalOptions="Center"
+                                                        VerticalOptions="Center"
+                                                        StrokeThickness="0">
+                                                    <Border.Background>
+                                                        <RadialGradientBrush Center="0.5,0.48"
+                                                                             Radius="0.62">
+                                                            <GradientStop Color="#40FFD978" Offset="0.0" />
+                                                            <GradientStop Color="#2436D2FF" Offset="0.34" />
+                                                            <GradientStop Color="#00000000" Offset="1.0" />
+                                                        </RadialGradientBrush>
+                                                    </Border.Background>
+                                                </Border>
+
+                                                <BoxView WidthRequest="18"
+                                                         HeightRequest="520"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Rotation="-74"
+                                                         Color="#30FFD56A" />
+                                                <BoxView WidthRequest="16"
+                                                         HeightRequest="500"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Rotation="-44"
+                                                         Color="#24B6F2FF" />
+                                                <BoxView WidthRequest="14"
+                                                         HeightRequest="540"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Rotation="-14"
+                                                         Color="#22FFF2AC" />
+                                                <BoxView WidthRequest="14"
+                                                         HeightRequest="540"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Rotation="14"
+                                                         Color="#22FFF2AC" />
+                                                <BoxView WidthRequest="16"
+                                                         HeightRequest="500"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Rotation="44"
+                                                         Color="#24B6F2FF" />
+                                                <BoxView WidthRequest="18"
+                                                         HeightRequest="520"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         Rotation="74"
+                                                         Color="#30FFD56A" />
+                                            </Grid>
+
+                                            <Label x:Name="StartupTitleMainDepthLabel"
+                                                   Text="Battleship"
+                                                   FontFamily="Impact"
+                                                   FontSize="186"
+                                                   CharacterSpacing="3"
+                                                   HorizontalTextAlignment="Center"
+                                                   VerticalTextAlignment="Center"
+                                                   TranslationY="18"
+                                                   TextColor="#102434"
+                                                   Opacity="0" />
+
+                                            <Label x:Name="StartupTitleMainBevelLabel"
+                                                   Text="Battleship"
+                                                   FontFamily="Impact"
+                                                   FontSize="186"
+                                                   CharacterSpacing="3"
+                                                   HorizontalTextAlignment="Center"
+                                                   VerticalTextAlignment="Center"
+                                                   TranslationY="8"
+                                                   TextColor="#57C7E8"
+                                                   Opacity="0" />
+
+                                            <Label x:Name="StartupTitleMainLabel"
+                                                   Text="Battleship"
+                                                   FontFamily="Impact"
+                                                   FontSize="186"
+                                                   CharacterSpacing="3"
+                                                   HorizontalTextAlignment="Center"
+                                                   VerticalTextAlignment="Center"
+                                                   TextColor="#F2FCFF"
+                                                   Opacity="0">
+                                                <Label.Shadow>
+                                                    <Shadow Brush="#C644DBFF"
+                                                            Opacity="1"
+                                                            Radius="38"
+                                                            Offset="0,0" />
+                                                </Label.Shadow>
+                                            </Label>
+
+                                            <AbsoluteLayout InputTransparent="True"
+                                                            WidthRequest="1260"
+                                                            HeightRequest="430"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center">
+                                                <BoxView AbsoluteLayout.LayoutBounds="280,170,168,4"
+                                                         AbsoluteLayout.LayoutFlags="None"
+                                                         Rotation="-22"
+                                                         Color="#7A143343"
+                                                         Opacity="0.68" />
+                                                <BoxView AbsoluteLayout.LayoutBounds="476,184,134,3"
+                                                         AbsoluteLayout.LayoutFlags="None"
+                                                         Rotation="16"
+                                                         Color="#5CC8F2FF"
+                                                         Opacity="0.24" />
+                                                <BoxView AbsoluteLayout.LayoutBounds="566,214,178,4"
+                                                         AbsoluteLayout.LayoutFlags="None"
+                                                         Rotation="-14"
+                                                         Color="#84112E3B"
+                                                         Opacity="0.72" />
+                                                <BoxView AbsoluteLayout.LayoutBounds="694,154,128,3"
+                                                         AbsoluteLayout.LayoutFlags="None"
+                                                         Rotation="24"
+                                                         Color="#5CC8F2FF"
+                                                         Opacity="0.22" />
+                                                <BoxView AbsoluteLayout.LayoutBounds="842,206,164,4"
+                                                         AbsoluteLayout.LayoutFlags="None"
+                                                         Rotation="-20"
+                                                         Color="#7A143343"
+                                                         Opacity="0.7" />
+                                                <BoxView AbsoluteLayout.LayoutBounds="934,158,118,3"
+                                                         AbsoluteLayout.LayoutFlags="None"
+                                                         Rotation="20"
+                                                         Color="#66D9FCFF"
+                                                         Opacity="0.2" />
+                                            </AbsoluteLayout>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                         </Grid>
 
-                        <Border Grid.Row="2"
+                        <Border Grid.Row="1"
                                 x:Name="StartupSkipChip"
                                 HorizontalOptions="Center"
                                 Padding="14,8"

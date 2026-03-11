@@ -8,10 +8,10 @@
 		<AppFlavor Condition="'$(AppFlavor)' == ''">Solo</AppFlavor>
 		<PublicAppName Condition="'$(AppFlavor)' == 'Lan'">LANBattleshipMAUI</PublicAppName>
 		<PublicAppName Condition="'$(AppFlavor)' != 'Lan'">BattleshipMaui</PublicAppName>
-		<PublicAppVersion Condition="'$(AppFlavor)' == 'Lan'">2.2.9</PublicAppVersion>
-		<PublicAppVersion Condition="'$(AppFlavor)' != 'Lan'">1.9.9</PublicAppVersion>
-		<PublicApplicationVersion Condition="'$(AppFlavor)' == 'Lan'">2209</PublicApplicationVersion>
-		<PublicApplicationVersion Condition="'$(AppFlavor)' != 'Lan'">1909</PublicApplicationVersion>
+		<PublicAppVersion Condition="'$(AppFlavor)' == 'Lan'">2.2.10</PublicAppVersion>
+		<PublicAppVersion Condition="'$(AppFlavor)' != 'Lan'">1.9.10</PublicAppVersion>
+		<PublicApplicationVersion Condition="'$(AppFlavor)' == 'Lan'">2210</PublicApplicationVersion>
+		<PublicApplicationVersion Condition="'$(AppFlavor)' != 'Lan'">1910</PublicApplicationVersion>
 
 		<!-- MAUI essentials -->
 		<UseMaui>true</UseMaui>

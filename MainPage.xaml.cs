@@ -209,8 +209,17 @@ public partial class MainPage : ContentPage
             StartupVsCodeLabel.Text = string.Empty;
             StartupTitleTopLabel.Opacity = 0;
             StartupTitleMainLabel.Opacity = 0;
-            StartupTitleTopLabel.Scale = 0.9;
-            StartupTitleMainLabel.Scale = 0.88;
+            StartupTitleMainDepthLabel.Opacity = 0;
+            StartupTitleMainBevelLabel.Opacity = 0;
+            StartupVsCodeCard.Opacity = 0;
+            StartupVsCodeCard.Scale = 0.82;
+            StartupVsCodeLogoImage.Opacity = 0;
+            StartupVsCodeLogoImage.Scale = 0.72;
+            StartupTitleSceneContent.Opacity = 0;
+            StartupTitleSceneContent.Scale = 0.24;
+            StartupTitleSceneContent.TranslationY = 42;
+            StartupTitleSunburst.Opacity = 0;
+            StartupTitleSunburst.Scale = 0.42;
 
             await RunCreatorStartupSceneAsync(cancellationToken);
             await RunVsCodeStartupSceneAsync(cancellationToken);
@@ -283,6 +292,11 @@ public partial class MainPage : ContentPage
 
         var stopwatch = Stopwatch.StartNew();
         await StartupVsCodeScene.FadeToAsync(1, 850, Easing.CubicOut);
+        await Task.WhenAll(
+            StartupVsCodeCard.FadeToAsync(1, 650, Easing.CubicOut),
+            StartupVsCodeCard.ScaleToAsync(1, 900, Easing.CubicOut),
+            StartupVsCodeLogoImage.FadeToAsync(1, 720, Easing.CubicOut),
+            StartupVsCodeLogoImage.ScaleToAsync(1, 920, Easing.CubicOut));
         await TypeLabelAsync(StartupVsCodeLabel, "Developed with VS Code", 2600, cancellationToken);
         await WaitForRemainingSceneTimeAsync(stopwatch, 8000, cancellationToken);
         await StartupVsCodeScene.FadeToAsync(0, 850, Easing.CubicIn);
@@ -295,12 +309,18 @@ public partial class MainPage : ContentPage
         PlayStartupAudio(AppAudio.StartupTitle);
 
         var stopwatch = Stopwatch.StartNew();
-        await StartupTitleScene.FadeToAsync(1, 500, Easing.CubicOut);
+        await StartupTitleScene.FadeToAsync(1, 400, Easing.CubicOut);
         await Task.WhenAll(
-            StartupTitleTopLabel.FadeToAsync(1, 1800, Easing.CubicOut),
-            StartupTitleTopLabel.ScaleToAsync(1, 1800, Easing.CubicOut),
-            StartupTitleMainLabel.FadeToAsync(1, 2600, Easing.CubicOut),
-            StartupTitleMainLabel.ScaleToAsync(1, 2600, Easing.CubicOut));
+            StartupTitleSceneContent.FadeToAsync(1, 1400, Easing.CubicOut),
+            StartupTitleSceneContent.ScaleToAsync(1.08, 2600, Easing.CubicOut),
+            StartupTitleSceneContent.TranslateToAsync(0, 0, 2600, Easing.CubicOut),
+            StartupTitleSunburst.FadeToAsync(0.92, 2200, Easing.CubicOut),
+            StartupTitleSunburst.ScaleToAsync(1, 2600, Easing.CubicOut),
+            StartupTitleTopLabel.FadeToAsync(1, 1700, Easing.CubicOut),
+            StartupTitleMainDepthLabel.FadeToAsync(0.94, 2200, Easing.CubicOut),
+            StartupTitleMainBevelLabel.FadeToAsync(0.36, 2200, Easing.CubicOut),
+            StartupTitleMainLabel.FadeToAsync(1, 2600, Easing.CubicOut));
+        await StartupTitleSceneContent.ScaleToAsync(1, 700, Easing.CubicInOut);
         await WaitForRemainingSceneTimeAsync(stopwatch, 7000, cancellationToken);
         await StartupTitleScene.FadeToAsync(0, 900, Easing.CubicIn);
         StartupTitleScene.IsVisible = false;
