@@ -4,6 +4,7 @@ using System.Threading;
 using BattleshipMaui.ViewModels;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Controls.Shapes;
 #if WINDOWS
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -400,6 +401,16 @@ public partial class MainPage : ContentPage
         _viewModel?.ClearEnemyHoverTarget();
     }
 
+    private void OnEnemyCellTapped(object? sender, TappedEventArgs e)
+    {
+        PlaySonarRipple(sender, EnemyBoardSonarHost);
+    }
+
+    private void OnPlayerCellTapped(object? sender, TappedEventArgs e)
+    {
+        PlaySonarRipple(sender, PlayerBoardSonarHost);
+    }
+
     private void ApplyOverlayBlurBackdrop()
     {
         bool overlayVisible = _viewModel?.IsOverlayVisible == true;
@@ -426,6 +437,62 @@ public partial class MainPage : ContentPage
         PlayerBoardPage.Scale = 1;
 
         _currentBoardMode = mode;
+    }
+
+    private void PlaySonarRipple(object? sender, AbsoluteLayout host)
+    {
+        if (host is null || sender is not BindableObject bindable || bindable.BindingContext is not BoardCellVm cell)
+            return;
+
+        double cellSize = _viewModel?.CellPixelSize ?? BoardViewModel.CellSize;
+        double centerX = (cell.Col * cellSize) + (cellSize * 0.5);
+        double centerY = (cell.Row * cellSize) + (cellSize * 0.5);
+        _ = AnimateSonarRippleAsync(host, centerX, centerY);
+    }
+
+    private async Task AnimateSonarRippleAsync(AbsoluteLayout host, double centerX, double centerY)
+    {
+        const double startDiameter = 10;
+        double finalDiameter = _viewModel?.ReduceMotionMode == true ? 180 : 300;
+        uint duration = _viewModel?.ReduceMotionMode == true
+            ? 300
+            : ScaleDuration(800, AnimationRuntimeSettings.SpeedMultiplier);
+        double scale = finalDiameter / startDiameter;
+
+        var ring = new Border
+        {
+            WidthRequest = startDiameter,
+            HeightRequest = startDiameter,
+            Stroke = Color.FromArgb("#88DDF7FF"),
+            StrokeThickness = 2,
+            StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(999) },
+            BackgroundColor = Color.FromArgb("#0C38B7FF"),
+            Opacity = 0.9,
+            InputTransparent = true,
+            Shadow = new Shadow
+            {
+                Brush = Color.FromArgb("#70009CFF"),
+                Radius = 22,
+                Opacity = 0.75f,
+                Offset = new Point(0, 0)
+            }
+        };
+
+        AbsoluteLayout.SetLayoutBounds(
+            ring,
+            new Rect(centerX - (startDiameter * 0.5), centerY - (startDiameter * 0.5), startDiameter, startDiameter));
+        host.Children.Add(ring);
+
+        try
+        {
+            await Task.WhenAll(
+                ring.ScaleToAsync(scale, duration, Easing.CubicOut),
+                ring.FadeToAsync(0, duration, Easing.CubicOut));
+        }
+        finally
+        {
+            host.Children.Remove(ring);
+        }
     }
 
     private async Task AnimateTurnTransitionAsync()

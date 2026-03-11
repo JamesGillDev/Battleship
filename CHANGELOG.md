@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.7] - 2026-03-11
+
+### Changed
+- Added a more realistic animated ocean presentation to the LAN build with a slower drifting full-screen sea backdrop and deeper board-water lighting.
+- Reworked the LAN board shell to read like translucent tactical glass above the moving ocean and added blue sonar ripple feedback when grid cells are tapped.
+
+### Release
+- `v2.2.7` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.7-win-x64.zip`.
+
 ## [2.2.6] - 2026-03-11
 
 ### Changed
@@ -24,6 +34,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Release
 - `v2.2.5` is in **Public Release** status.
 - Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.5-win-x64.zip`.
+
+## [1.9.7] - 2026-03-11
+
+### Changed
+- Added a more realistic animated ocean presentation to the solo build with a slower drifting full-screen sea backdrop and deeper board-water lighting.
+- Reworked the solo board shell to read like translucent tactical glass above the moving ocean and added blue sonar ripple feedback when grid cells are tapped.
+
+### Release
+- `v1.9.7` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.7-win-x64.zip`.
 
 ## [1.9.6] - 2026-03-11
 

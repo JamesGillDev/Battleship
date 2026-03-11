@@ -14,6 +14,70 @@
     </ContentPage.BindingContext>
 
     <Grid RowDefinitions="Auto,*" RowSpacing="0">
+        <Grid Grid.RowSpan="2"
+              InputTransparent="True"
+              IsClippedToBounds="True">
+            <Grid.Behaviors>
+                <behaviors:OceanBackdropAnimationBehavior />
+            </Grid.Behaviors>
+
+            <Border StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="{DynamicResource GameColorSurfaceAlt}" Offset="0.0" />
+                        <GradientStop Color="{DynamicResource GameColorSurface}" Offset="0.38" />
+                        <GradientStop Color="{DynamicResource GameColorBackground}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <Border ClassId="OceanBackdropGlowA"
+                    WidthRequest="2400"
+                    HeightRequest="1680"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    StrokeThickness="0"
+                    Opacity="0.24">
+                <Border.Background>
+                    <RadialGradientBrush Center="0.2,0.3"
+                                         Radius="0.62">
+                        <GradientStop Color="#22FFFFFF" Offset="0.0" />
+                        <GradientStop Color="#127ED9FF" Offset="0.34" />
+                        <GradientStop Color="#00142B3E" Offset="1.0" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <Border ClassId="OceanBackdropGlowB"
+                    WidthRequest="2200"
+                    HeightRequest="1540"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    StrokeThickness="0"
+                    Opacity="0.18">
+                <Border.Background>
+                    <RadialGradientBrush Center="0.7,0.6"
+                                         Radius="0.74">
+                        <GradientStop Color="#18FFFFFF" Offset="0.0" />
+                        <GradientStop Color="#0F5BC3E8" Offset="0.32" />
+                        <GradientStop Color="#00071422" Offset="1.0" />
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <Border StrokeThickness="0"
+                    Opacity="0.18">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0.08"
+                                         EndPoint="1,0.92">
+                        <GradientStop Color="#00000000" Offset="0.0" />
+                        <GradientStop Color="#0C87D9F3" Offset="0.28" />
+                        <GradientStop Color="#00000000" Offset="0.7" />
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+        </Grid>
+
         <Border Grid.Row="0"
                 IsVisible="{Binding ShowCompactCommandHeader}"
                 Stroke="{DynamicResource GameColorBorder}"
@@ -418,7 +482,14 @@
                     <Border Style="{StaticResource GameCardBorderStyle}"
                             Padding="3"
                             HorizontalOptions="Center"
+                            BackgroundColor="#24002846"
                             WidthRequest="{Binding BoardFramePixelSize}">
+                        <Border.Shadow>
+                            <Shadow Brush="#5400B7F8"
+                                    Radius="28"
+                                    Opacity="0.42"
+                                    Offset="0,0" />
+                        </Border.Shadow>
                         <Grid RowSpacing="{Binding BoardRailSpacingPixelSize}"
                               ColumnSpacing="{Binding BoardRailSpacingPixelSize}">
                             <Grid.RowDefinitions>
@@ -485,6 +556,12 @@
                                     <Grid.Behaviors>
                                         <behaviors:BoardWaterFlowAnimationBehavior />
                                     </Grid.Behaviors>
+                                    <Border Margin="1.5"
+                                            Stroke="#48F2FCFF"
+                                            StrokeThickness="0.9"
+                                            StrokeShape="{DynamicResource GameBoardFrameShape}"
+                                            BackgroundColor="#140B2942"
+                                            InputTransparent="True" />
                                     <Border Stroke="{DynamicResource GameColorBorder}"
                                             StrokeThickness="1.1"
                                             StrokeShape="{DynamicResource GameBoardFrameShape}">
@@ -562,6 +639,14 @@
                                     HeightRequest="{Binding BoardPixelSize}"
                                     ItemsSource="{Binding EnemyCells}"
                                     ZIndex="1" />
+                                <AbsoluteLayout x:Name="EnemyBoardSonarHost"
+                                                InputTransparent="True"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Start"
+                                                IsClippedToBounds="False"
+                                                ZIndex="2" />
                                 <AbsoluteLayout InputTransparent="True"
                                                 WidthRequest="{Binding BoardPixelSize}"
                                                 HeightRequest="{Binding BoardPixelSize}"
@@ -570,7 +655,7 @@
                                                 IsClippedToBounds="False"
                                                 BindableLayout.ItemsSource="{Binding EnemyShipSprites}"
                                                 IsVisible="{Binding ShowEnemyFleet}"
-                                                ZIndex="3">
+                                                ZIndex="4">
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate>
                                             <Grid AbsoluteLayout.LayoutBounds="{Binding Bounds}"
@@ -658,7 +743,7 @@
                                       Margin="0"
                                       RowSpacing="0"
                                       ColumnSpacing="0"
-                                      ZIndex="2"
+                                      ZIndex="3"
                                       SemanticProperties.Description="Enemy waters grid."
                                       SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. Tap a cell to fire.">
                                     <BindableLayout.ItemTemplate>
@@ -675,6 +760,7 @@
                                                     SemanticProperties.Hint="Enemy cell. Tap to fire.">
                                                 <Border.GestureRecognizers>
                                                     <TapGestureRecognizer
+                                                        Tapped="OnEnemyCellTapped"
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=EnemyCellTappedCommand}"
                                                         CommandParameter="{Binding .}" />
                                                     <PointerGestureRecognizer PointerEntered="OnEnemyCellPointerEntered"
@@ -688,7 +774,7 @@
                                     WidthRequest="{Binding BoardPixelSize}"
                                     HeightRequest="{Binding BoardPixelSize}"
                                     ItemsSource="{Binding EnemyCells}"
-                                    ZIndex="5" />
+                                    ZIndex="6" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -707,7 +793,14 @@
                     <Border Style="{StaticResource GameCardBorderStyle}"
                             Padding="3"
                             HorizontalOptions="Center"
+                            BackgroundColor="#24002846"
                             WidthRequest="{Binding BoardFramePixelSize}">
+                        <Border.Shadow>
+                            <Shadow Brush="#5400B7F8"
+                                    Radius="28"
+                                    Opacity="0.42"
+                                    Offset="0,0" />
+                        </Border.Shadow>
                         <Grid RowSpacing="{Binding BoardRailSpacingPixelSize}"
                               ColumnSpacing="{Binding BoardRailSpacingPixelSize}">
                             <Grid.RowDefinitions>
@@ -774,6 +867,12 @@
                                     <Grid.Behaviors>
                                         <behaviors:BoardWaterFlowAnimationBehavior />
                                     </Grid.Behaviors>
+                                    <Border Margin="1.5"
+                                            Stroke="#48F2FCFF"
+                                            StrokeThickness="0.9"
+                                            StrokeShape="{DynamicResource GameBoardFrameShape}"
+                                            BackgroundColor="#140B2942"
+                                            InputTransparent="True" />
                                     <Border Stroke="{DynamicResource GameColorBorder}"
                                             StrokeThickness="1.1"
                                             StrokeShape="{DynamicResource GameBoardFrameShape}">
@@ -852,6 +951,14 @@
                                     ItemsSource="{Binding PlayerCells}"
                                     IsPlayerBoard="True"
                                     ZIndex="1" />
+                                <AbsoluteLayout x:Name="PlayerBoardSonarHost"
+                                                InputTransparent="True"
+                                                WidthRequest="{Binding BoardPixelSize}"
+                                                HeightRequest="{Binding BoardPixelSize}"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Start"
+                                                IsClippedToBounds="False"
+                                                ZIndex="2" />
                                 <AbsoluteLayout InputTransparent="True"
                                                 WidthRequest="{Binding BoardPixelSize}"
                                                 HeightRequest="{Binding BoardPixelSize}"
@@ -859,7 +966,7 @@
                                                 VerticalOptions="Start"
                                                 IsClippedToBounds="False"
                                                 BindableLayout.ItemsSource="{Binding PlayerShipSprites}"
-                                                ZIndex="3">
+                                                ZIndex="4">
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate>
                                             <Grid AbsoluteLayout.LayoutBounds="{Binding Bounds}"
@@ -946,7 +1053,7 @@
                                                 VerticalOptions="Start"
                                                 IsClippedToBounds="False"
                                                 IsVisible="{Binding IsPlacementPreviewVisible}"
-                                                ZIndex="4">
+                                                ZIndex="5">
                                     <Grid AbsoluteLayout.LayoutBounds="{Binding PlacementPreviewBounds}"
                                           AbsoluteLayout.LayoutFlags="None"
                                           IsClippedToBounds="False">
@@ -977,7 +1084,7 @@
                                       Margin="0"
                                       RowSpacing="0"
                                       ColumnSpacing="0"
-                                      ZIndex="2"
+                                      ZIndex="3"
                                       SemanticProperties.Description="Your fleet grid."
                                       SemanticProperties.Hint="Rows are A to J and columns are 1 to 10. During placement, left-click a cell to place the selected ship and right-click to rotate.">
                                     <BindableLayout.ItemTemplate>
@@ -994,6 +1101,7 @@
                                                     SemanticProperties.Hint="Your fleet cell. Left-click to place the selected ship. Right-click to rotate orientation.">
                                                 <Border.GestureRecognizers>
                                                     <TapGestureRecognizer
+                                                        Tapped="OnPlayerCellTapped"
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=PlayerCellTappedCommand}"
                                                         CommandParameter="{Binding .}" />
                                                     <TapGestureRecognizer
@@ -1011,7 +1119,7 @@
                                     WidthRequest="{Binding BoardPixelSize}"
                                     HeightRequest="{Binding BoardPixelSize}"
                                     ItemsSource="{Binding PlayerCells}"
-                                    ZIndex="5" />
+                                    ZIndex="6" />
                             </Grid>
                         </Grid>
                     </Border>

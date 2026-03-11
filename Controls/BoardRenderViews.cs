@@ -205,33 +205,57 @@ public sealed class OceanBoardSurfaceView : BoardRenderViewBase
 
     private void DrawOceanBackdrop(ICanvas canvas, float boardWidth, float boardHeight, float phase)
     {
-        var deepWater = ResolveColor("GameColorSurface", IsPlayerBoard ? "#0b3352" : "#082d49");
-        var midWater = ResolveColor("GameColorPanel", IsPlayerBoard ? "#12496f" : "#0f4165");
+        var deepWater = ResolveColor("GameColorSurface", IsPlayerBoard ? "#0a2f49" : "#082740");
+        var midWater = ResolveColor("GameColorPanel", IsPlayerBoard ? "#12496f" : "#0e3e62");
         var crest = ResolveColor("GameColorAccentSoft", "#3d8fc2");
-        var abyss = Darken(deepWater, 0.26f);
+        var foam = ResolveColor("GameColorTextPrimary", "#dff6ff");
+        var abyss = Darken(deepWater, 0.34f);
+        var trench = Darken(midWater, 0.18f);
+        float driftAX = MathF.Sin(phase * 0.24f) * (boardWidth * 0.05f);
+        float driftAY = MathF.Cos(phase * 0.19f) * (boardHeight * 0.04f);
+        float driftBX = MathF.Cos(phase * 0.2f) * (boardWidth * 0.04f);
+        float driftBY = MathF.Sin(phase * 0.17f) * (boardHeight * 0.03f);
 
-        canvas.FillColor = deepWater;
+        canvas.FillColor = abyss;
         canvas.FillRectangle(0, 0, boardWidth, boardHeight);
 
-        canvas.FillColor = WithAlpha(abyss, 0.32f);
-        canvas.FillEllipse(-boardWidth * 0.12f, boardHeight * 0.54f, boardWidth * 1.24f, boardHeight * 0.66f);
+        canvas.FillColor = WithAlpha(trench, 0.7f);
+        canvas.FillEllipse(-boardWidth * 0.16f, boardHeight * 0.58f, boardWidth * 1.32f, boardHeight * 0.72f);
 
-        for (int layer = 0; layer < 6; layer++)
+        canvas.FillColor = WithAlpha(midWater, 0.28f);
+        canvas.FillEllipse(
+            (boardWidth * 0.2f) - (boardWidth * 0.34f) + driftAX,
+            (boardHeight * 0.3f) - (boardHeight * 0.22f) + driftAY,
+            boardWidth * 0.88f,
+            boardHeight * 0.5f);
+
+        canvas.FillColor = WithAlpha(Lighten(foam, 0.05f), 0.045f);
+        canvas.FillEllipse(
+            (boardWidth * 0.2f) - (boardWidth * 0.28f) + driftAX,
+            (boardHeight * 0.3f) - (boardHeight * 0.18f) + driftAY,
+            boardWidth * 0.72f,
+            boardHeight * 0.38f);
+
+        canvas.FillColor = WithAlpha(Lighten(crest, 0.08f), 0.055f);
+        canvas.FillEllipse(
+            (boardWidth * 0.7f) - (boardWidth * 0.32f) + driftBX,
+            (boardHeight * 0.6f) - (boardHeight * 0.22f) + driftBY,
+            boardWidth * 0.82f,
+            boardHeight * 0.5f);
+
+        for (int layer = 0; layer < 5; layer++)
         {
-            float width = boardWidth * (0.72f + (layer * 0.08f));
-            float height = boardHeight * (0.2f + (layer * 0.04f));
-            float x = ((boardWidth - width) * 0.5f) + (MathF.Sin((phase * 0.45f) + layer) * 10f);
-            float y = (boardHeight * (0.1f + (layer * 0.1f))) + (MathF.Cos((phase * 0.34f) + (layer * 0.7f)) * 8f);
+            float width = boardWidth * (0.68f + (layer * 0.1f));
+            float height = boardHeight * (0.16f + (layer * 0.05f));
+            float x = ((boardWidth - width) * 0.5f) + (MathF.Sin((phase * 0.38f) + (layer * 0.9f)) * 12f);
+            float y = (boardHeight * (0.08f + (layer * 0.13f))) + (MathF.Cos((phase * 0.26f) + (layer * 0.72f)) * 9f);
 
-            canvas.FillColor = WithAlpha(Lighten(midWater, 0.22f + (layer * 0.03f)), 0.055f + (layer * 0.018f));
+            canvas.FillColor = WithAlpha(Lighten(midWater, 0.18f + (layer * 0.025f)), 0.04f + (layer * 0.014f));
             canvas.FillEllipse(x, y, width, height);
         }
 
-        canvas.FillColor = WithAlpha(crest, 0.08f);
-        canvas.FillEllipse(boardWidth * 0.18f, boardHeight * 0.08f, boardWidth * 0.64f, boardHeight * 0.32f);
-
-        canvas.FillColor = WithAlpha(Lighten(crest, 0.22f), 0.06f);
-        canvas.FillEllipse(boardWidth * 0.08f, -boardHeight * 0.04f, boardWidth * 0.9f, boardHeight * 0.28f);
+        canvas.FillColor = WithAlpha(foam, 0.025f);
+        canvas.FillEllipse(-boardWidth * 0.04f, -boardHeight * 0.02f, boardWidth * 1.08f, boardHeight * 0.22f);
     }
 
     private void DrawSubsurfaceContours(ICanvas canvas, float boardWidth, float boardHeight, float phase)
@@ -258,22 +282,22 @@ public sealed class OceanBoardSurfaceView : BoardRenderViewBase
         var foam = ResolveColor("GameColorTextPrimary", "#dff6ff");
         var trough = Darken(ResolveColor("GameColorSurfaceAlt", "#164468"), 0.14f);
 
-        for (int band = 0; band < 11; band++)
+        for (int band = 0; band < 8; band++)
         {
-            float baseY = 18f + (band * 40f);
-            float amplitude = 4f + ((band % 3) * 2.1f);
-            float stroke = 2.2f + ((band + 1) % 2);
+            float baseY = (boardHeight * 0.08f) + (band * (boardHeight / 8.4f));
+            float amplitude = 3.2f + ((band % 3) * 1.6f);
+            float stroke = 1.2f + (((band + 1) % 2) * 0.55f);
             var path = new PathF();
             var shadowPath = new PathF();
 
-            for (float x = -28; x <= boardWidth + 28; x += 18)
+            for (float x = -36; x <= boardWidth + 36; x += 20)
             {
                 float y = baseY
-                    + (MathF.Sin((x * 0.028f) + (phase * 1.4f) + (band * 0.78f)) * amplitude)
-                    + (MathF.Cos((x * 0.014f) - (phase * 0.62f) + band) * (amplitude * 0.45f));
-                float shadowY = y + 5.5f + ((band % 2) * 0.8f);
+                    + (MathF.Sin((x * 0.023f) + (phase * 1.08f) + (band * 0.72f)) * amplitude)
+                    + (MathF.Cos((x * 0.012f) - (phase * 0.46f) + band) * (amplitude * 0.42f));
+                float shadowY = y + 4.2f + ((band % 2) * 0.7f);
 
-                if (x <= -28)
+                if (x <= -36)
                 {
                     path.MoveTo(x, y);
                     shadowPath.MoveTo(x, shadowY);
@@ -285,26 +309,31 @@ public sealed class OceanBoardSurfaceView : BoardRenderViewBase
                 }
             }
 
-            canvas.StrokeColor = WithAlpha(trough, 0.16f + ((band % 2) * 0.02f));
-            canvas.StrokeSize = stroke + 5.2f;
+            canvas.StrokeColor = WithAlpha(trough, 0.12f + ((band % 2) * 0.015f));
+            canvas.StrokeSize = stroke + 3.6f;
             canvas.DrawPath(shadowPath);
 
-            canvas.StrokeColor = WithAlpha(crest, 0.06f + ((band % 3) * 0.015f));
-            canvas.StrokeSize = stroke + 3.2f;
+            canvas.StrokeColor = WithAlpha(crest, 0.045f + ((band % 3) * 0.012f));
+            canvas.StrokeSize = stroke + 2.1f;
             canvas.DrawPath(path);
 
-            canvas.StrokeColor = WithAlpha(foam, 0.09f + ((band % 2) * 0.02f));
+            canvas.StrokeColor = WithAlpha(foam, 0.07f + ((band % 2) * 0.015f));
             canvas.StrokeSize = stroke;
             canvas.DrawPath(path);
         }
 
         for (int caustic = 0; caustic < 7; caustic++)
         {
-            float x = (caustic * 74f) - 42f + (MathF.Sin((phase * 0.55f) + caustic) * 14f);
-            float width = 34f + ((caustic % 3) * 6f);
-            canvas.FillColor = WithAlpha(foam, 0.03f + ((caustic % 2) * 0.01f));
-            canvas.FillRoundedRectangle(x, -18, width, boardHeight + 36, 14);
+            float x = (caustic * 78f) - 54f + (MathF.Sin((phase * 0.48f) + caustic) * 18f);
+            float width = 28f + ((caustic % 3) * 8f);
+            canvas.FillColor = WithAlpha(foam, 0.02f + ((caustic % 2) * 0.008f));
+            canvas.FillRoundedRectangle(x, -24, width, boardHeight + 48, 16);
         }
+
+        float sweepWidth = boardWidth * 0.18f;
+        float sweepX = ((phase * 26f) % (boardWidth + (sweepWidth * 2))) - sweepWidth;
+        canvas.FillColor = WithAlpha(foam, 0.028f);
+        canvas.FillRoundedRectangle(sweepX, -boardHeight * 0.08f, sweepWidth, boardHeight * 1.16f, sweepWidth * 0.34f);
     }
 
     private void DrawCells(ICanvas canvas, float cellSize, float phase)
