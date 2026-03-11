@@ -32,7 +32,20 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
         "Waterside_Explosion_Water_Sound_Effects3.mp3",
         "Waterside_Explosion_Water_Sound_Effects4.mp3"
     };
+    private static readonly string[] LossOutcomeTracks =
+    {
+        AppAudio.LossSting,
+        AppAudio.EnemyWonCall
+    };
+    private static readonly string[] EndgameOutcomeTracks =
+    {
+        AppAudio.WarOverCall,
+        AppAudio.VictorySting,
+        AppAudio.VictoryCall
+    };
     private static int _lastMissTrackIndex = -1;
+    private static int _lastLossOutcomeTrackIndex = -1;
+    private static int _lastEndgameOutcomeTrackIndex = -1;
 
 #if WINDOWS
     private static readonly object EffectsLock = new();
@@ -335,7 +348,7 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
 
     private static bool TryPlayCommanderVoiceClip(GameFeedbackCue cue, double soundFxVolume)
     {
-        string[]? clips = ResolveCommanderVoiceClips(cue);
+        string[]? clips = SelectCommanderVoiceClips(cue);
         if (clips is null || clips.Length == 0)
             return false;
 
@@ -353,7 +366,7 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
 
     private static bool HasDedicatedCommanderCallout(GameFeedbackCue cue)
     {
-        return ResolveCommanderVoiceClips(cue)?.Length > 0
+        return ResolveCommanderVoiceClipPool(cue)?.Count > 0
             || !string.IsNullOrWhiteSpace(ResolveCommanderFallbackPhrase(cue));
     }
 
@@ -373,7 +386,19 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
         };
     }
 
-    private static string[]? ResolveCommanderVoiceClips(GameFeedbackCue cue)
+    private static string[]? SelectCommanderVoiceClips(GameFeedbackCue cue)
+    {
+        IReadOnlyList<string>? pool = ResolveCommanderVoiceClipPool(cue);
+        if (pool is null || pool.Count == 0)
+            return null;
+
+        if (pool.Count == 1)
+            return new[] { pool[0] };
+
+        return new[] { SelectRandomTrack(pool, cue) };
+    }
+
+    private static IReadOnlyList<string>? ResolveCommanderVoiceClipPool(GameFeedbackCue cue)
     {
         return cue switch
         {
@@ -382,11 +407,36 @@ public sealed class DefaultGameFeedbackService : IGameFeedbackService
             GameFeedbackCue.Miss => new[] { AppAudio.CommanderTargetMiss },
             GameFeedbackCue.Sunk => new[] { AppAudio.CommanderTargetSunk },
             GameFeedbackCue.PlayerSunk => new[] { AppAudio.CommanderPlayerSunk },
-            GameFeedbackCue.Win => new[] { AppAudio.VictorySting, AppAudio.VictoryCall },
-            GameFeedbackCue.Loss => new[] { AppAudio.LossSting, AppAudio.EnemyWonCall },
-            GameFeedbackCue.Draw => new[] { AppAudio.WarOverCall },
+            GameFeedbackCue.Win or GameFeedbackCue.Draw => EndgameOutcomeTracks,
+            GameFeedbackCue.Loss => LossOutcomeTracks,
             _ => null
         };
+    }
+
+    private static string SelectRandomTrack(IReadOnlyList<string> tracks, GameFeedbackCue cue)
+    {
+        lock (MissTrackLock)
+        {
+            if (tracks.Count == 1)
+                return tracks[0];
+
+            int lastTrackIndex = cue is GameFeedbackCue.Loss
+                ? _lastLossOutcomeTrackIndex
+                : _lastEndgameOutcomeTrackIndex;
+
+            int selectedIndex;
+            do
+            {
+                selectedIndex = Random.Shared.Next(tracks.Count);
+            } while (selectedIndex == lastTrackIndex);
+
+            if (cue is GameFeedbackCue.Loss)
+                _lastLossOutcomeTrackIndex = selectedIndex;
+            else
+                _lastEndgameOutcomeTrackIndex = selectedIndex;
+
+            return tracks[selectedIndex];
+        }
     }
 
     private static async Task PlayCommanderVoiceSequenceAsync(IReadOnlyList<string> clips, double volume)

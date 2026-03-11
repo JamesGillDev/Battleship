@@ -5,6 +5,26 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.5] - 2026-03-11
+
+### Changed
+- Randomized the LAN defeat outcome callout so `Lost.wav` and `Enemy_Won.wav` are now selected at random instead of playing in a fixed order.
+- Randomized the LAN win and draw outcome callouts across the supplied `War_Over.wav`, `Victory!!.wav`, and `Victory.wav` pool instead of replaying a fixed clip sequence.
+
+### Release
+- `v2.2.5` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.5-win-x64.zip`.
+
+## [1.9.5] - 2026-03-11
+
+### Changed
+- Randomized the solo defeat outcome callout so `Lost.wav` and `Enemy_Won.wav` are now selected at random instead of playing in a fixed order.
+- Randomized the solo win and draw outcome callouts across the supplied `War_Over.wav`, `Victory!!.wav`, and `Victory.wav` pool instead of replaying a fixed clip sequence.
+
+### Release
+- `v1.9.5` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.5-win-x64.zip`.
+
 ## [2.2.4] - 2026-03-11
 
 ### Changed

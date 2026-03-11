@@ -1,4 +1,5 @@
 using Battleship.GameCore;
+using BattleshipMaui;
 using BattleshipMaui.ViewModels;
 
 namespace BattleshipMaui.Tests;
@@ -279,6 +280,48 @@ public class BoardViewModelTests
 
         Assert.Contains(musicService.Calls, call => call.Enabled && Math.Abs(call.Volume - 0.30) < 0.0001);
         Assert.Equal(0.30, musicService.LastVolume, 3);
+    }
+
+    [Fact]
+    public void CommanderVoiceLossCue_UsesRandomizedLossPool()
+    {
+        var selectClips = typeof(DefaultGameFeedbackService).GetMethod(
+            "SelectCommanderVoiceClips",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+        Assert.NotNull(selectClips);
+
+        var selected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int iteration = 0; iteration < 6; iteration++)
+        {
+            string[] clips = Assert.IsType<string[]>(selectClips!.Invoke(null, [GameFeedbackCue.Loss]));
+            Assert.Single(clips);
+            Assert.Contains(clips[0], new[] { AppAudio.LossSting, AppAudio.EnemyWonCall });
+            selected.Add(clips[0]);
+        }
+
+        Assert.Equal(2, selected.Count);
+    }
+
+    [Fact]
+    public void CommanderVoiceWinCue_UsesRandomizedEndgamePool()
+    {
+        var selectClips = typeof(DefaultGameFeedbackService).GetMethod(
+            "SelectCommanderVoiceClips",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+        Assert.NotNull(selectClips);
+
+        var selected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int iteration = 0; iteration < 10; iteration++)
+        {
+            string[] clips = Assert.IsType<string[]>(selectClips!.Invoke(null, [GameFeedbackCue.Win]));
+            Assert.Single(clips);
+            Assert.Contains(clips[0], new[] { AppAudio.WarOverCall, AppAudio.VictorySting, AppAudio.VictoryCall });
+            selected.Add(clips[0]);
+        }
+
+        Assert.True(selected.Count >= 2);
     }
 
     [Fact]
