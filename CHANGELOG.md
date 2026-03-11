@@ -5,22 +5,6 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.2.0] - 2026-03-10
-
-### Added
-- Added a full cinematic startup sequence for `LANBattleshipMAUI` with voiced title cards, `Esc` skip support, and a final fade into gameplay.
-- Added an `Esc` command menu that now hosts the former settings controls plus mission actions during play.
-- Added packaged WAV voice clips for startup narration and commander hit/miss callouts.
-
-### Changed
-- The LAN release now starts in borderless full-screen mode by default.
-- Replaced the WinUI `KeyboardAccelerator` path for `F11` with raw key handling so the stray `F11` bubble no longer appears during gameplay.
-- Removed the settings button from the main dashboard and moved those options into the `Esc` command menu.
-
-### Release
-- `v2.2.0` is in **Public Release** status.
-- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.0-win-x64.zip`.
-
 ## [2.2.1] - 2026-03-10
 
 ### Changed
@@ -42,6 +26,22 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Release
 - `v1.9.1` is in **Public Release** status.
 - Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.1-win-x64.zip`.
+
+## [2.2.0] - 2026-03-10
+
+### Added
+- Added a full cinematic startup sequence for `LANBattleshipMAUI` with voiced title cards, `Esc` skip support, and a final fade into gameplay.
+- Added an `Esc` command menu that now hosts the former settings controls plus mission actions during play.
+- Added packaged WAV voice clips for startup narration and commander hit/miss callouts.
+
+### Changed
+- The LAN release now starts in borderless full-screen mode by default.
+- Replaced the WinUI `KeyboardAccelerator` path for `F11` with raw key handling so the stray `F11` bubble no longer appears during gameplay.
+- Removed the settings button from the main dashboard and moved those options into the `Esc` command menu.
+
+### Release
+- `v2.2.0` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.0-win-x64.zip`.
 
 ## [1.9.0] - 2026-03-10
 

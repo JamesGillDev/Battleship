@@ -57,7 +57,7 @@
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 			<Link>%(Filename)%(Extension)</Link>
 		</Content>
-		<Content Include="Resources\Audio\*.wav">
+		<Content Include="Resources\Audio\Echo_startup.wav;Resources\Audio\VS_Code_startup.wav;Resources\Audio\Title.wav">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 			<Link>%(Filename)%(Extension)</Link>
