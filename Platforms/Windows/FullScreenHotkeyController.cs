@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Microsoft.Maui.Controls;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -31,82 +30,38 @@ internal static class FullScreenHotkeyController
         binding.ToggleFullScreen();
     }
 
-    public static void EnsureCurrentWindowStartupFullScreen()
-    {
-        if (Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault()?.Handler?.PlatformView is not WinUiWindow window)
-            return;
-
-        WindowHotkeyBinding binding = Bindings.TryGetValue(window, out var existingBinding)
-            ? existingBinding
-            : Bindings.GetValue(window, static createdWindow => new WindowHotkeyBinding(createdWindow));
-
-        binding.QueueStartupFullScreenIfNeeded();
-    }
-
     private sealed class WindowHotkeyBinding
     {
-        private const int ShowWindowRestore = 9;
-        private const int ShowWindowShow = 5;
-
         private readonly WinUiWindow _window;
         private FrameworkElement? _attachedRoot;
         private bool _restoreMaximized;
-        private bool _isClosed;
         private bool _startupFullScreenApplied;
-        private bool _startupFullScreenQueued;
 
         public WindowHotkeyBinding(WinUiWindow window)
         {
             _window = window;
             _window.Activated += OnWindowActivated;
-            _window.Closed += OnWindowClosed;
-        }
-
-        private void OnWindowActivated(object sender, WindowActivatedEventArgs args)
-        {
-            if (_isClosed)
-                return;
-
             AttachToRoot();
-        }
-
-        private void OnWindowClosed(object sender, WindowEventArgs args)
-        {
-            _isClosed = true;
-            _window.Activated -= OnWindowActivated;
-            _window.Closed -= OnWindowClosed;
-
-            if (_attachedRoot is not null)
-                _attachedRoot.KeyDown -= OnRootKeyDown;
-
-            _attachedRoot = null;
+            EnsureStartupFullScreen();
         }
 
         private void AttachToRoot()
         {
-            if (_isClosed)
-                return;
-
-            FrameworkElement? currentRoot;
-            try
-            {
-                currentRoot = _window.Content as FrameworkElement;
-            }
-            catch (COMException ex)
-            {
-                CrashLog.Write("FullScreenHotkeyController.AttachToRoot", ex);
-                return;
-            }
-
-            if (ReferenceEquals(_attachedRoot, currentRoot))
+            if (ReferenceEquals(_attachedRoot, _window.Content))
                 return;
 
             if (_attachedRoot is not null)
                 _attachedRoot.KeyDown -= OnRootKeyDown;
 
-            _attachedRoot = currentRoot;
+            _attachedRoot = _window.Content as FrameworkElement;
             if (_attachedRoot is not null)
                 _attachedRoot.KeyDown += OnRootKeyDown;
+        }
+
+        private void OnWindowActivated(object sender, WindowActivatedEventArgs args)
+        {
+            AttachToRoot();
+            EnsureStartupFullScreen();
         }
 
         private void OnRootKeyDown(object sender, KeyRoutedEventArgs args)
@@ -145,16 +100,8 @@ internal static class FullScreenHotkeyController
 
         private void EnsureStartupFullScreen()
         {
-            if (_isClosed || _startupFullScreenApplied)
+            if (_startupFullScreenApplied)
                 return;
-
-            EnsureWindowShown();
-
-            if (TryGetAppWindow(_window) is null)
-            {
-                QueueStartupFullScreen();
-                return;
-            }
 
             _startupFullScreenApplied = true;
             SetFullScreen(enabled: true);
@@ -162,9 +109,6 @@ internal static class FullScreenHotkeyController
 
         public void ToggleFullScreen()
         {
-            if (_isClosed)
-                return;
-
             AppWindow? appWindow = TryGetAppWindow(_window);
             if (appWindow is null)
                 return;
@@ -175,140 +119,45 @@ internal static class FullScreenHotkeyController
 
         private void SetFullScreen(bool enabled)
         {
-            try
+            AppWindow? appWindow = TryGetAppWindow(_window);
+            if (appWindow is null)
+                return;
+
+            if (enabled)
             {
-                AppWindow? appWindow = TryGetAppWindow(_window);
-                if (appWindow is null)
+                if (appWindow.Presenter.Kind == AppWindowPresenterKind.FullScreen)
                     return;
 
-                if (enabled)
-                {
-                    if (appWindow.Presenter.Kind == AppWindowPresenterKind.FullScreen)
-                        return;
-
-                    if (appWindow.Presenter is OverlappedPresenter overlapped)
-                        _restoreMaximized = overlapped.State == OverlappedPresenterState.Maximized;
-                    else
-                        _restoreMaximized = false;
-
-                    appWindow.SetPresenter(AppWindowPresenterKind.FullScreen);
-                    EnsureWindowShown();
-                    return;
-                }
-
-                if (appWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen)
-                    return;
-
-                appWindow.SetPresenter(AppWindowPresenterKind.Overlapped);
-                EnsureWindowShown();
-                if (appWindow.Presenter is not OverlappedPresenter restoredPresenter)
-                    return;
-
-                if (_restoreMaximized)
-                    restoredPresenter.Maximize();
+                if (appWindow.Presenter is OverlappedPresenter overlapped)
+                    _restoreMaximized = overlapped.State == OverlappedPresenterState.Maximized;
                 else
-                    restoredPresenter.Restore();
+                    _restoreMaximized = false;
+
+                appWindow.SetPresenter(AppWindowPresenterKind.FullScreen);
+                return;
             }
-            catch (COMException ex)
-            {
-                CrashLog.Write("FullScreenHotkeyController.SetFullScreen", ex, $"Enabled={enabled}");
-                if (enabled)
-                    _startupFullScreenApplied = false;
-            }
+
+            if (appWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen)
+                return;
+
+            appWindow.SetPresenter(AppWindowPresenterKind.Overlapped);
+            if (appWindow.Presenter is not OverlappedPresenter restoredPresenter)
+                return;
+
+            if (_restoreMaximized)
+                restoredPresenter.Maximize();
+            else
+                restoredPresenter.Restore();
         }
 
         private static AppWindow? TryGetAppWindow(WinUiWindow window)
         {
-            try
-            {
-                nint hwnd = WindowNative.GetWindowHandle(window);
-                if (hwnd == 0)
-                    return null;
-
-                Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-                return AppWindow.GetFromWindowId(windowId);
-            }
-            catch (COMException ex)
-            {
-                CrashLog.Write("FullScreenHotkeyController.TryGetAppWindow", ex);
+            nint hwnd = WindowNative.GetWindowHandle(window);
+            if (hwnd == 0)
                 return null;
-            }
-        }
 
-        public void QueueStartupFullScreenIfNeeded()
-        {
-            QueueStartupFullScreen();
-        }
-
-        private void QueueStartupFullScreen()
-        {
-            if (_isClosed || _startupFullScreenApplied || _startupFullScreenQueued)
-                return;
-
-            _startupFullScreenQueued = true;
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await Task.Delay(180).ConfigureAwait(false);
-                }
-                catch
-                {
-                    _startupFullScreenQueued = false;
-                    return;
-                }
-
-                try
-                {
-                    if (_window.DispatcherQueue is null)
-                    {
-                        _startupFullScreenQueued = false;
-                        return;
-                    }
-
-                    _window.DispatcherQueue.TryEnqueue(() =>
-                    {
-                        _startupFullScreenQueued = false;
-                        if (_isClosed)
-                            return;
-
-                        AttachToRoot();
-                        EnsureStartupFullScreen();
-                    });
-                }
-                catch (Exception ex)
-                {
-                    _startupFullScreenQueued = false;
-                    CrashLog.Write("FullScreenHotkeyController.QueueStartupFullScreen", ex);
-                }
-            });
-        }
-
-        private void EnsureWindowShown()
-        {
-            try
-            {
-                _window.Activate();
-
-                nint hwnd = WindowNative.GetWindowHandle(_window);
-                if (hwnd == 0)
-                    return;
-
-                ShowWindow(hwnd, ShowWindowRestore);
-                ShowWindow(hwnd, ShowWindowShow);
-                SetForegroundWindow(hwnd);
-            }
-            catch (COMException ex)
-            {
-                CrashLog.Write("FullScreenHotkeyController.EnsureWindowShown", ex);
-            }
+            Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            return AppWindow.GetFromWindowId(windowId);
         }
     }
-
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(nint hWnd, int nCmdShow);
-
-    [DllImport("user32.dll")]
-    private static extern bool SetForegroundWindow(nint hWnd);
 }

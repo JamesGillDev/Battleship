@@ -4,17 +4,17 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Public Releases
 
-- `BattleshipMaui v1.9.11`
+- `BattleshipMaui v1.9.12`
   - Dedicated single-player Windows build against the onboard CPU
-- `LANBattleshipMAUI v2.2.11`
+- `LANBattleshipMAUI v2.2.12`
   - Dedicated same-network multiplayer Windows build for 2 PCs on the same LAN
 
 Both releases are in **Public Release** status and ship as self-contained Windows `win-x64` zip downloads.
 
 ## Current Highlights
 
-- `BattleshipMaui v1.9.11` now forces the native WinUI window to activate and show before and after the initial full-screen presenter switch so the published app no longer launches as a hidden background window.
-- `LANBattleshipMAUI v2.2.11` now forces the native WinUI window to activate and show before and after the initial full-screen presenter switch so the published app no longer launches as a hidden background window.
+- `BattleshipMaui v1.9.12` now restores the last known-good Windows startup full-screen activation flow so the published app opens with a visible WinUI window again.
+- `LANBattleshipMAUI v2.2.12` now restores the last known-good Windows startup full-screen activation flow so the published app opens with a visible WinUI window again.
 
 ## Quick Start
 
@@ -42,8 +42,8 @@ Publish a single flavor:
 
 Launch:
 
-- `artifacts\release\BattleshipMaui-v1.9.11-win-x64\BattleshipMaui.exe`
-- `artifacts\release\LANBattleshipMAUI-v2.2.11-win-x64\LANBattleshipMAUI.exe`
+- `artifacts\release\BattleshipMaui-v1.9.12-win-x64\BattleshipMaui.exe`
+- `artifacts\release\LANBattleshipMAUI-v2.2.12-win-x64\LANBattleshipMAUI.exe`
 
 ## GitHub Releases
 

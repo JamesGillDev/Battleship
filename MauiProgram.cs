@@ -26,7 +26,7 @@ public static class MauiProgram
             {
                 windows.OnWindowCreated(window =>
                 {
-                    // Temporarily disabled while isolating hidden-startup-window behavior.
+                    BattleshipMaui.WinUI.FullScreenHotkeyController.Attach(window);
                 });
             });
         });

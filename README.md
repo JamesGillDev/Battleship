@@ -2,8 +2,8 @@
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![MAUI](https://img.shields.io/badge/Framework-.NET%20MAUI-0f6cbd)](https://learn.microsoft.com/dotnet/maui/)
-[![Solo Release](https://img.shields.io/badge/BattleshipMaui-v1.9.11-2ea44f)](#versioning--releases)
-[![LAN Release](https://img.shields.io/badge/LANBattleshipMAUI-v2.2.11-2ea44f)](#versioning--releases)
+[![Solo Release](https://img.shields.io/badge/BattleshipMaui-v1.9.12-2ea44f)](#versioning--releases)
+[![LAN Release](https://img.shields.io/badge/LANBattleshipMAUI-v2.2.12-2ea44f)](#versioning--releases)
 [![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](./LICENSE.md)
 
 A polished Battleship game built with .NET MAUI and a shared C# game core. This repository now publishes 2 separate Windows apps from the same codebase:
@@ -12,12 +12,12 @@ A polished Battleship game built with .NET MAUI and a shared C# game core. This 
 - `LANBattleshipMAUI`: a dedicated same-network multiplayer release for 2 Windows PCs on the same LAN.
 - Both releases now launch in borderless full screen, play a cinematic startup sequence on a true full-screen black intro layer, and use `Esc` for the in-game command menu.
 - Both releases now layer a slower drifting ocean backdrop behind the UI and render the boards as translucent tactical glass over moving water with sonar ripples on cell taps.
-- Both releases now defer startup full-screen activation until the WinUI window is ready and detach the hotkey hooks cleanly on close.
+- Both releases now restore the last known-good Windows startup full-screen activation flow so the main app window opens visibly again while keeping `F11` full-screen support.
 - Press `F11` in either release to toggle true Windows full-screen mode on or off after launch.
 
 ## Versioning & Releases
-- Current solo public app release: `BattleshipMaui v1.9.11`
-- Current LAN public app release: `LANBattleshipMAUI v2.2.11`
+- Current solo public app release: `BattleshipMaui v1.9.12`
+- Current LAN public app release: `LANBattleshipMAUI v2.2.12`
 - Release history and public-release notes: [CHANGELOG.md](./CHANGELOG.md)
 - Tag mapping:
   - `v1.x.x` publishes the solo `BattleshipMaui` line.
@@ -25,8 +25,8 @@ A polished Battleship game built with .NET MAUI and a shared C# game core. This 
 - Public distribution format: self-contained Windows `win-x64` zip
 
 ## Release Readiness
-- `BattleshipMaui v1.9.11` is in **Public Release** status.
-- `LANBattleshipMAUI v2.2.11` is in **Public Release** status.
+- `BattleshipMaui v1.9.12` is in **Public Release** status.
+- `LANBattleshipMAUI v2.2.12` is in **Public Release** status.
 
 ## Product Lines
 
@@ -44,7 +44,7 @@ A polished Battleship game built with .NET MAUI and a shared C# game core. This 
 - `Esc` command menu now holds the former settings panel plus mission controls during play, including `Quit`
 - Adjustable CPU difficulty from the `Esc` command menu
 - Startup visuals now remove the stray intro guide marks, render the VS Code logo card correctly, and use a larger `MAUI` / `Battleship` title reveal with layered depth, crack accents, and backlit glow
-- Windows startup now explicitly activates and shows the native app window before and after the initial full-screen presenter switch so the published `.exe` opens visibly instead of staying hidden in the background
+- Windows startup now uses the stable pre-`v1.9.8` full-screen activation flow so the published `.exe` opens with a visible WinUI window again instead of staying hidden in the background
 - Persistent stats, post-game recap, music, FX, and visual themes
 
 ### LANBattleshipMAUI
@@ -60,7 +60,7 @@ A polished Battleship game built with .NET MAUI and a shared C# game core. This 
 - `Esc` command menu now holds the former settings panel plus mission controls during play, including `Quit`
 - Game-over debrief now keeps the compact combat header and reduced battle-board scale so rows `I` and `J` remain visible behind the overlay in both releases
 - Startup visuals now remove the stray intro guide marks, render the VS Code logo card correctly, and use a larger `MAUI` / `Battleship` title reveal with layered depth, crack accents, and backlit glow
-- Windows startup now explicitly activates and shows the native app window before and after the initial full-screen presenter switch so the published `.exe` opens visibly instead of staying hidden in the background
+- Windows startup now uses the stable pre-`v2.2.8` full-screen activation flow so the published `.exe` opens with a visible WinUI window again instead of staying hidden in the background
 - Synced alternating turns, synced rematch via `New Mission`, and session disconnect support
 
 ## Tech Stack
@@ -107,14 +107,14 @@ Publish both public releases together:
 ```
 
 This creates:
-- `artifacts\release\BattleshipMaui-v1.9.11-win-x64.zip`
-- `artifacts\release\BattleshipMaui-v1.9.11-win-x64.sha256`
-- `artifacts\release\LANBattleshipMAUI-v2.2.11-win-x64.zip`
-- `artifacts\release\LANBattleshipMAUI-v2.2.11-win-x64.sha256`
+- `artifacts\release\BattleshipMaui-v1.9.12-win-x64.zip`
+- `artifacts\release\BattleshipMaui-v1.9.12-win-x64.sha256`
+- `artifacts\release\LANBattleshipMAUI-v2.2.12-win-x64.zip`
+- `artifacts\release\LANBattleshipMAUI-v2.2.12-win-x64.sha256`
 
 After extracting the zips, launch:
-- `BattleshipMaui-v1.9.11-win-x64\BattleshipMaui.exe`
-- `LANBattleshipMAUI-v2.2.11-win-x64\LANBattleshipMAUI.exe`
+- `BattleshipMaui-v1.9.12-win-x64\BattleshipMaui.exe`
+- `LANBattleshipMAUI-v2.2.12-win-x64\LANBattleshipMAUI.exe`
 
 The public zips are built as:
 - `.NET self-contained`
@@ -122,7 +122,7 @@ The public zips are built as:
 - unpackaged Windows desktop output
 
 ## LAN Session Setup
-Use the dedicated LAN build: `LANBattleshipMAUI v2.2.11`.
+Use the dedicated LAN build: `LANBattleshipMAUI v2.2.12`.
 
 1. Put the same published LAN zip on both PCs.
 2. Extract the zip on both PCs and launch `LANBattleshipMAUI.exe`.
