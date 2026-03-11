@@ -7,6 +7,7 @@ using Microsoft.Maui.Graphics;
 #if WINDOWS
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using WinUiWindow = Microsoft.UI.Xaml.Window;
 #endif
 
 namespace BattleshipMaui;
@@ -557,5 +558,18 @@ public partial class MainPage : ContentPage
         BattleshipMaui.WinUI.FullScreenHotkeyController.ToggleCurrentWindow();
 #endif
         _viewModel?.CloseCommandMenu();
+    }
+
+    private void OnQuitApplicationClicked(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        if (Application.Current?.Windows.FirstOrDefault()?.Handler?.PlatformView is WinUiWindow window)
+        {
+            window.Close();
+            return;
+        }
+#endif
+
+        Process.GetCurrentProcess().Kill();
     }
 }

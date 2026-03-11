@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2] - 2026-03-10
+
+### Changed
+- Added a `Quit` action to the `Esc` command menu so the LAN build can close directly from the in-game command console.
+
+### Release
+- `v2.2.2` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.2-win-x64.zip`.
+
+## [1.9.2] - 2026-03-10
+
+### Changed
+- Added a `Quit` action to the `Esc` command menu so the solo build can close directly from the in-game command console.
+
+### Release
+- `v1.9.2` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.2-win-x64.zip`.
+
 ## [2.2.1] - 2026-03-10
 
 ### Changed

@@ -1382,6 +1382,11 @@
                                         Style="{StaticResource GamePrimaryButtonStyle}"
                                         HeightRequest="36"
                                         Padding="12,7" />
+                                <Button Text="Quit"
+                                        Clicked="OnQuitApplicationClicked"
+                                        Style="{StaticResource GameSecondaryButtonStyle}"
+                                        HeightRequest="36"
+                                        Padding="12,7" />
                             </HorizontalStackLayout>
                         </Grid>
 
