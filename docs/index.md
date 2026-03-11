@@ -4,17 +4,17 @@ Desktop Battleship game built with .NET MAUI.
 
 ## Current Public Releases
 
-- `BattleshipMaui v1.9.10`
+- `BattleshipMaui v1.9.11`
   - Dedicated single-player Windows build against the onboard CPU
-- `LANBattleshipMAUI v2.2.10`
+- `LANBattleshipMAUI v2.2.11`
   - Dedicated same-network multiplayer Windows build for 2 PCs on the same LAN
 
 Both releases are in **Public Release** status and ship as self-contained Windows `win-x64` zip downloads.
 
 ## Current Highlights
 
-- `BattleshipMaui v1.9.10` now removes the stray intro guide marks, fixes the VS Code startup card logo render, and upgrades the title reveal with a larger zooming `MAUI` / `Battleship` presentation.
-- `LANBattleshipMAUI v2.2.10` now removes the stray intro guide marks, fixes the VS Code startup card logo render, and upgrades the title reveal with a larger zooming `MAUI` / `Battleship` presentation.
+- `BattleshipMaui v1.9.11` now forces the native WinUI window to activate and show before and after the initial full-screen presenter switch so the published app no longer launches as a hidden background window.
+- `LANBattleshipMAUI v2.2.11` now forces the native WinUI window to activate and show before and after the initial full-screen presenter switch so the published app no longer launches as a hidden background window.
 
 ## Quick Start
 
@@ -42,8 +42,8 @@ Publish a single flavor:
 
 Launch:
 
-- `artifacts\release\BattleshipMaui-v1.9.10-win-x64\BattleshipMaui.exe`
-- `artifacts\release\LANBattleshipMAUI-v2.2.10-win-x64\LANBattleshipMAUI.exe`
+- `artifacts\release\BattleshipMaui-v1.9.11-win-x64\BattleshipMaui.exe`
+- `artifacts\release\LANBattleshipMAUI-v2.2.11-win-x64\LANBattleshipMAUI.exe`
 
 ## GitHub Releases
 

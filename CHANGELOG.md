@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.11] - 2026-03-11
+
+### Fixed
+- Explicitly activated and showed the native WinUI window before and after the initial full-screen presenter switch so the LAN published app no longer launches as a hidden background window with no visible frame.
+
+### Release
+- `v2.2.11` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.11-win-x64.zip`.
+
 ## [2.2.10] - 2026-03-11
 
 ### Changed
@@ -61,6 +70,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Release
 - `v2.2.5` is in **Public Release** status.
 - Public release distribution is a self-contained Windows `win-x64` zip named `LANBattleshipMAUI-v2.2.5-win-x64.zip`.
+
+## [1.9.11] - 2026-03-11
+
+### Fixed
+- Explicitly activated and showed the native WinUI window before and after the initial full-screen presenter switch so the solo published app no longer launches as a hidden background window with no visible frame.
+
+### Release
+- `v1.9.11` is in **Public Release** status.
+- Public release distribution is a self-contained Windows `win-x64` zip named `BattleshipMaui-v1.9.11-win-x64.zip`.
 
 ## [1.9.10] - 2026-03-11
 

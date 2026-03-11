@@ -61,27 +61,8 @@ public partial class MainPage : ContentPage
         EnemyBoardPage.IsVisible = true;
         PlayerBoardPage.IsVisible = true;
         ConfigureEnemyThinkingReticleLayout();
-        ApplyOverlayBlurBackdrop();
-
         if (_viewModel is not null)
-        {
             RefreshBoardGridStructure();
-            _viewModel.EnsureMusicPlayback();
-            _ = AnimateBoardModeTransitionAsync(_viewModel.BoardViewMode, instant: true);
-        }
-
-        if (_viewModel?.IsOverlayVisible == true)
-            _ = AnimateOverlayAsync(_viewModel);
-
-        if (_viewModel?.IsSettingsOpen == true)
-            _ = AnimateSettingsPopupAsync();
-
-        if (!_startupSequenceStarted)
-        {
-            _startupSequenceStarted = true;
-            _startupSequenceCts = new CancellationTokenSource();
-            _ = RunStartupSequenceAsync(_startupSequenceCts.Token);
-        }
     }
 
     protected override void OnDisappearing()

@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Xaml;
+using System.Runtime.InteropServices;
+using Microsoft.UI.Xaml;
+using WinRT.Interop;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -21,6 +23,58 @@ public partial class App : MauiWinUIApplication
 		CrashLog.HookWinUiUnhandledException(this);
 	}
 
-	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
-}
+	protected override void OnLaunched(LaunchActivatedEventArgs args)
+	{
+		base.OnLaunched(args);
+		TryShowMainWindow();
+	}
 
+	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+
+	private static void TryShowMainWindow()
+	{
+		try
+		{
+			if (Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault()?.Handler?.PlatformView is not Microsoft.UI.Xaml.Window window)
+				return;
+
+			ShowWindowCore(window);
+
+			_ = Task.Run(async () =>
+			{
+				try
+				{
+					await Task.Delay(240).ConfigureAwait(false);
+					window.DispatcherQueue?.TryEnqueue(() => ShowWindowCore(window));
+				}
+				catch (Exception ex)
+				{
+					CrashLog.Write("WinUI.App.TryShowMainWindow.Delayed", ex);
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			CrashLog.Write("WinUI.App.TryShowMainWindow", ex);
+		}
+	}
+
+	private static void ShowWindowCore(Microsoft.UI.Xaml.Window window)
+	{
+		window.Activate();
+
+		nint hwnd = WindowNative.GetWindowHandle(window);
+		if (hwnd == 0)
+			return;
+
+		ShowWindow(hwnd, 9);
+		ShowWindow(hwnd, 5);
+		SetForegroundWindow(hwnd);
+	}
+
+	[DllImport("user32.dll")]
+	private static extern bool ShowWindow(nint hWnd, int nCmdShow);
+
+	[DllImport("user32.dll")]
+	private static extern bool SetForegroundWindow(nint hWnd);
+}
